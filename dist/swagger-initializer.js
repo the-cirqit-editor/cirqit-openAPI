@@ -37,12 +37,23 @@ window.onload = function() {
   }
 
   // Populate dropdown menu with available versions
-  var versionDropdown = document.getElementById("version-dropdown");
-  for (var version in configurations) {
-    var option = document.createElement("option");
-    option.value = version;
-    option.text = version;
-    versionDropdown.add(option);
+  // Finde das Element mit der Klasse "information-container"
+  var informationContainer = document.querySelector('.information-container');
+
+  if (informationContainer) {
+    // Erstelle ein neues Element
+    var versionDropdown = document.createElement('version-dropdown');
+    for (var version in configurations) {
+      var option = document.createElement("option");
+      option.value = version;
+      option.text = version;
+      versionDropdown.add(option);
+    }
+
+    // Füge das neue Element oben in das informationContainer ein
+    informationContainer.insertBefore(newElement, informationContainer.firstChild);
+  } else {
+    console.error('Das Element mit der Klasse "information-container" wurde nicht gefunden.');
   }
 
   // Event listener for dropdown change
