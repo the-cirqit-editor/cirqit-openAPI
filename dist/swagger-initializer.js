@@ -18,25 +18,42 @@ window.onload = function() {
     // Add configurations for other versions as needed
   };
 
-  // Determine which version to use based on some condition
-  let versionToUse = "v3"; // Example: You can set this dynamically based on user input or environment variables
 
-  // Use the selected configuration
-  window.ui = SwaggerUIBundle({
-    url: configurations[versionToUse].url,
-    dom_id: '#swagger-ui',
-    deepLinking: true,
-    presets: [
-      SwaggerUIBundle.presets.apis,
-      SwaggerUIStandalonePreset
-    ],
-    plugins: [
-      SwaggerUIBundle.plugins.DownloadUrl
-    ],
-    layout: "StandaloneLayout"
+  // Function to switch API version
+  function switchVersion(version) {
+    window.ui = SwaggerUIBundle({
+      url: configurations[version].url,
+      dom_id: '#swagger-ui',
+      deepLinking: true,
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIStandalonePreset
+      ],
+      plugins: [
+        SwaggerUIBundle.plugins.DownloadUrl
+      ],
+      layout: "StandaloneLayout"
+    });
+  }
+
+  // Populate dropdown menu with available versions
+  var versionDropdown = document.getElementById("version-dropdown");
+  for (var version in configurations) {
+    var option = document.createElement("option");
+    option.value = version;
+    option.text = version;
+    versionDropdown.add(option);
+  }
+
+  // Event listener for dropdown change
+  versionDropdown.addEventListener("change", function() {
+    var selectedVersion = versionDropdown.value;
+    switchVersion(selectedVersion);
   });
+
+  // Initialize Swagger UI with default version
+  var defaultVersion = "v1"; // Set default version here
+  switchVersion(defaultVersion);
 
   //</editor-fold>
 };
-
-
