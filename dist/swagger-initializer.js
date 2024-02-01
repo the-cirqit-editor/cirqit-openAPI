@@ -15,31 +15,33 @@ var configurations = {
   // Add configurations for other versions as needed
 };
 
+// Function to switch API version
+function switchVersion(version) {
+  window.ui = SwaggerUIBundle({
+    url: configurations[version].url,
+    dom_id: '#swagger-ui',
+    deepLinking: true,
+    presets: [
+      SwaggerUIBundle.presets.apis,
+      SwaggerUIStandalonePreset
+    ],
+    plugins: [
+      SwaggerUIBundle.plugins.DownloadUrl
+    ],
+    layout: "StandaloneLayout"
+  });
+}
+
+// Initialize Swagger UI with default version
+var defaultVersion = "v1"; // Set default version here
+switchVersion(defaultVersion);
+// Füge hier deinen JavaScript-Code ein, der nach dem Rendern der Seite ausgeführt werden soll
+
+
 window.onload = function() {
   console.log("onload")
   // Define configuration objects for each API version
 
-  // Function to switch API version
-  function switchVersion(version) {
-    window.ui = SwaggerUIBundle({
-      url: configurations[version].url,
-      dom_id: '#swagger-ui',
-      deepLinking: true,
-      presets: [
-        SwaggerUIBundle.presets.apis,
-        SwaggerUIStandalonePreset
-      ],
-      plugins: [
-        SwaggerUIBundle.plugins.DownloadUrl
-      ],
-      layout: "StandaloneLayout"
-    });
-  }
-
-  // Initialize Swagger UI with default version
-  var defaultVersion = "v1"; // Set default version here
-  switchVersion(defaultVersion);
-  // Füge hier deinen JavaScript-Code ein, der nach dem Rendern der Seite ausgeführt werden soll
 
 };
 
