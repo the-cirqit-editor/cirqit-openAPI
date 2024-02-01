@@ -1,22 +1,23 @@
+
+var configurations = {
+  "v1": {
+    url: "partner-api_1_1_1.json",
+    // Other configuration options for version 1
+  },
+  "v2": {
+    url: "partner-api_1_2_0.json",
+    // Other configuration options for version 2
+  },
+  "v3": {
+    url: "partner-api_1_3_0.json",
+    // Other configuration options for version 2
+  }
+  // Add configurations for other versions as needed
+};
+
 window.onload = function() {
-
+  console.log("onload")
   // Define configuration objects for each API version
-  let configurations = {
-    "v1": {
-      url: "partner-api_1_1_1.json",
-      // Other configuration options for version 1
-    },
-    "v2": {
-      url: "partner-api_1_2_0.json",
-      // Other configuration options for version 2
-    },
-    "v3": {
-      url: "partner-api_1_3_0.json",
-      // Other configuration options for version 2
-    }
-    // Add configurations for other versions as needed
-  };
-
 
   // Function to switch API version
   function switchVersion(version) {
@@ -35,11 +36,24 @@ window.onload = function() {
     });
   }
 
+  // Initialize Swagger UI with default version
+  var defaultVersion = "v1"; // Set default version here
+  switchVersion(defaultVersion);
+  // Füge hier deinen JavaScript-Code ein, der nach dem Rendern der Seite ausgeführt werden soll
+
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("DOM fully loaded and parsed - DOMContentLoaded",document);
   // find a place for the version dropdown
-  var versionDropdown = null;
+  let versionDropdown = null;
   // Populate dropdown menu with available versions
   // Finde das Element mit der Klasse "information-container"
-  let informationContainer = document.querySelector('.information-container');
+  //var elemente = document.querySelectorAll('.wrapper');
+  var element = document.querySelector('.wrapper');
+  console.log("document", element)
+  var informationContainer = document.querySelector('.download-url-wrapper');
+  console.log("informationContainer", informationContainer);
   if (informationContainer) {
     // Erstelle ein neues Element
     versionDropdown = document.createElement('version-dropdown');
@@ -51,7 +65,7 @@ window.onload = function() {
   }
 
   // create the version dropdown
-  for (var version in configurations) {
+  for (let version in configurations) {
     let option = document.createElement("option");
     option.value = version;
     option.text = version;
@@ -65,7 +79,4 @@ window.onload = function() {
 
 
 
-  // Initialize Swagger UI with default version
-  var defaultVersion = "v1"; // Set default version here
-  switchVersion(defaultVersion);
-};
+});
