@@ -1,84 +1,65 @@
+// Define configuration objects for each API version
+let defaultVersion = "v1_3_0";
 
-var configurations = {
-  "v1": {
+let configurations = {
+  "v1_1_1": {
     url: "partner-api_1_1_1.json",
-    // Other configuration options for version 1
   },
-  "v2": {
+  "v1_2_0": {
     url: "partner-api_1_2_0.json",
-    // Other configuration options for version 2
   },
-  "v3": {
+  "v1_3_0": {
     url: "partner-api_1_3_0.json",
-    // Other configuration options for version 2
   }
-  // Add configurations for other versions as needed
 };
 
-// Function to switch API version
-function switchVersion(version) {
-  window.ui = SwaggerUIBundle({
-    url: configurations[version].url,
-    dom_id: '#swagger-ui',
-    deepLinking: true,
-    presets: [
-      SwaggerUIBundle.presets.apis,
-      SwaggerUIStandalonePreset
-    ],
-    plugins: [
-      SwaggerUIBundle.plugins.DownloadUrl
-    ],
-    layout: "StandaloneLayout"
-  });
-}
-
-// Initialize Swagger UI with default version
-var defaultVersion = "v1"; // Set default version here
-switchVersion(defaultVersion);
-// Füge hier deinen JavaScript-Code ein, der nach dem Rendern der Seite ausgeführt werden soll
 
 
 window.onload = function() {
-  console.log("onload")
-  // Define configuration objects for each API version
+  // Function to switch API version
+  function switchVersion(version) {
+    window.ui = SwaggerUIBundle({
+      url: configurations[version].url,
+      dom_id: '#swagger-ui',
+      deepLinking: true,
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIStandalonePreset
+      ],
+      plugins: [
+        SwaggerUIBundle.plugins.DownloadUrl
+      ],
+      layout: "StandaloneLayout"
+    });
+  }
 
+  // Initialize Swagger UI with default version
+  switchVersion(defaultVersion);
+
+  // add the configured versions to the dropdown on the top of the page
+  let numberOfElements = Object.keys(configurations).length;
+  if (numberOfElements >= 1) {
+    // Hide version dropdown if there is only one version
+    // Populate dropdown menu with available versions
+    let versionDropdown = document.getElementById("version-dropdown");
+    for (let version in configurations) {
+      let option = document.createElement("option");
+
+      console.log("version", version)
+      option.value = version;
+      option.text = version;
+      if (version === defaultVersion) {
+        option.selected = true;
+      }
+      versionDropdown.add(option);
+    }
+
+    // Event listener for dropdown change
+    versionDropdown.addEventListener("change", function() {
+      let selectedVersion = versionDropdown.value;
+      switchVersion(selectedVersion);
+    });
+  }
 
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-  console.log("DOM fully loaded and parsed - DOMContentLoaded",document);
-  // find a place for the version dropdown
-  let versionDropdown = null;
-  // Populate dropdown menu with available versions
-  // Finde das Element mit der Klasse "information-container"
-  //var elemente = document.querySelectorAll('.wrapper');
-  var element = document.querySelector('.wrapper');
-  console.log("document", element)
-  var informationContainer = document.querySelector('.download-url-wrapper');
-  console.log("informationContainer", informationContainer);
-  if (informationContainer) {
-    // Erstelle ein neues Element
-    versionDropdown = document.createElement('version-dropdown');
-
-    // Füge das neue Element oben in das informationContainer ein
-    informationContainer.insertBefore(newElement, informationContainer.firstChild);
-  } else {
-    versionDropdown = document.getElementById("version-dropdown");
-  }
-
-  // create the version dropdown
-  for (let version in configurations) {
-    let option = document.createElement("option");
-    option.value = version;
-    option.text = version;
-    versionDropdown.add(option);
-  }
-  // Event listener for dropdown change
-  versionDropdown.addEventListener("change", function() {
-    let selectedVersion = versionDropdown.value;
-    switchVersion(selectedVersion);
-  });
-
-
-
-});
