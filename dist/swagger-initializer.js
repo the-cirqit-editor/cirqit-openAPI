@@ -1,5 +1,4 @@
 window.onload = function() {
-  //<editor-fold desc="Changeable Configuration Block">
 
   // Define configuration objects for each API version
   let configurations = {
@@ -36,35 +35,37 @@ window.onload = function() {
     });
   }
 
+  // find a place for the version dropdown
+  var versionDropdown = null;
   // Populate dropdown menu with available versions
   // Finde das Element mit der Klasse "information-container"
-  var informationContainer = document.querySelector('.information-container');
-
+  let informationContainer = document.querySelector('.information-container');
   if (informationContainer) {
     // Erstelle ein neues Element
-    var versionDropdown = document.createElement('version-dropdown');
-    for (var version in configurations) {
-      var option = document.createElement("option");
-      option.value = version;
-      option.text = version;
-      versionDropdown.add(option);
-    }
+    versionDropdown = document.createElement('version-dropdown');
 
     // Füge das neue Element oben in das informationContainer ein
     informationContainer.insertBefore(newElement, informationContainer.firstChild);
   } else {
-    console.error('Das Element mit der Klasse "information-container" wurde nicht gefunden.');
+    versionDropdown = document.getElementById("version-dropdown");
   }
 
+  // create the version dropdown
+  for (var version in configurations) {
+    let option = document.createElement("option");
+    option.value = version;
+    option.text = version;
+    versionDropdown.add(option);
+  }
   // Event listener for dropdown change
   versionDropdown.addEventListener("change", function() {
-    var selectedVersion = versionDropdown.value;
+    let selectedVersion = versionDropdown.value;
     switchVersion(selectedVersion);
   });
+
+
 
   // Initialize Swagger UI with default version
   var defaultVersion = "v1"; // Set default version here
   switchVersion(defaultVersion);
-
-  //</editor-fold>
 };
