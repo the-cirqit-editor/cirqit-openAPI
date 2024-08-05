@@ -38,13 +38,15 @@ tags:
   - name: Attachment
     description: Operations related to the additional documents of a Installation
   - name: Logbook
-    description: Operations to download the logbook of a Installation (NOT YET DEFINED)
+    description: Operations to download the logbook of a Installation in csv format (NOT YET DEFINED)
 
 
 paths:
   # Registration
   /rest/openapi/document/v1/register:
     post:
+      tags:
+        - Registration
       summary: Register a new user
       description: Register a new user with username, email, and password
       requestBody:
