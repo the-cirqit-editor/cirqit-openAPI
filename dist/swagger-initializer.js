@@ -1,13 +1,13 @@
 // Define configuration objects for each API version
-let defaultVersion = "cirQit-draft";
+let defaultVersion = "cirQit-v0.0.1";
 
 let configurations = {
 
   "Petstore": {
     url: "swagger.yaml",
   },
-  "cirQit-draft": {
-    url: "cirqitOpenApi.yml",
+  "cirQit-v0.0.1": {
+    url: "cirqitOpenApi_v0.0.1.yml",
   },
 };
 

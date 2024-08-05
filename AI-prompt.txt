@@ -1,0 +1,114 @@
+mein OpenAPI soll funktionen bieten um dokumente auf dem server zu erstellen, überschreiben und löschen.
+
+Es soll ein interface mit den methoden POST, PUT, DELETE und GET für Attachments geben:
+
+ /rest/openapi/document/v1/installation/{installationId}/attachments
+
+
+Mit POST soll das Dokument erstellt werden. Falls es bereits vorhanden ist, wird ein error 409 zurückgegeben.
+Mit PUT soll das Dokument erstellt oder überschrieben werden.
+Mit DELETE soll das Dokument gelöscht werden. Falls es nicht vorhanden ist, wird ein error 404 zurückgegeben.
+Mit GET soll ein array mit den Metadaten aller Dokumente zurückgegeben werden.
+Das Dokument format ist offen, das heisst es werden alle möglichen extensions unterstützt.
+
+POST und PUT sind multipart/form-date requests. Der eine Part ist ein Metadata-JSON und der andere Part ist der Inhalt des Dokuments.
+
+Die Metadaten eines Dokuments sind:
+- Name: Der Name des Dokuments (alpahnumerisch und zusätzlich undercore, dash und punkt)
+- DisplayName: Der Name des Dokuments zum anzeigen für den benutzer
+- Pfad: Der Pfad zu dem Dokument (alphanumerisch und zusätzlich undercore, dash und punkt. Direcories sind mit slash getrennt)
+- Erstellt : Das Datum und die Zeit wann das Dokument erstellt wurde
+- Version: Die Version des Dokuments
+- Grösse : Die Grösse des Dokuments in bytes
+- MimeType : Der MIME-Typ des Dokuments
+
+
+
+=======================================
+bau mir eine OpenAPI spec für diese klasse:
+
+{
+    "licenseType": "public",
+    "companyName": "Huber AG",
+    "commission": "Hase",
+    "rootId": "5KTJT-U8QSD",
+    "parentId": "5KTJT-U8QSD",
+    "accountId": "mario",
+    "role": "ADMIN",
+    "address": "82256 Fürstenfeldbruck, Deutschland",
+    "location": {
+        "latitude": 48.17394,
+        "longitude": 11.243008
+    },
+    "id": "A7RIW-HCTB3",
+    "name": "2737_H1 Pelletanlage Hauptsteuerung Silosteuerung_V004",
+    "createdDate": "Sep 5, 2023, 9:12:18PM"
+}
+
+
+Bau mire eine OpenAPI spec für diese rekursive struktur:
+
+    {
+    "children": [
+        {
+            "accountId": "lula",
+            "role": "NOTHING",
+            "id": "JYSEL-T5J3Y",
+            "name": "1.10.x",
+            "description": "gan neu der ordner",
+            "children": [
+                   ... children of same type as the parent
+            ]
+                {
+                    "licenseType": "public",
+                    "companyName": "Broz AG",
+                    "commission": "Fuchs",
+                    "accountId": "Jimmy",
+                    "role": "ADMIN",
+                    "id": "Z2C2Y-7UH7I",
+                    "name": "pre or open",
+                    "createdDate": "Mar 19, 2024, 10:26:15 PM"
+                },
+                {
+                    "licenseType": "private",
+                    "companyName": "Brasiu",
+                    "commission": "Brasiu",
+                    "accountId": "lula",
+                    "role": "WRITE",
+                    "address": "Sonneggweg 1, 8180 Bülach, Schweiz",
+                    "location": {
+                        "latitude": 47.520844,
+                        "longitude": 8.5441
+                    },
+                    "id": "Y5TAH-WNAEW",
+                    "name": "washer_23A2",
+                    "createdDate": "Feb 26, 2023, 4:35:36 PM"
+                }
+            ]
+        },
+        {
+            "accountId": "mario",
+            "role": "ADMIN",
+            "id": "5KTJT-U8QSD",
+            "name": "1.12.x",
+            "description": "speed up with tar",
+            "children": [
+                {
+					"accountId": "Cedric",
+					"role": "WRITE",
+					"id": "69JFC-XZIZB",
+					"name": "A",
+                }
+	         ]
+        }
+     ]
+}
+
+=======================================
+
+schema:
+            nur GET und PATCH
+
+            encoding:
+              document:
+                contentType: application/pdf

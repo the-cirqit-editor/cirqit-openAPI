@@ -1,0 +1,689 @@
+
+openapi: 3.0.3
+info:
+  title: cirQit OpenAPI
+  version: 0.0.1
+  description: openAPI for REST communication with the cirQit app
+  contact:
+    email: info@cirqit.cloud
+    name: cirQit
+    url: https://www.cirqit.cloud
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  x-logo:
+    url: https://cirqit.cloud/wp-content/uploads/2021/01/cirQit_kp_200x80.png
+  x-visibility: public
+servers:
+  - url: https://sandbox.api.cirqit.cloud
+    description: Sandbox APIs
+    variables: {}
+  - url: https://preprod.api.cirqit.cloud
+    description: Non-Production APIs
+    variables: {}
+  - url: https://prod.api.cirqit.cloud
+    description: Production APIs
+    variables: {}
+tags:
+  - name: Tree
+    description: Operations regarding the Directory Tree
+  - name: Installation
+    description: Operations create and modify a installation
+  - name: Schema
+    description: Operations related to the schema editable document
+  - name: Attachment
+    description: Operations related to the additional documents of a Installation
+  - name: Logbook
+    description: Operations to download the logbook of a Installation
+  - name: Company
+    description: Operations related to the company
+
+
+paths:
+  /rest/openapi/document/v1/tree:
+    get:
+      tags:
+        - Tree
+      operationId: getDirectoryTree
+      summary: list all the available directories
+      description: get the listing with all the directories and subdirectories
+      responses:
+        200:
+          description: DirectoryTree.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Directory'
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError400'
+        403:
+          $ref: '#/components/responses/CirQitError400'
+        404:
+          $ref: '#/components/responses/CirQitError404'
+        5XX:
+          $ref: '#/components/responses/CirQitError400'
+  /rest/openapi/document/v1/tree/{parentId}:
+    post:
+      tags:
+        - Tree
+      operationId: createDirectory
+      summary: create a directory
+      description: create a directory in the tree.
+      parameters:
+        - name: parentId
+          description: the parent directory
+          in: path
+          required: true
+          schema:
+            type: string
+            example: ABCDE-12345
+      requestBody:
+        required: true
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: Project on the street
+                      description:
+                        type: string
+                        example: All buildings of this Project
+
+      responses:
+        200:
+          description: DirectoryTree.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Directory'
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError400'
+        403:
+          $ref: '#/components/responses/CirQitError400'
+        404:
+          $ref: '#/components/responses/CirQitError404'
+        5XX:
+          $ref: '#/components/responses/CirQitError400'
+
+
+
+  /rest/openapi/document/v1/installation/{siteId}:
+    post:
+      tags:
+        - Installation
+      operationId: createInstallation
+      summary: create a installation
+      description: get the installation data
+      parameters:
+        - name: siteId
+          description: the directory to store the installation
+          in: path
+          required: true
+          schema:
+            type: string
+            example: ABCDE-12345
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Installation'
+
+      responses:
+        200:
+          description: installation data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Installation'
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError400'
+        403:
+          $ref: '#/components/responses/CirQitError400'
+        404:
+          $ref: '#/components/responses/CirQitError404'
+        5XX:
+          $ref: '#/components/responses/CirQitError400'
+
+
+  /rest/openapi/document/v1/installation/{installationId}:
+    get:
+      tags:
+        - Installation
+      operationId: getInstallation
+      summary: get the data of the installation
+      description: get the installation data
+      parameters:
+        - name: installationId
+          description: Filter results to match a given installation
+          in: path
+          required: true
+          schema:
+            type: string
+            example: ABCDE-12345
+      responses:
+        200:
+          description: installation data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Installation'
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError400'
+        403:
+          $ref: '#/components/responses/CirQitError400'
+        404:
+          $ref: '#/components/responses/CirQitError404'
+        5XX:
+          $ref: '#/components/responses/CirQitError400'
+
+    delete:
+      tags:
+        - Installation
+      operationId: deleteInstallation
+      summary: delete the installation
+      description: purges the installation from cirQit
+      parameters:
+        - name: installationId
+          description: Filter results to match a given installation
+          in: path
+          required: true
+          schema:
+            type: string
+            example: ABCDE-12345
+      responses:
+        200:
+          $ref: '#/components/responses/OK200'
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError400'
+        403:
+          $ref: '#/components/responses/CirQitError400'
+        404:
+          $ref: '#/components/responses/CirQitError404'
+        5XX:
+          $ref: '#/components/responses/CirQitError400'
+
+  /rest/openapi/document/v1/installation/{installationId}/schema:
+    put:
+      tags:
+        - Schema
+      operationId: uploadPdf
+      summary: Upload or overwrite a schema PDF file
+      description: Upload or overwrite a PDF file for the given installation ID
+      parameters:
+        - name: installationId
+          description: Filter results to match a given installation
+          in: path
+          required: true
+          schema:
+            type: string
+            example: ABCDE-12345
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: the display-name of the pdf file
+            encoding:
+              file:
+                contentType: application/pdf
+      responses:
+        201:
+          $ref: '#/components/responses/OK201'
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError400'
+        403:
+          $ref: '#/components/responses/CirQitError400'
+        404:
+          $ref: '#/components/responses/CirQitError404'
+        5XX:
+          $ref: '#/components/responses/CirQitError400'
+
+    get:
+      tags:
+        - Schema
+      operationId: getSchema
+      summary: get the schema of the installation
+      description: get the schema of the installation
+      parameters:
+        - name: installationId
+          description: Filter results to match a given installation
+          in: path
+          required: true
+          schema:
+            type: string
+            example: ABCDE-12345
+      responses:
+        200:
+          description: installation data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Installation'
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError400'
+        403:
+          $ref: '#/components/responses/CirQitError400'
+        404:
+          $ref: '#/components/responses/CirQitError404'
+        5XX:
+          $ref: '#/components/responses/CirQitError400'
+
+
+  /rest/openapi/document/v1/installation/{installationId}/atachments:
+    get:
+      tags:
+        - Attachment
+      operationId: getList
+      summary: list the available documents
+      description: get the listing of the documents for the given installationId
+      parameters:
+        - name: installationId
+          description: Filter results to match a given installation
+          in: path
+          required: true
+          schema:
+            type: string
+            example: ABCDE-12345
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - pagination
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DocumentMetadata'
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError400'
+        403:
+          $ref: '#/components/responses/CirQitError400'
+        404:
+          $ref: '#/components/responses/CirQitError404'
+        5XX:
+          $ref: '#/components/responses/CirQitError400'
+
+  /rest/openapi/document/v1/installation/{installationId}/atachment/{filePath}:
+    get:
+      tags:
+        - Attachment
+      operationId: getDocument
+      summary: get the document
+      description: get thd document with the given documentId. The documentId can be discovered by the get metadata method.
+      parameters:
+        - name: installationId
+          description: Filter results to match a given installation
+          in: path
+          required: true
+          schema:
+            type: string
+            example: ABCDE-12345
+        - name: filePath
+          in: path
+          required: true
+          description: Path to the file, including folders and subfolders
+          schema:
+            type: string
+            example: folder/subfolder/filename.pdf
+      responses:
+        200:
+          description: download the document.
+          content:
+            application/*:
+              schema:
+                type: string
+                format: binary
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError400'
+        403:
+          $ref: '#/components/responses/CirQitError400'
+        404:
+          $ref: '#/components/responses/CirQitError404'
+        5XX:
+          $ref: '#/components/responses/CirQitError400'
+
+    delete:
+      tags:
+        - Attachment
+      operationId: deleteDocument
+      summary: delete a existing document
+      description: remove a existing document based on the documentId
+      parameters:
+        - name: installationId
+          description: Filter results to match a given installation
+          in: path
+          required: true
+          schema:
+            type: string
+            example: ABCDE-12345
+        - name: filePath
+          in: path
+          required: true
+          description: Path to the file, including folders and subfolders
+          schema:
+            type: string
+            example: folder/subfolder/filename.pdf
+      responses:
+        200:
+          $ref: '#/components/responses/OK200_Metadata'
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError400'
+        403:
+          $ref: '#/components/responses/CirQitError400'
+        404:
+          $ref: '#/components/responses/CirQitError404'
+        5XX:
+          $ref: '#/components/responses/CirQitError400'
+
+
+    put:
+      tags:
+        - Attachment
+      operationId: overwriteDocument
+      summary: upload or overwrite a document
+      description: upload or overwrite a document
+      parameters:
+        - name: installationId
+          description: Filter results to match a given installation
+          in: path
+          required: true
+          schema:
+            type: string
+            example: ABCDE-12345
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  $ref: '#/components/schemas/DocumentMetadata'
+                document:
+                  type: string
+                  format: binary
+            encoding:
+              document:
+                contentType: application/octet-stream
+      responses:
+        201:
+          $ref: '#/components/responses/OK200_Metadata'
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError400'
+        403:
+          $ref: '#/components/responses/CirQitError400'
+        404:
+          $ref: '#/components/responses/CirQitError404'
+        5XX:
+          $ref: '#/components/responses/CirQitError400'
+
+
+
+
+components:
+  schemas:
+    Directory:
+      type: object
+      properties:
+        accountId:
+          type: string
+          example: lula
+        role:
+          type: string
+          example: NOTHING
+        id:
+          type: string
+          example: JYSEL-T5J3Y
+        name:
+          type: string
+          example: 1.10.x
+        description:
+          type: string
+          example: gan neu der ordner
+        children:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/Installation'
+              - $ref: '#/components/schemas/Directory'
+    Installation:
+      type: object
+      required:
+        - licenseType
+        - commission
+        - name
+      properties:
+        name:
+          type: string
+          example: 2737_H1 Pelletanlage Hauptsteuerung Silosteuerung_V004
+        licenseType:
+          type: string
+          example: public
+        commission:
+          type: string
+          example: Hase
+        address:
+          type: string
+          example: 82256 Fürstenfeldbruck, Deutschland
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: float
+              example: 48.17394
+            longitude:
+              type: number
+              format: float
+              example: 11.243008
+        id:
+          type: string
+          readOnly: true
+          example: A7RIW-HCTB3
+        companyName:
+          type: string
+          readOnly: true
+          example: Huber AG
+        rootId:
+          type: string
+          readOnly: true
+          example: 5KTJT-U8QSD
+        parentId:
+          type: string
+          readOnly: true
+          example: 5KTJT-U8QSD
+        accountId:
+          type: string
+          readOnly: true
+          example: mario
+        role:
+          type: string
+          readOnly: true
+          example: ADMIN
+        createdDate:
+          type: string
+          readOnly: true
+          format: date-time
+          example: Sep 5, 2023, 9:12:18PM
+    DocumentMetadata:
+      type: object
+      required:
+        - fileName
+      properties:
+        fileName:
+          type: string
+          description: alphanumeric name of the document.
+          example: my-file.txt
+        displayName:
+          type: string
+          description: display name of the document.
+          example: My File
+        locked:
+          type: boolean
+          description: if the document is visible for the administrator only
+          example: true
+        version:
+          type: string
+          readOnly: true
+          description: the version of the document in the cirQit environment
+          example: ZHxAFXK6UEj2gOIiDWJcSTgaaOO6Sqtr
+        installationId:
+          type: string
+          readOnly: true
+          description: installationID related to the document.
+          example: ABCDE-12345
+        path:
+          type: string
+          description: slash delimited path of the directory where the document is stored.
+          example: folder/subfolder1/subfolder2
+        creationDate:
+          type: string
+          format: date
+          description: Creation date in the cirQit environment of the document in ISO format "YYYY-MM-DD-HHMMSS".
+        mimeType:
+          type: string
+          description: Mime type of the document.
+          example: application/pdf
+
+    CirQitError:
+      type: object
+      required:
+        - errorCode
+        - errorMessage
+      properties:
+        errorCode:
+          type: string
+          example: VALIDATION_ERROR
+          description: Unique error code.
+        errorMessage:
+          type: string
+          example: Input validation failed
+          description: Short description of the error.
+        errorReasons:
+          type: array
+          items:
+            type: object
+            required:
+              - message
+              - code
+            properties:
+              message:
+                type: string
+                example: Attribute 'xxxx' must not be longer than 50 chars.
+              code:
+                type: string
+                example: ERROR_012
+                description: Unique reason code for this specific reason.
+              location:
+                type: string
+                example: /rootLevel/xxxx
+                description: Location within message where the error is related to.
+          description: >-
+            List of error reasons if multiple reasons are related to the same error.
+
+
+  responses:
+    OK200:
+      description: Successful operation.
+      content:
+        application/json:
+          schema:
+            type: string
+            format: json
+    OK200_Metadata:
+      description: Successful operation.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              metadata:
+                $ref: '#/components/schemas/DocumentMetadata'
+
+    OK201:
+      description: Resource created.
+      content:
+        application/json:
+          schema:
+            type: string
+            format: json
+    OK201_Metadata:
+      description: Resource created.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              metadata:
+                $ref: '#/components/schemas/DocumentMetadata'
+
+    CirQitError400:
+          description: Client error, e.g. bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CirQitError'
+    CirQitError401:
+          description: Unauthorized, no access to the requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CirQitError'
+    CirQitError403:
+          description: Forbidden, no access to the requested document
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CirQitError'
+    CirQitError404:
+          description: Resource is not available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CirQitError'
+    CirQitError5XX:
+          description: Server error, e.g. internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CirQitError'
+
+
+  parameters: {}
+externalDocs:
+  description: Developer documentation for cirQit OpenAPI
+  url: https://www.cirqit.cloud/openAPI
