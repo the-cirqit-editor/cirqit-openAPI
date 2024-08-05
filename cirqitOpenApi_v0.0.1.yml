@@ -24,6 +24,11 @@ servers:
     description: Production APIs
     variables: { }
 tags:
+  # FIXME: Registration and Company are not yet implemented
+  - name: Registration
+    description: Operations to register the user
+  - name: Company
+    description: Operations related to the company
   - name: Tree
     description: Operations regarding the Directory Tree
   - name: Installation
@@ -33,12 +38,95 @@ tags:
   - name: Attachment
     description: Operations related to the additional documents of a Installation
   - name: Logbook
-    description: Operations to download the logbook of a Installation
-  - name: Company
-    description: Operations related to the company
+    description: Operations to download the logbook of a Installation (NOT YET DEFINED)
 
 
 paths:
+  # Registration
+  /rest/openapi/document/v1/register:
+    post:
+      summary: Register a new user
+      description: Register a new user with username, email, and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegistration'
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError401'
+        403:
+          $ref: '#/components/responses/CirQitError403'
+        404:
+          $ref: '#/components/responses/CirQitError409'
+        5XX:
+          $ref: '#/components/responses/CirQitError5XX'
+
+  # Company
+  /rest/openapi/document/v1/company:
+    post:
+      tags:
+        - Company
+      summary: Register a new Company
+      description: Register a new Company
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Company'
+      responses:
+        '201':
+          description: Company registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegistration'
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError401'
+        403:
+          $ref: '#/components/responses/CirQitError403'
+        409:
+          $ref: '#/components/responses/CirQitError409'
+        5XX:
+          $ref: '#/components/responses/CirQitError5XX'
+  /rest/openapi/document/v1/company/{companyName}:
+    get:
+      tags:
+        - Company
+      operationId: getCompany
+      summary: get the Company data
+      description: get the properties of the Company
+      responses:
+        200:
+          description: Company.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError401'
+        403:
+          $ref: '#/components/responses/CirQitError403'
+        404:
+          $ref: '#/components/responses/CirQitError404'
+        5XX:
+          $ref: '#/components/responses/CirQitError5XX'
+
+
   # Tree
   /rest/openapi/document/v1/tree:
     get:
@@ -57,9 +145,9 @@ paths:
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError401'
         403:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError403'
         404:
           $ref: '#/components/responses/CirQitError404'
         5XX:
@@ -84,31 +172,24 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: Project on the street
-                description:
-                  type: string
-                  example: All buildings of this Project
+              $ref: '#/components/schemas/Directory'
       responses:
-        200:
-          description: DirectoryTree.
+        201:
+          description: the created directory
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DirectoryTree'
+                $ref: '#/components/schemas/Directory'
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError401'
         403:
-          $ref: '#/components/responses/CirQitError400'
-        404:
-          $ref: '#/components/responses/CirQitError404'
+          $ref: '#/components/responses/CirQitError403'
+        409:
+          $ref: '#/components/responses/CirQitError409'
         5XX:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError5XX'
 
   # Installation
   /rest/openapi/document/v1/installation/{siteId}:
@@ -142,13 +223,13 @@ paths:
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError401'
         403:
-          $ref: '#/components/responses/CirQitError400'
-        404:
-          $ref: '#/components/responses/CirQitError404'
+          $ref: '#/components/responses/CirQitError403'
+        409:
+          $ref: '#/components/responses/CirQitError409'
         5XX:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError5XX'
   /rest/openapi/document/v1/installation/{installationId}:
     get:
       tags:
@@ -174,13 +255,13 @@ paths:
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError401'
         403:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError403'
         404:
           $ref: '#/components/responses/CirQitError404'
         5XX:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError5XX'
     delete:
       tags:
         - Installation
@@ -201,13 +282,13 @@ paths:
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError401'
         403:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError403'
         404:
           $ref: '#/components/responses/CirQitError404'
         5XX:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError5XX'
 
   # Schema
   /rest/openapi/document/v1/installation/{installationId}/schema:
@@ -245,13 +326,13 @@ paths:
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError401'
         403:
-          $ref: '#/components/responses/CirQitError400'
-        404:
-          $ref: '#/components/responses/CirQitError404'
+          $ref: '#/components/responses/CirQitError403'
+        409:
+          $ref: '#/components/responses/CirQitError409'
         5XX:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError5XX'
     get:
       tags:
         - Schema
@@ -276,13 +357,13 @@ paths:
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError401'
         403:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError403'
         404:
           $ref: '#/components/responses/CirQitError404'
         5XX:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError5XX'
 
     # Attachment
   /rest/openapi/document/v1/installation/{installationId}/atachments:
@@ -318,13 +399,13 @@ paths:
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError401'
         403:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError403'
         404:
           $ref: '#/components/responses/CirQitError404'
         5XX:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError5XX'
   /rest/openapi/document/v1/installation/{installationId}/atachment/{filePath}:
     put:
       tags:
@@ -356,17 +437,17 @@ paths:
                 contentType: application/octet-stream
       responses:
         201:
-          $ref: '#/components/responses/OK200_Metadata'
+          $ref: '#/components/responses/OK201_Metadata'
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError401'
         403:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError403'
         404:
-          $ref: '#/components/responses/CirQitError404'
+          $ref: '#/components/responses/CirQitError409'
         5XX:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError5XX'
     get:
       tags:
         - Attachment
@@ -399,13 +480,13 @@ paths:
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError401'
         403:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError403'
         404:
           $ref: '#/components/responses/CirQitError404'
         5XX:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError5XX'
     delete:
       tags:
         - Attachment
@@ -433,40 +514,105 @@ paths:
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError401'
         403:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError403'
         404:
           $ref: '#/components/responses/CirQitError404'
         5XX:
-          $ref: '#/components/responses/CirQitError400'
+          $ref: '#/components/responses/CirQitError5XX'
 
 components:
   schemas:
-    DirectoryTree:
+    UserRegistration:
       type: object
+      required:
+        - username
+        - email
+        - password
       properties:
-        accountId:
+        username:
           type: string
-          example: lula
-        role:
+          example: johndoe
+        email:
           type: string
-          example: NOTHING
-        id:
+          format: email
+          example: johndoe@example.com
+        password:
           type: string
-          example: JYSEL-T5J3Y
+          format: password
+          example: P@ssw0rd
+
+    Company:
+      type: object
+      required:
+        - companyName
+      properties:
+        companyName:
+          type: string
+          example: Example Ltd.
+        addition:
+          type: string
+          example: Postfach
+        street:
+          type: string
+          example: die strasse
+        postalCode:
+          type: string
+          example: 8400
+        city:
+          type: string
+          example: Winterthur
+        country:
+          type: string
+          example: Schweiz
+        phone:
+          type: string
+          example: 0785556677
+        email:
+          type: string
+          format: email
+          example: info@example.com
+        website:
+          type: string
+          example: www.example.com
+
+    Directory:
+      type: object
+      required:
+        - name
+      properties:
         name:
           type: string
-          example: 1.10.x
+          example: Project on the street
         description:
           type: string
-          example: gan neu der ordner
-        children:
-          type: array
-          items:
-            oneOf:
-              - $ref: '#/components/schemas/Installation'
-              - $ref: '#/components/schemas/DirectoryTree'
+          example: a description of the directory
+        accountId:
+          type: string
+          readOnly: true
+          example: mario
+        role:
+          type: string
+          readOnly: true
+          example: ADMINISTRATOR
+        id:
+          type: string
+          readOnly: true
+          example: FGHIJ-67890
+
+    DirectoryTree:
+      allOf:
+        - $ref: '#/components/schemas/Directory'
+        - type: object
+          properties:
+            children:
+              type: array
+              items:
+                oneOf:
+                  - $ref: '#/components/schemas/Installation'
+                  - $ref: '#/components/schemas/DirectoryTree'
+
     Installation:
       type: object
       required:
@@ -500,7 +646,7 @@ components:
         id:
           type: string
           readOnly: true
-          example: A7RIW-HCTB3
+          example: ABCDE-12345
         companyName:
           type: string
           readOnly: true
@@ -508,11 +654,11 @@ components:
         rootId:
           type: string
           readOnly: true
-          example: 5KTJT-U8QSD
+          example: FGHIJ-56789
         parentId:
           type: string
           readOnly: true
-          example: 5KTJT-U8QSD
+          example: KLMNO-98765
         accountId:
           type: string
           readOnly: true
@@ -526,6 +672,7 @@ components:
           readOnly: true
           format: date-time
           example: Sep 5, 2023, 9:12:18PM
+
     DocumentMetadata:
       type: object
       required:
@@ -547,7 +694,7 @@ components:
           type: string
           readOnly: true
           description: the version of the document in the cirQit environment
-          example: ZHxAFXK6UEj2gOIiDWJcSTgaaOO6Sqtr
+          example: abcd1234EFGH5678jklm
         installationId:
           type: string
           readOnly: true
@@ -603,7 +750,15 @@ components:
             List of error reasons if multiple reasons are related to the same error.
 
 
+
   responses:
+    200:
+      description: New response
+      content:
+        application/json:
+          schema:
+            type: string
+            format: json
     OK200:
       description: Successful operation.
       content:
@@ -620,7 +775,6 @@ components:
             properties:
               metadata:
                 $ref: '#/components/schemas/DocumentMetadata'
-
     OK201:
       description: Resource created.
       content:
@@ -662,13 +816,18 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/CirQitError'
+    CirQitError409:
+      description: Resource already registered
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CirQitError'
     CirQitError5XX:
       description: Server error, e.g. internal server error.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/CirQitError'
-
 
   parameters: { }
 externalDocs:
