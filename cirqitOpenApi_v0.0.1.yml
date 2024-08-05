@@ -1,4 +1,3 @@
-
 openapi: 3.0.3
 info:
   title: cirQit OpenAPI
@@ -17,13 +16,13 @@ info:
 servers:
   - url: https://sandbox.api.cirqit.cloud
     description: Sandbox APIs
-    variables: {}
+    variables: { }
   - url: https://preprod.api.cirqit.cloud
     description: Non-Production APIs
-    variables: {}
+    variables: { }
   - url: https://prod.api.cirqit.cloud
     description: Production APIs
-    variables: {}
+    variables: { }
 tags:
   - name: Tree
     description: Operations regarding the Directory Tree
@@ -40,6 +39,7 @@ tags:
 
 
 paths:
+  # Tree
   /rest/openapi/document/v1/tree:
     get:
       tags:
@@ -53,7 +53,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Directory'
+                $ref: '#/components/schemas/DirectoryTree'
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
@@ -82,24 +82,23 @@ paths:
       requestBody:
         required: true
         content:
-            application/json:
-                schema:
-                    type: object
-                    properties:
-                      name:
-                        type: string
-                        example: Project on the street
-                      description:
-                        type: string
-                        example: All buildings of this Project
-
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Project on the street
+                description:
+                  type: string
+                  example: All buildings of this Project
       responses:
         200:
           description: DirectoryTree.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Directory'
+                $ref: '#/components/schemas/DirectoryTree'
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
@@ -111,8 +110,7 @@ paths:
         5XX:
           $ref: '#/components/responses/CirQitError400'
 
-
-
+  # Installation
   /rest/openapi/document/v1/installation/{siteId}:
     post:
       tags:
@@ -134,7 +132,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Installation'
-
       responses:
         200:
           description: installation data.
@@ -152,8 +149,6 @@ paths:
           $ref: '#/components/responses/CirQitError404'
         5XX:
           $ref: '#/components/responses/CirQitError400'
-
-
   /rest/openapi/document/v1/installation/{installationId}:
     get:
       tags:
@@ -186,7 +181,6 @@ paths:
           $ref: '#/components/responses/CirQitError404'
         5XX:
           $ref: '#/components/responses/CirQitError400'
-
     delete:
       tags:
         - Installation
@@ -215,6 +209,7 @@ paths:
         5XX:
           $ref: '#/components/responses/CirQitError400'
 
+  # Schema
   /rest/openapi/document/v1/installation/{installationId}/schema:
     put:
       tags:
@@ -257,7 +252,6 @@ paths:
           $ref: '#/components/responses/CirQitError404'
         5XX:
           $ref: '#/components/responses/CirQitError400'
-
     get:
       tags:
         - Schema
@@ -290,7 +284,7 @@ paths:
         5XX:
           $ref: '#/components/responses/CirQitError400'
 
-
+    # Attachment
   /rest/openapi/document/v1/installation/{installationId}/atachments:
     get:
       tags:
@@ -331,84 +325,7 @@ paths:
           $ref: '#/components/responses/CirQitError404'
         5XX:
           $ref: '#/components/responses/CirQitError400'
-
   /rest/openapi/document/v1/installation/{installationId}/atachment/{filePath}:
-    get:
-      tags:
-        - Attachment
-      operationId: getDocument
-      summary: get the document
-      description: get thd document with the given documentId. The documentId can be discovered by the get metadata method.
-      parameters:
-        - name: installationId
-          description: Filter results to match a given installation
-          in: path
-          required: true
-          schema:
-            type: string
-            example: ABCDE-12345
-        - name: filePath
-          in: path
-          required: true
-          description: Path to the file, including folders and subfolders
-          schema:
-            type: string
-            example: folder/subfolder/filename.pdf
-      responses:
-        200:
-          description: download the document.
-          content:
-            application/*:
-              schema:
-                type: string
-                format: binary
-        400:
-          $ref: '#/components/responses/CirQitError400'
-        401:
-          $ref: '#/components/responses/CirQitError400'
-        403:
-          $ref: '#/components/responses/CirQitError400'
-        404:
-          $ref: '#/components/responses/CirQitError404'
-        5XX:
-          $ref: '#/components/responses/CirQitError400'
-
-    delete:
-      tags:
-        - Attachment
-      operationId: deleteDocument
-      summary: delete a existing document
-      description: remove a existing document based on the documentId
-      parameters:
-        - name: installationId
-          description: Filter results to match a given installation
-          in: path
-          required: true
-          schema:
-            type: string
-            example: ABCDE-12345
-        - name: filePath
-          in: path
-          required: true
-          description: Path to the file, including folders and subfolders
-          schema:
-            type: string
-            example: folder/subfolder/filename.pdf
-      responses:
-        200:
-          $ref: '#/components/responses/OK200_Metadata'
-        400:
-          $ref: '#/components/responses/CirQitError400'
-        401:
-          $ref: '#/components/responses/CirQitError400'
-        403:
-          $ref: '#/components/responses/CirQitError400'
-        404:
-          $ref: '#/components/responses/CirQitError404'
-        5XX:
-          $ref: '#/components/responses/CirQitError400'
-
-
     put:
       tags:
         - Attachment
@@ -450,13 +367,83 @@ paths:
           $ref: '#/components/responses/CirQitError404'
         5XX:
           $ref: '#/components/responses/CirQitError400'
-
-
-
+    get:
+      tags:
+        - Attachment
+      operationId: getDocument
+      summary: get the document
+      description: get thd document with the given documentId. The documentId can be discovered by the get metadata method.
+      parameters:
+        - name: installationId
+          description: Filter results to match a given installation
+          in: path
+          required: true
+          schema:
+            type: string
+            example: ABCDE-12345
+        - name: filePath
+          in: path
+          required: true
+          description: Path to the file, including folders and subfolders
+          schema:
+            type: string
+            example: folder/subfolder/filename.pdf
+      responses:
+        200:
+          description: download the document.
+          content:
+            application/*:
+              schema:
+                type: string
+                format: binary
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError400'
+        403:
+          $ref: '#/components/responses/CirQitError400'
+        404:
+          $ref: '#/components/responses/CirQitError404'
+        5XX:
+          $ref: '#/components/responses/CirQitError400'
+    delete:
+      tags:
+        - Attachment
+      operationId: deleteDocument
+      summary: delete a existing document
+      description: remove a existing document based on the documentId
+      parameters:
+        - name: installationId
+          description: Filter results to match a given installation
+          in: path
+          required: true
+          schema:
+            type: string
+            example: ABCDE-12345
+        - name: filePath
+          in: path
+          required: true
+          description: Path to the file, including folders and subfolders
+          schema:
+            type: string
+            example: folder/subfolder/filename.pdf
+      responses:
+        200:
+          $ref: '#/components/responses/OK200_Metadata'
+        400:
+          $ref: '#/components/responses/CirQitError400'
+        401:
+          $ref: '#/components/responses/CirQitError400'
+        403:
+          $ref: '#/components/responses/CirQitError400'
+        404:
+          $ref: '#/components/responses/CirQitError404'
+        5XX:
+          $ref: '#/components/responses/CirQitError400'
 
 components:
   schemas:
-    Directory:
+    DirectoryTree:
       type: object
       properties:
         accountId:
@@ -479,7 +466,7 @@ components:
           items:
             oneOf:
               - $ref: '#/components/schemas/Installation'
-              - $ref: '#/components/schemas/Directory'
+              - $ref: '#/components/schemas/DirectoryTree'
     Installation:
       type: object
       required:
@@ -652,38 +639,38 @@ components:
                 $ref: '#/components/schemas/DocumentMetadata'
 
     CirQitError400:
-          description: Client error, e.g. bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CirQitError'
+      description: Client error, e.g. bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CirQitError'
     CirQitError401:
-          description: Unauthorized, no access to the requested resource
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CirQitError'
+      description: Unauthorized, no access to the requested resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CirQitError'
     CirQitError403:
-          description: Forbidden, no access to the requested document
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CirQitError'
+      description: Forbidden, no access to the requested document
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CirQitError'
     CirQitError404:
-          description: Resource is not available
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CirQitError'
+      description: Resource is not available
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CirQitError'
     CirQitError5XX:
-          description: Server error, e.g. internal server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CirQitError'
+      description: Server error, e.g. internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CirQitError'
 
 
-  parameters: {}
+  parameters: { }
 externalDocs:
   description: Developer documentation for cirQit OpenAPI
   url: https://www.cirqit.cloud/openAPI
