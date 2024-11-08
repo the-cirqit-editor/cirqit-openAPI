@@ -34,7 +34,7 @@ PACKAGE=cloud.cirqit.openapi.generated
 # generate the server code with mock answers based on spring
 echo "generate API"
 rm -rf $GENERATED_CODE
-openapi-generator-cli generate -i cirqitOpenApi_v0.0.1.yml -g spring -o $GENERATED_CODE --additional-properties=interfaceOnly=true   --additional-properties=apiPackage=$PACKAGE.api   --additional-properties=modelPackage=$PACKAGE.model
+openapi-generator-cli generate -i cirqitOpenApi_v0.0.1.yml -g spring -o $GENERATED_CODE --additional-properties=interfaceOnly=true   --additional-properties=apiPackage=$PACKAGE.api   --additional-properties=modelPackage=$PACKAGE.model  --additional-properties=date="2024-11-04"
 # replace the
 find . -name "*.java" -exec sed -i 's/, requiredMode = Schema\.RequiredMode\.NOT_REQUIRED)/, required = false)/g' {} +
 find . -name "*.java" -exec sed -i 's/, requiredMode = Schema\.RequiredMode\.REQUIRED)/, required = true)/g' {} +
