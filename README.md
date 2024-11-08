@@ -25,37 +25,11 @@ We use https://openapi-generator.tech/ to generate the code for the server.
 ### cirQit OpenAPI implementation
 * generating the code from the OpenAPI for the cirQit backend
 * fix and generate the code to the backend project
-
-```aiignore
-GENERATED_CODE=mock-server
-TARGET_PROJECT=../cirqit-backend/openApiFunction
-PACKAGE=cloud.cirqit.openapi.generated
-
-# generate the server code with mock answers based on spring
-echo "generate API"
-rm -rf $GENERATED_CODE
-openapi-generator-cli generate -i cirqitOpenApi_v0.0.1.yml -g spring -o $GENERATED_CODE --additional-properties=interfaceOnly=true   --additional-properties=apiPackage=$PACKAGE.api   --additional-properties=modelPackage=$PACKAGE.model  --additional-properties=date="2024-11-04"
-# replace the
-find . -name "*.java" -exec sed -i 's/, requiredMode = Schema\.RequiredMode\.NOT_REQUIRED)/, required = false)/g' {} +
-find . -name "*.java" -exec sed -i 's/, requiredMode = Schema\.RequiredMode\.REQUIRED)/, required = true)/g' {} +
-# copy the generated code to the backend
-echo "copy API to $TARGET_PROJECT"
-rm -rf $TARGET_PROJECT/src/main/java/cloud/cirqit/openapi/generated/*
-mv $GENERATED_CODE/src/main/java/cloud/cirqit/openapi/generated/* $TARGET_PROJECT/src/main/java/cloud/cirqit/openapi/generated/
-# copy the definition to the backend
-cp cirqitOpenApi_v0.0.1.yml $TARGET_PROJECT/definition/cirqitOpenApi_v0.0.1.yml
-
-# Define the message in the README.txt file
-readme_content="Note: this yaml definition is a copy of the definition in $(pwd). Do not modify here but only in the source location."
-echo "$readme_content" > $TARGET_PROJECT/definition/README.txt
-```
+* run generateJavaCode.sh
 
 
 
-
-
-
-# TRIAL AND ERROR
+# TRIAL AND ERROR (to be  deleted later)
 ### mock server
 ```aiignore
 # install openapi-generator-cli

@@ -28,3 +28,8 @@ cp cirqitOpenApi_v0.0.1.yml $TARGET_PROJECT/definition/cirqitOpenApi_v0.0.1.yml
 # Define the message in the README.txt file
 readme_content="Note: this yaml definition is a copy of the definition in $(pwd). Do not modify here but only in the source location."
 echo "$readme_content" > $TARGET_PROJECT/definition/README.txt
+
+# cleanup
+rm -rf $GENERATED_CODE
+echo
+echo "code generated and copied to $TARGET_PROJECT"
