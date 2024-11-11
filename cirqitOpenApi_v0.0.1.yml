@@ -24,11 +24,8 @@ servers:
     description: Production APIs
     variables: { }
 tags:
-  # FIXME: Registration and Company are not yet implemented
-  - name: Registration
-    description: Operations to register the user
-  - name: Company
-    description: Operations related to the company
+  - name: Auth
+    description: the Authorization process
   - name: Tree
     description: Operations regarding the Directory Tree
   - name: Installation
@@ -42,67 +39,63 @@ tags:
 
 
 paths:
-  # Registration
-  /rest/openapi/document/v1/register:
+#  /auth/refresh-token:
+#    get:
+#      tags:
+#        - Auth
+#      summary: Request a refresh token for the given company
+#      description: This endpoint allows you to request a new refresh token using a valid refresh token.
+#      parameters:
+#        - name: companyName
+#          in: path
+#          required: true
+#          schema:
+#            type: string
+#        - name: userId
+#          in: path
+#          required: true
+#          schema:
+#            type: string
+#      responses:
+#        200:
+#          description: New access token
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/JWTAccessToken'
+#        400:
+#          $ref: '#/components/responses/CirQitError400'
+#        401:
+#          $ref: '#/components/responses/CirQitError401'
+#        500:
+#          $ref: '#/components/responses/CirQitError500'
+
+  /auth/access-token:
     post:
       tags:
-        - Registration
-      summary: Register a new user
-      description: Register a new user with username, email, and password
+        - Auth
+      summary: Request a new access token using a refresh token
+      description: This endpoint allows you to request a new access token using a valid refresh token.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserRegistration'
+              $ref: '#/components/schemas/JWTAccessTokenRequest'
       responses:
-        '201':
-          description: User registered successfully
+        200:
+          description: New access token
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserRegistration'
+                $ref: '#/components/schemas/JWTAccessToken'
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
           $ref: '#/components/responses/CirQitError401'
-        403:
-          $ref: '#/components/responses/CirQitError403'
-        404:
-          $ref: '#/components/responses/CirQitError409'
         500:
           $ref: '#/components/responses/CirQitError500'
 
-  # Company
-  /rest/openapi/document/v1/company:
-    post:
-      tags:
-        - Company
-      summary: Register a new Company
-      description: Register a new Company
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Company'
-      responses:
-        '201':
-          description: Company registered successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserRegistration'
-        400:
-          $ref: '#/components/responses/CirQitError400'
-        401:
-          $ref: '#/components/responses/CirQitError401'
-        403:
-          $ref: '#/components/responses/CirQitError403'
-        409:
-          $ref: '#/components/responses/CirQitError409'
-        500:
-          $ref: '#/components/responses/CirQitError500'
   /rest/openapi/document/v1/company/{companyName}:
     get:
       tags:
@@ -173,9 +166,7 @@ paths:
           in: path
           required: true
           schema:
-            type: string
-            pattern: '^[A-Z0-9]{5}-[A-Z0-9]{5}$'
-            example: ABCDE-12345
+            $ref: '#/components/schemas/IdSchema'
       requestBody:
         required: true
         content:
@@ -214,9 +205,7 @@ paths:
           in: path
           required: true
           schema:
-            type: string
-            pattern: '^[A-Z0-9]{5}-[A-Z0-9]{5}$'
-            example: ABCDE-12345
+            $ref: '#/components/schemas/IdSchema'
       requestBody:
         required: true
         content:
@@ -253,9 +242,7 @@ paths:
           in: path
           required: true
           schema:
-            type: string
-            pattern: '^[A-Z0-9]{5}-[A-Z0-9]{5}$'
-            example: ABCDE-12345
+            $ref: '#/components/schemas/IdSchema'
       responses:
         200:
           description: installation data.
@@ -285,11 +272,15 @@ paths:
           in: path
           required: true
           schema:
-            type: string
-            example: ABCDE-12345
+            $ref: '#/components/schemas/IdSchema'
       responses:
         200:
-          $ref: '#/components/responses/OK200'
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: string
+                format: json
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
@@ -315,8 +306,7 @@ paths:
           in: path
           required: true
           schema:
-            type: string
-            example: ABCDE-12345
+            $ref: '#/components/schemas/IdSchema'
       requestBody:
         required: true
         content:
@@ -333,7 +323,12 @@ paths:
                 contentType: application/pdf
       responses:
         201:
-          $ref: '#/components/responses/OK201'
+          description: Resource created.
+          content:
+            application/json:
+              schema:
+                type: string
+                format: json
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
@@ -356,15 +351,15 @@ paths:
           in: path
           required: true
           schema:
-            type: string
-            example: ABCDE-12345
+            $ref: '#/components/schemas/IdSchema'
       responses:
         200:
-          description: installation data.
+          description: download the document.
           content:
-            application/json:
+            application/pdf:
               schema:
-                $ref: '#/components/schemas/Installation'
+                type: string
+                format: binary
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
@@ -390,8 +385,7 @@ paths:
           in: path
           required: true
           schema:
-            type: string
-            example: ABCDE-12345
+            $ref: '#/components/schemas/IdSchema'
       responses:
         200:
           description: Successful operation.
@@ -430,8 +424,7 @@ paths:
           in: path
           required: true
           schema:
-            type: string
-            example: ABCDE-12345
+            $ref: '#/components/schemas/IdSchema'
         - name: filePath
           in: path
           required: true
@@ -453,7 +446,14 @@ paths:
                 contentType: application/octet-stream
       responses:
         201:
-          $ref: '#/components/responses/OK201_Metadata'
+          description: Resource created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metadata:
+                    $ref: '#/components/schemas/DocumentMetadata'
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
@@ -476,8 +476,7 @@ paths:
           in: path
           required: true
           schema:
-            type: string
-            example: ABCDE-12345
+            $ref: '#/components/schemas/IdSchema'
         - name: filePath
           in: path
           required: true
@@ -515,8 +514,7 @@ paths:
           in: path
           required: true
           schema:
-            type: string
-            example: ABCDE-12345
+            $ref: '#/components/schemas/IdSchema'
         - name: filePath
           in: path
           required: true
@@ -526,7 +524,14 @@ paths:
             example: folder/subfolder/filename.pdf
       responses:
         200:
-          $ref: '#/components/responses/OK200_Metadata'
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metadata:
+                    $ref: '#/components/schemas/DocumentMetadata'
         400:
           $ref: '#/components/responses/CirQitError400'
         401:
@@ -540,24 +545,35 @@ paths:
 
 components:
   schemas:
-    UserRegistration:
+    JWTAccessTokenRequest:
       type: object
       required:
-        - username
-        - email
-        - password
+        - jwtRefreshToken
+        - clientId
+        - scope
       properties:
-        username:
+        jwtRefreshToken:
           type: string
-          example: johndoe
-        email:
+          description: The refresh token
+          example: your-refresh-token
+        clientId:
           type: string
-          format: email
-          example: johndoe@example.com
-        password:
+          description: The ID of the requesting application
+          example: ElektroForm Solar
+        scope:
           type: string
-          format: password
-          example: P@ssw0rd
+          description: The scope of the access token
+          example: cirqit/read cirqit/write
+    JWTAccessToken:
+      type: string
+      description: The JWT Token
+      example: your-new-JWT-access-token
+
+
+    IdSchema:
+      type: string
+      pattern: '^[A-Z0-9]{5}-[A-Z0-9]{5}$'
+      example: ABCDE-12345
 
     Company:
       type: object
@@ -768,46 +784,6 @@ components:
 
 
   responses:
-    200:
-      description: New response
-      content:
-        application/json:
-          schema:
-            type: string
-            format: json
-    OK200:
-      description: Successful operation.
-      content:
-        application/json:
-          schema:
-            type: string
-            format: json
-    OK200_Metadata:
-      description: Successful operation.
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              metadata:
-                $ref: '#/components/schemas/DocumentMetadata'
-    OK201:
-      description: Resource created.
-      content:
-        application/json:
-          schema:
-            type: string
-            format: json
-    OK201_Metadata:
-      description: Resource created.
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              metadata:
-                $ref: '#/components/schemas/DocumentMetadata'
-
     CirQitError400:
       description: Client error, e.g. bad request
       content:
