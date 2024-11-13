@@ -57,17 +57,17 @@ paths:
 #          schema:
 #            type: string
 #      responses:
-#        200:
+#        "200":
 #          description: New access token
 #          content:
 #            application/json:
 #              schema:
 #                $ref: '#/components/schemas/JWTAccessToken'
-#        400:
+#        "400":
 #          $ref: '#/components/responses/CirQitError400'
-#        401:
+#        "401":
 #          $ref: '#/components/responses/CirQitError401'
-#        500:
+#        "500":
 #          $ref: '#/components/responses/CirQitError500'
 
   /auth/access-token:
@@ -75,7 +75,7 @@ paths:
       tags:
         - Auth
       summary: Request a new access token using a refresh token
-      description: This endpoint allows you to request a new access token using a valid refresh token.
+      description: This endpoint allows you to request a short-living access token using a valid refresh token.
       requestBody:
         required: true
         content:
@@ -83,18 +83,31 @@ paths:
             schema:
               $ref: '#/components/schemas/JWTAccessTokenRequest'
       responses:
-        200:
+        "200":
           description: New access token
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/JWTAccessToken'
-        400:
+        "400":
           $ref: '#/components/responses/CirQitError400'
-        401:
+        "401":
           $ref: '#/components/responses/CirQitError401'
-        500:
+        "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode": 200
+            }
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"message": "mock response"}'
 
   /rest/openapi/document/v1/company/{companyName}:
     get:
@@ -110,22 +123,35 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        "200":
           description: Company.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Company'
-        400:
+        "400":
           $ref: '#/components/responses/CirQitError400'
-        401:
+        "401":
           $ref: '#/components/responses/CirQitError401'
-        403:
+        "403":
           $ref: '#/components/responses/CirQitError403'
-        404:
+        "404":
           $ref: '#/components/responses/CirQitError404'
-        500:
+        "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode": 200
+            }
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"message": "mock response"}'
 
 
   # Tree
@@ -137,22 +163,36 @@ paths:
       summary: list all the available directories
       description: get the listing with all the directories and subdirectories
       responses:
-        200:
+        "200":
           description: DirectoryTree.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/DirectoryTree'
-        400:
+        "400":
           $ref: '#/components/responses/CirQitError400'
-        401:
+        "401":
           $ref: '#/components/responses/CirQitError401'
-        403:
+        "403":
           $ref: '#/components/responses/CirQitError403'
-        404:
+        "404":
           $ref: '#/components/responses/CirQitError404'
-        500:
+        "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode": 200
+            }
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"message": "mock response"}'
+
   /rest/openapi/document/v1/tree/{parentId}:
     post:
       tags:
@@ -174,38 +214,52 @@ paths:
             schema:
               $ref: '#/components/schemas/Directory'
       responses:
-        201:
+        "201":
           description: the created directory
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Directory'
-        400:
+        "400":
           $ref: '#/components/responses/CirQitError400'
-        401:
+        "401":
           $ref: '#/components/responses/CirQitError401'
-        403:
+        "403":
           $ref: '#/components/responses/CirQitError403'
-        409:
+        "409":
           $ref: '#/components/responses/CirQitError409'
-        500:
+        "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode": 200
+            }
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"message": "mock response"}'
 
   # Installation
-  /rest/openapi/document/v1/installation/{siteId}:
+  /rest/openapi/document/v1/installation:
     post:
       tags:
         - Installation
       operationId: createInstallation
-      summary: create a installation
+      summary: create a installation in the given directory
       description: get the installation data
-      parameters:
-        - name: siteId
-          description: the directory to store the installation
-          in: path
-          required: true
-          schema:
-            $ref: '#/components/schemas/IdSchema'
+# FIXME: parentId muss in die Installation. Kann nicht verschiede parameter mitgeben
+#      parameters:
+#        - name: directoryId
+#          description: the directory to store the installation
+#          in: path
+#          required: true
+#          schema:
+#            $ref: '#/components/schemas/IdSchema'
       requestBody:
         required: true
         content:
@@ -213,22 +267,36 @@ paths:
             schema:
               $ref: '#/components/schemas/Installation'
       responses:
-        200:
+        "200":
           description: installation data.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Installation'
-        400:
+        "400":
           $ref: '#/components/responses/CirQitError400'
-        401:
+        "401":
           $ref: '#/components/responses/CirQitError401'
-        403:
+        "403":
           $ref: '#/components/responses/CirQitError403'
-        409:
+        "409":
           $ref: '#/components/responses/CirQitError409'
-        500:
+        "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode": 200
+            }
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"message": "mock response"}'
+
   /rest/openapi/document/v1/installation/{installationId}:
     get:
       tags:
@@ -244,22 +312,35 @@ paths:
           schema:
             $ref: '#/components/schemas/IdSchema'
       responses:
-        200:
+        "200":
           description: installation data.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Installation'
-        400:
+        "400":
           $ref: '#/components/responses/CirQitError400'
-        401:
+        "401":
           $ref: '#/components/responses/CirQitError401'
-        403:
+        "403":
           $ref: '#/components/responses/CirQitError403'
-        404:
+        "404":
           $ref: '#/components/responses/CirQitError404'
-        500:
+        "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode": 200
+            }
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"message": "mock response"}'
     delete:
       tags:
         - Installation
@@ -274,23 +355,36 @@ paths:
           schema:
             $ref: '#/components/schemas/IdSchema'
       responses:
-        200:
+        "200":
           description: Successful operation.
           content:
             application/json:
               schema:
                 type: string
                 format: json
-        400:
+        "400":
           $ref: '#/components/responses/CirQitError400'
-        401:
+        "401":
           $ref: '#/components/responses/CirQitError401'
-        403:
+        "403":
           $ref: '#/components/responses/CirQitError403'
-        404:
+        "404":
           $ref: '#/components/responses/CirQitError404'
-        500:
+        "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode": 200
+            }
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"message": "mock response"}'
 
   # Schema
   /rest/openapi/document/v1/installation/{installationId}/schema:
@@ -322,23 +416,36 @@ paths:
               file:
                 contentType: application/pdf
       responses:
-        201:
+        "201":
           description: Resource created.
           content:
             application/json:
               schema:
                 type: string
                 format: json
-        400:
+        "400":
           $ref: '#/components/responses/CirQitError400'
-        401:
+        "401":
           $ref: '#/components/responses/CirQitError401'
-        403:
+        "403":
           $ref: '#/components/responses/CirQitError403'
-        409:
+        "409":
           $ref: '#/components/responses/CirQitError409'
-        500:
+        "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode": 200
+            }
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"message": "mock response"}'
     get:
       tags:
         - Schema
@@ -353,23 +460,36 @@ paths:
           schema:
             $ref: '#/components/schemas/IdSchema'
       responses:
-        200:
+        "200":
           description: download the document.
           content:
             application/pdf:
               schema:
                 type: string
                 format: binary
-        400:
+        "400":
           $ref: '#/components/responses/CirQitError400'
-        401:
+        "401":
           $ref: '#/components/responses/CirQitError401'
-        403:
+        "403":
           $ref: '#/components/responses/CirQitError403'
-        404:
+        "404":
           $ref: '#/components/responses/CirQitError404'
-        500:
+        "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode": 200
+            }
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"message": "mock response"}'
 
     # Attachment
   /rest/openapi/document/v1/installation/{installationId}/atachments:
@@ -387,7 +507,7 @@ paths:
           schema:
             $ref: '#/components/schemas/IdSchema'
       responses:
-        200:
+        "200":
           description: Successful operation.
           content:
             application/json:
@@ -401,16 +521,29 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/DocumentMetadata'
-        400:
+        "400":
           $ref: '#/components/responses/CirQitError400'
-        401:
+        "401":
           $ref: '#/components/responses/CirQitError401'
-        403:
+        "403":
           $ref: '#/components/responses/CirQitError403'
-        404:
+        "404":
           $ref: '#/components/responses/CirQitError404'
-        500:
+        "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode": 200
+            }
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"message": "mock response"}'
   /rest/openapi/document/v1/installation/{installationId}/atachment/{filePath}:
     put:
       tags:
@@ -445,7 +578,7 @@ paths:
               document:
                 contentType: application/octet-stream
       responses:
-        201:
+        "201":
           description: Resource created.
           content:
             application/json:
@@ -454,16 +587,29 @@ paths:
                 properties:
                   metadata:
                     $ref: '#/components/schemas/DocumentMetadata'
-        400:
+        "400":
           $ref: '#/components/responses/CirQitError400'
-        401:
+        "401":
           $ref: '#/components/responses/CirQitError401'
-        403:
+        "403":
           $ref: '#/components/responses/CirQitError403'
-        404:
+        "404":
           $ref: '#/components/responses/CirQitError409'
-        500:
+        "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode": 200
+            }
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"message": "mock response"}'
     get:
       tags:
         - Attachment
@@ -485,23 +631,36 @@ paths:
             type: string
             example: folder/subfolder/filename.pdf
       responses:
-        200:
+        "200":
           description: download the document.
           content:
             application/*:
               schema:
                 type: string
                 format: binary
-        400:
+        "400":
           $ref: '#/components/responses/CirQitError400'
-        401:
+        "401":
           $ref: '#/components/responses/CirQitError401'
-        403:
+        "403":
           $ref: '#/components/responses/CirQitError403'
-        404:
+        "404":
           $ref: '#/components/responses/CirQitError404'
-        500:
+        "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode": 200
+            }
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"message": "mock response"}'
     delete:
       tags:
         - Attachment
@@ -523,7 +682,7 @@ paths:
             type: string
             example: folder/subfolder/filename.pdf
       responses:
-        200:
+        "200":
           description: Successful operation.
           content:
             application/json:
@@ -532,16 +691,29 @@ paths:
                 properties:
                   metadata:
                     $ref: '#/components/schemas/DocumentMetadata'
-        400:
+        "400":
           $ref: '#/components/responses/CirQitError400'
-        401:
+        "401":
           $ref: '#/components/responses/CirQitError401'
-        403:
+        "403":
           $ref: '#/components/responses/CirQitError403'
-        404:
+        "404":
           $ref: '#/components/responses/CirQitError404'
-        500:
+        "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode": 200
+            }
+        passthroughBehavior: "when_no_templates"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"message": "mock response"}'
 
 components:
   schemas:
