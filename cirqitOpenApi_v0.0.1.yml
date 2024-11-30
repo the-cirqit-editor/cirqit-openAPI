@@ -141,6 +141,7 @@ paths:
           $ref: '#/components/responses/CirQitError405'
         "500":
           $ref: '#/components/responses/CirQitError500'
+        # FIXME: error 501 -> method / path not implemented
       x-amazon-apigateway-integration:
         type: mock
         requestTemplates:
