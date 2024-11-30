@@ -1,8 +1,15 @@
+#
+# This github action is updating the Swagger UI library in this project.
+#
+# it is not required to run this script when building the project, only a helper to keep the Swagger UI library up to date.
+#
+#
 name: Update Swagger UI
 on:
   schedule:
     - cron:  '0 10 1 * *'
   workflow_dispatch:
+
 
 jobs:
   updateSwagger:
