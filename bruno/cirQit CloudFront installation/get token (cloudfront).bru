@@ -1,0 +1,36 @@
+meta {
+  name: get token (cloudfront)
+  type: http
+  seq: 7
+}
+
+post {
+  url: https://app-dev.cirqit.cloud/api/auth/access-token/
+  body: json
+  auth: bearer
+}
+
+headers {
+  User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+  Accept: */*
+}
+
+auth:bearer {
+  token: eyJraWQiOiJ2Qmh2XC9PQ3JNSGxYYzJqaHRpNzJtdE1taGtkSFpwUU1tUUd0ZEdtK0t0ST0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIwYjlkODgwNC1mNGJjLTRjZTAtYWE4ZC1lNjA0NTI3Mzc3MTgiLCJjb2duaXRvOmdyb3VwcyI6WyJ1c2VyIl0sImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtY2VudHJhbC0xLmFtYXpvbmF3cy5jb21cL2V1LWNlbnRyYWwtMV9VUlNSOGYzaHEiLCJjb2duaXRvOnVzZXJuYW1lIjoibWFyaW8iLCJvcmlnaW5fanRpIjoiZDQ0NmJmNmYtZWI5My00ZTIxLThmMjItZmU1ZjJiNzc5ZmI5IiwiYXVkIjoiN3RwajQxamdiZnFzcTg1bWhpNWNjMDM1bnEiLCJldmVudF9pZCI6IjIyMmNjMjZjLThkZDctNGI4NS05YTJmLTcyMTk1MDJlMWE4MiIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNzMzMjUzMjIwLCJleHAiOjE3MzM2ODA0NTksImlhdCI6MTczMzY3Njg1OSwianRpIjoiNGI1YWYxYzAtNzUxOC00YmM4LWEzMDctMjFjZTVjMzQwOGZhIiwiZW1haWwiOiJyZW5lLmh1YmVyQGNpcnFpdC5jbG91ZCJ9.RA2qOx4oKgdPtbD3avk-AWbY8uW8T4OagXLHUiWhQ3YfoQ63IwzomIFzlaQw3HF9-od72J2AmP5OOPOKCW7G_ZHcn-wx4CxdKiHox0qQWSSDY9vjG5d3MeuMrgFSHxU_8gYMkqBGRr1M7aX2QdrA3LiioPpkVwAqbW9mGnj6upPEu8IBGIthVtXwDlg_2LfatVwyuSFi4jAxn1hY1uMglnUHamNv2VSrRElNP7GMyrHRDYSIRJOYSvTLiCwyhEM2a70I0Zls4ExdDrLdY-ULvmWqV3X1OJK_ajjsRavaIzP_cOlw4-K57ONwEKI7LV5LqCGi1VuKDymn3Oe_ix2kkQ
+}
+
+body:json {
+  {
+    "jwtRefreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjaXJRaXQtYXV0aDAiLCJjb21wYW55IjoiZG9mZXIgbmFtZSIsInVzZXJJZCI6Im1hcmlvIiwiZXhwIjoxNzM1NDgwMzIxLCJhdWQiOiJhcHAtdGVzdC5jaXJxaXQuY2xvdWQiLCJpYXQiOjE3MzI4ODgzMjEsInN1YiI6InN3aXNzb2xhciIsInRva2VuX3R5cGUiOiJyZWZyZXNoIn0.PvMEHjiVFU2byLym0xD6G0FiS9zJnAzS44tTDqojZYA",
+    "clientId": "ElektroForm Solar",
+    "scope": "cirqit/read cirqit/write"
+  }
+}
+
+tests {
+  console.log("execute tests "+res.getBody())
+  // Set the token as a variable
+  bru.setEnvVar("jwtToken", res.getBody());
+  
+  console.log("jwt token set "+bru.getEnvVar("jwtToken") )
+}

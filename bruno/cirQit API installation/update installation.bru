@@ -1,7 +1,7 @@
 meta {
   name: update installation
   type: http
-  seq: 3
+  seq: 4
 }
 
 put {
@@ -12,8 +12,8 @@ put {
 
 headers {
   Authorization: Bearer {{jwtToken}}
-  : 
-  ~content-type: application/json
+  accepted: application/json
+  content-type: application/json
 }
 
 body:json {

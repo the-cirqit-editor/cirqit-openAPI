@@ -1,18 +1,22 @@
 meta {
   name: get installation
   type: http
-  seq: 2
+  seq: 3
 }
 
 get {
-  url: {{host}}/api/rest/openapi/document/v1/installation/
+  url: {{host}}/api/rest/openapi/document/v1/installation/ABCDE-ABCDE
   body: none
   auth: none
 }
 
 headers {
-  user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
   Accept: application/json
-  content-type: application/json
   Authorization: Bearer {{jwtToken}}
+  ~user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
+  ~content-type: application/json
+}
+
+body:json {
+  {}
 }
