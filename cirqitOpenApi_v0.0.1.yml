@@ -13,14 +13,9 @@ info:
   x-logo:
     url: https://cirqit.cloud/wp-content/uploads/2021/01/cirQit_kp_200x80.png
   x-visibility: public
+# SAM complains if we have several servers - do not show the sandbox
 servers:
-  - url: https://sandbox.api.cirqit.cloud
-    description: Sandbox APIs
-    variables: { }
-  - url: https://preprod.api.cirqit.cloud
-    description: Non-Production APIs
-    variables: { }
-  - url: https://prod.api.cirqit.cloud
+  - url: https://api.cirqit.cloud
     description: Production APIs
     variables: { }
 tags:
@@ -39,36 +34,6 @@ tags:
 
 
 paths:
-#  /auth/refresh-token:  a minor change to run github actions
-#    get:
-#      tags:
-#        - Auth
-#      summary: Request a refresh token for the given company
-#      description: This endpoint allows you to request a new refresh token using a valid refresh token.
-#      parameters:
-#        - name: companyName
-#          in: path
-#          required: true
-#          schema:
-#            type: string
-#        - name: userId
-#          in: path
-#          required: true
-#          schema:
-#            type: string
-#      responses:
-#        "200":
-#          description: New access token
-#          content:
-#            application/json:
-#              schema:
-#                $ref: '#/components/schemas/JWTAccessToken'
-#        "400":
-#          $ref: '#/components/responses/CirQitError400'
-#        "401":
-#          $ref: '#/components/responses/CirQitError401'
-#        "500":
-#          $ref: '#/components/responses/CirQitError500'
 
   /auth/access-token:
     post:
@@ -96,18 +61,9 @@ paths:
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-integration:
-        type: mock
-        requestTemplates:
-          application/json: |
-            {
-              "statusCode": 200
-            }
-        passthroughBehavior: "when_no_templates"
-        responses:
-          default:
-            statusCode: 200
-            responseTemplates:
-              application/json: '{"message": "mock response"}'
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
 
   /rest/openapi/document/v1/company/{companyName}:
     get:
@@ -141,21 +97,11 @@ paths:
           $ref: '#/components/responses/CirQitError405'
         "500":
           $ref: '#/components/responses/CirQitError500'
-        # FIXME: error 501 -> method / path not implemented
       x-amazon-apigateway-integration:
-        type: mock
-        requestTemplates:
-          application/json: |
-            {
-              "statusCode": 200
-            }
-        passthroughBehavior: "when_no_templates"
-        responses:
-          default:
-            statusCode: 200
-            responseTemplates:
-              application/json: '{"message": "mock response"}'
-
+        # NOTE: the API is called by a GET, but we forward a POST to the Lambda because the API-Gateway adds some information
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
 
   # Tree
   /rest/openapi/document/v1/tree:
@@ -185,18 +131,9 @@ paths:
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-integration:
-        type: mock
-        requestTemplates:
-          application/json: |
-            {
-              "statusCode": 200
-            }
-        passthroughBehavior: "when_no_templates"
-        responses:
-          default:
-            statusCode: 200
-            responseTemplates:
-              application/json: '{"message": "mock response"}'
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
 
   /rest/openapi/document/v1/tree/{parentId}:
     post:
@@ -238,18 +175,10 @@ paths:
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-integration:
-        type: mock
-        requestTemplates:
-          application/json: |
-            {
-              "statusCode": 200
-            }
-        passthroughBehavior: "when_no_templates"
-        responses:
-          default:
-            statusCode: 200
-            responseTemplates:
-              application/json: '{"message": "mock response"}'
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
 
   # Installation
   /rest/openapi/document/v1/installation:
@@ -259,14 +188,6 @@ paths:
       operationId: createInstallation
       summary: create a installation in the given directory
       description: get the installation data
-# FIXME: parentId muss in die Installation. Kann nicht verschiede parameter mitgeben
-#      parameters:
-#        - name: directoryId
-#          description: the directory to store the installation
-#          in: path
-#          required: true
-#          schema:
-#            $ref: '#/components/schemas/IdSchema'
       requestBody:
         required: true
         content:
@@ -293,18 +214,10 @@ paths:
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-integration:
-        type: mock
-        requestTemplates:
-          application/json: |
-            {
-              "statusCode": 200
-            }
-        passthroughBehavior: "when_no_templates"
-        responses:
-          default:
-            statusCode: 200
-            responseTemplates:
-              application/json: '{"message": "mock response"}'
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
 
   /rest/openapi/document/v1/installation/{installationId}:
     get:
@@ -312,7 +225,7 @@ paths:
         - Installation
       operationId: getInstallation
       summary: get the data of the installation
-      description: get the installation data
+      description: get the instance of the installation for the given ID
       parameters:
         - name: installationId
           description: Filter results to match a given installation
@@ -343,6 +256,50 @@ paths:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
+
+    put:
+      tags:
+        - Installation
+      operationId: putInstallation
+      summary: overwrite the data of the installation
+      description: modify the installation data with a full object
+      parameters:
+        - name: installationId
+          description: Filter results to match a given installation
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/IdSchema'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Installation'
+      responses:
+        "200":
+          description: installation data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Installation'
+        "400":
+          $ref: '#/components/responses/CirQitError400'
+        "401":
+          $ref: '#/components/responses/CirQitError401'
+        "403":
+          $ref: '#/components/responses/CirQitError403'
+        "404":
+          $ref: '#/components/responses/CirQitError404'
+        "405":
+          $ref: '#/components/responses/CirQitError405'
+        "500":
+          $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
     delete:
       tags:
         - Installation
@@ -377,18 +334,9 @@ paths:
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-integration:
-        type: mock
-        requestTemplates:
-          application/json: |
-            {
-              "statusCode": 200
-            }
-        passthroughBehavior: "when_no_templates"
-        responses:
-          default:
-            statusCode: 200
-            responseTemplates:
-              application/json: '{"message": "mock response"}'
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
 
   # Schema
   /rest/openapi/document/v1/installation/{installationId}/schema:
@@ -408,17 +356,21 @@ paths:
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-                  description: the display-name of the pdf file
-            encoding:
-              file:
-                contentType: application/pdf
+              $ref: '#/components/schemas/Installation'
+              # FIXME: request body is a  placeholder, just to get it compiled...
+#          multipart/form-data:
+#            schema:
+#              type: object
+#              properties:
+#                file:
+#                  type: string
+#                  format: binary
+#                  description: the display-name of the pdf file
+#            encoding:
+#              file:
+#                contentType: application/pdf
       responses:
         "201":
           description: Resource created.
@@ -440,18 +392,10 @@ paths:
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-integration:
-        type: mock
-        requestTemplates:
-          application/json: |
-            {
-              "statusCode": 200
-            }
-        passthroughBehavior: "when_no_templates"
-        responses:
-          default:
-            statusCode: 200
-            responseTemplates:
-              application/json: '{"message": "mock response"}'
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
     get:
       tags:
         - Schema
@@ -486,18 +430,9 @@ paths:
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-integration:
-        type: mock
-        requestTemplates:
-          application/json: |
-            {
-              "statusCode": 200
-            }
-        passthroughBehavior: "when_no_templates"
-        responses:
-          default:
-            statusCode: 200
-            responseTemplates:
-              application/json: '{"message": "mock response"}'
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
 
     # Attachment
   /rest/openapi/document/v1/installation/{installationId}/atachments:
@@ -542,18 +477,11 @@ paths:
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-integration:
-        type: mock
-        requestTemplates:
-          application/json: |
-            {
-              "statusCode": 200
-            }
-        passthroughBehavior: "when_no_templates"
-        responses:
-          default:
-            statusCode: 200
-            responseTemplates:
-              application/json: '{"message": "mock response"}'
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+
   /rest/openapi/document/v1/installation/{installationId}/atachment/{filePath}:
     put:
       tags:
@@ -574,19 +502,24 @@ paths:
           schema:
             type: string
       requestBody:
+        required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
-              type: object
-              properties:
-                metadata:
-                  $ref: '#/components/schemas/DocumentMetadata'
-                document:
-                  type: string
-                  format: binary
-            encoding:
-              document:
-                contentType: application/octet-stream
+              $ref: '#/components/schemas/Installation'
+              # FIXME: request body is a  placeholder, just to get it compiled...
+
+      #          multipart/form-data:
+      #            schema:
+      #              type: object
+      #              properties:
+      #                file:
+      #                  type: string
+      #                  format: binary
+      #                  description: the display-name of the pdf file
+      #            encoding:
+      #              file:
+      #                contentType: application/pdf
       responses:
         "201":
           description: Resource created.
@@ -610,18 +543,10 @@ paths:
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-integration:
-        type: mock
-        requestTemplates:
-          application/json: |
-            {
-              "statusCode": 200
-            }
-        passthroughBehavior: "when_no_templates"
-        responses:
-          default:
-            statusCode: 200
-            responseTemplates:
-              application/json: '{"message": "mock response"}'
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
     get:
       tags:
         - Attachment
@@ -663,18 +588,10 @@ paths:
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-integration:
-        type: mock
-        requestTemplates:
-          application/json: |
-            {
-              "statusCode": 200
-            }
-        passthroughBehavior: "when_no_templates"
-        responses:
-          default:
-            statusCode: 200
-            responseTemplates:
-              application/json: '{"message": "mock response"}'
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
     delete:
       tags:
         - Attachment
@@ -718,18 +635,10 @@ paths:
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-integration:
-        type: mock
-        requestTemplates:
-          application/json: |
-            {
-              "statusCode": 200
-            }
-        passthroughBehavior: "when_no_templates"
-        responses:
-          default:
-            statusCode: 200
-            responseTemplates:
-              application/json: '{"message": "mock response"}'
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
 
 components:
   schemas:
@@ -756,7 +665,6 @@ components:
       type: string
       description: The JWT Token
       example: your-new-JWT-access-token
-
 
     IdSchema:
       type: string
@@ -968,8 +876,8 @@ components:
                 description: Location within message where the error is related to.
           description: >-
             List of error reasons if multiple reasons are related to the same error.
-
-
+  
+  
 
   responses:
     CirQitError400:
