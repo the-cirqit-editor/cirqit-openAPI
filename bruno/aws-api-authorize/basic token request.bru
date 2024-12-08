@@ -1,0 +1,21 @@
+meta {
+  name: basic token request
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://test-cirqit.auth.eu-central-1.amazoncognito.com/oauth2/token
+  body: formUrlEncoded
+  auth: none
+}
+
+headers {
+  ~Content-Type: application/x-www-form-urlencoded
+}
+
+body:form-urlencoded {
+  grant_type: client_credentials
+  client_id: 7tvuiugvup66ga77k1ur70mti7
+  ~scope: cloud.cirqit.api/admin
+}

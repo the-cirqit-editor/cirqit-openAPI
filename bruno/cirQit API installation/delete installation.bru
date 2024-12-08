@@ -1,0 +1,15 @@
+meta {
+  name: delete installation
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{host}}/api/rest/openapi/document/v1/installation/ABDCFFF
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{jwtToken}}
+}

@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "cirQit webapp",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

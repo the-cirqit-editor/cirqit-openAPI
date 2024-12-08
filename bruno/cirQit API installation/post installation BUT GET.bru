@@ -1,0 +1,29 @@
+meta {
+  name: post installation BUT GET
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{host}}/api/rest/openapi/document/v1/installation
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{jwtToken}}
+  ~content-type: application/json
+}
+
+body:json {
+  {
+    "name": "2737_H1 Pelletanlage Hauptsteuerung Silosteuerung_V004",
+    "licenseType": "public",
+    "commission": "Hase",
+    "address": "82256 Fürstenfeldbruck, Deutschland",
+    "location": {
+      "latitude": 48.17394,
+      "longitude": 11.243008
+    }
+  }
+}
