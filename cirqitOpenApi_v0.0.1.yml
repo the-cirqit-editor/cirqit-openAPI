@@ -15,12 +15,14 @@ info:
   x-visibility: public
 # SAM complains if we have several servers - do not show the sandbox
 servers:
-  - url: https://api.cirqit.cloud
-    description: Production APIs
+  - url: https://472d09ov47.execute-api.eu-central-1.amazonaws.com/api
+    description: Development API-Gateway
     variables: { }
 tags:
   - name: Auth
     description: the Authorization process
+  - name: Company
+    description: Operations to get the Company data
   - name: Tree
     description: Operations regarding the Directory Tree
   - name: Installation
@@ -29,12 +31,12 @@ tags:
     description: Operations related to the schema editable document
   - name: Attachment
     description: Operations related to the additional documents of a Installation
-  - name: Logbook
-    description: Operations to download the logbook of a Installation in csv format (NOT YET DEFINED)
+#  - name: Logbook
+#    description: Operations to download the logbook of an Installation in csv format (NOT YET DEFINED)
 
 
 paths:
-
+  # auth-token - PostJWTFunction
   /auth/access-token:
     post:
       tags:
@@ -65,6 +67,7 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
+  # Company - GetCompanyFunction
   /rest/openapi/document/v1/company/{companyName}:
     get:
       tags:
@@ -103,7 +106,7 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-  # Tree
+  # Tree - GetTreeFunction
   /rest/openapi/document/v1/tree:
     get:
       tags:
@@ -134,7 +137,7 @@ paths:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
-
+  # Tree / Directory - CreateDirectoryFunction
   /rest/openapi/document/v1/tree/{parentId}:
     post:
       tags:
@@ -179,8 +182,7 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-
-  # Installation
+  # Installation - CreateInstallationFunction
   /rest/openapi/document/v1/installation:
     post:
       tags:
@@ -217,8 +219,7 @@ paths:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
-
-
+  # Installation - AnyInstallationFunction
   /rest/openapi/document/v1/installation/{installationId}:
     get:
       tags:
@@ -337,8 +338,7 @@ paths:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
-
-  # Schema
+  # Schema - SchemaFunction
   /rest/openapi/document/v1/installation/{installationId}/schema:
     put:
       tags:
@@ -360,17 +360,17 @@ paths:
             schema:
               $ref: '#/components/schemas/Installation'
               # FIXME: request body is a  placeholder, just to get it compiled...
-#          multipart/form-data:
-#            schema:
-#              type: object
-#              properties:
-#                file:
-#                  type: string
-#                  format: binary
-#                  description: the display-name of the pdf file
-#            encoding:
-#              file:
-#                contentType: application/pdf
+      #          multipart/form-data:
+      #            schema:
+      #              type: object
+      #              properties:
+      #                file:
+      #                  type: string
+      #                  format: binary
+      #                  description: the display-name of the pdf file
+      #            encoding:
+      #              file:
+      #                contentType: application/pdf
       responses:
         "201":
           description: Resource created.
@@ -433,9 +433,8 @@ paths:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
-
-    # Attachment
-  /rest/openapi/document/v1/installation/{installationId}/atachments:
+  # Attachment - AttachmentFunction
+  /rest/openapi/document/v1/installation/{installationId}/attachment:
     get:
       tags:
         - Attachment
@@ -480,9 +479,6 @@ paths:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
-
-
-  /rest/openapi/document/v1/installation/{installationId}/atachment/{filePath}:
     put:
       tags:
         - Attachment
@@ -538,51 +534,6 @@ paths:
           $ref: '#/components/responses/CirQitError403'
         "404":
           $ref: '#/components/responses/CirQitError409'
-        "405":
-          $ref: '#/components/responses/CirQitError405'
-        "500":
-          $ref: '#/components/responses/CirQitError500'
-      x-amazon-apigateway-integration:
-        uri: ### OpenApiFunction ###
-        httpMethod: POST
-        type: aws_proxy
-
-    get:
-      tags:
-        - Attachment
-      operationId: getDocument
-      summary: get the document
-      description: get thd document with the given documentId. The documentId can be discovered by the get metadata method.
-      parameters:
-        - name: installationId
-          description: Filter results to match a given installation
-          in: path
-          required: true
-          schema:
-            $ref: '#/components/schemas/IdSchema'
-        - name: filePath
-          in: path
-          required: true
-          description: Path to the file, including folders and subfolders
-          schema:
-            type: string
-            example: folder/subfolder/filename.pdf
-      responses:
-        "200":
-          description: download the document.
-          content:
-            application/*:
-              schema:
-                type: string
-                format: binary
-        "400":
-          $ref: '#/components/responses/CirQitError400'
-        "401":
-          $ref: '#/components/responses/CirQitError401'
-        "403":
-          $ref: '#/components/responses/CirQitError403'
-        "404":
-          $ref: '#/components/responses/CirQitError404'
         "405":
           $ref: '#/components/responses/CirQitError405'
         "500":

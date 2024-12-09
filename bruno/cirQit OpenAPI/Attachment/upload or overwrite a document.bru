@@ -1,0 +1,36 @@
+meta {
+  name: upload or overwrite a document
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{baseUrl}}/rest/openapi/document/v1/installation/:installationId/attachment
+  body: json
+  auth: none
+}
+
+params:path {
+  installationId: 
+  filePath: 
+}
+
+body:json {
+  {
+    "name": "",
+    "licenseType": "",
+    "commission": "",
+    "address": "",
+    "location": {
+      "latitude": "",
+      "longitude": ""
+    },
+    "id": "",
+    "companyName": "",
+    "rootId": "",
+    "parentId": "",
+    "accountId": "",
+    "role": "",
+    "createdDate": ""
+  }
+}

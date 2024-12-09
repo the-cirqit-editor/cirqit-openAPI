@@ -1,0 +1,27 @@
+meta {
+  name: Request a new access token using a refresh token
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/access-token
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "jwtRefreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjaXJRaXQtYXV0aDAiLCJjb21wYW55IjoiZG9mZXIgbmFtZSIsInVzZXJJZCI6Im1hcmlvIiwiZXhwIjoxNzM1NDgwMzIxLCJhdWQiOiJhcHAtdGVzdC5jaXJxaXQuY2xvdWQiLCJpYXQiOjE3MzI4ODgzMjEsInN1YiI6InN3aXNzb2xhciIsInRva2VuX3R5cGUiOiJyZWZyZXNoIn0.PvMEHjiVFU2byLym0xD6G0FiS9zJnAzS44tTDqojZYA",
+    "clientId": "ElektroForm Solar",
+    "scope": "cirqit/read cirqit/write"
+  }
+}
+
+tests {
+  console.log("execute tests "+res.getBody())
+  // Set the token as a variable
+  bru.setEnvVar("jwtToken", res.getBody());
+
+  console.log("jwt token set "+bru.getEnvVar("jwtToken") )
+}

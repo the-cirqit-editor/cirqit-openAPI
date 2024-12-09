@@ -1,0 +1,15 @@
+meta {
+  name: delete the installation
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/rest/openapi/document/v1/installation/:installationId
+  body: none
+  auth: none
+}
+
+params:path {
+  installationId: 
+}

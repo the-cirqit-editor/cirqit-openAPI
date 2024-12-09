@@ -1,0 +1,15 @@
+meta {
+  name: get the data of the installation
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/rest/openapi/document/v1/installation/:installationId
+  body: none
+  auth: none
+}
+
+params:path {
+  installationId: 
+}

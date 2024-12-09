@@ -1,0 +1,16 @@
+meta {
+  name: delete a existing document
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseUrl}}/rest/openapi/document/v1/installation/:installationId/attachment
+  body: none
+  auth: none
+}
+
+params:path {
+  installationId: 
+  filePath: 
+}

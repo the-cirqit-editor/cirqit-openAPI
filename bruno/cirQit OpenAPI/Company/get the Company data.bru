@@ -1,0 +1,15 @@
+meta {
+  name: get the Company data
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/openapi/document/v1/company/:companyName
+  body: none
+  auth: none
+}
+
+params:path {
+  companyName: 
+}
