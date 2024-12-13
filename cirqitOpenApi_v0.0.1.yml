@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: cirQit OpenAPI
   version: 0.0.1
-  description: openAPI for REST communication with the cirQit app
+  description: openAPI for REST communication with the cirQit application
   contact:
     email: info@cirqit.cloud
     name: cirQit
@@ -13,10 +13,13 @@ info:
   x-logo:
     url: https://cirqit.cloud/wp-content/uploads/2021/01/cirQit_kp_200x80.png
   x-visibility: public
-# SAM complains if we have several servers - do not show the sandbox
+
 servers:
-  - url: https://472d09ov47.execute-api.eu-central-1.amazonaws.com/api
+  - url: https://472d09ov47.execute-api.eu-central-1.amazonaws.com
     description: Development API-Gateway
+    variables: { }
+  - url: https://api.github.com/api
+    description: Productive CloudFront access
     variables: { }
 tags:
   - name: Auth
@@ -197,7 +200,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Installation'
       responses:
-        "200":
+        "201":
           description: installation data.
           content:
             application/json:
@@ -215,6 +218,7 @@ paths:
           $ref: '#/components/responses/CirQitError409'
         "500":
           $ref: '#/components/responses/CirQitError500'
+
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
@@ -229,7 +233,7 @@ paths:
       description: get the instance of the installation for the given ID
       parameters:
         - name: installationId
-          description: Filter results to match a given installation
+          description: The ID of the  installation
           in: path
           required: true
           schema:
@@ -266,7 +270,7 @@ paths:
       description: modify the installation data with a full object
       parameters:
         - name: installationId
-          description: Filter results to match a given installation
+          description: The ID of the  installation
           in: path
           required: true
           schema:
@@ -309,7 +313,7 @@ paths:
       description: purges the installation from cirQit
       parameters:
         - name: installationId
-          description: Filter results to match a given installation
+          description: The ID of the  installation
           in: path
           required: true
           schema:
@@ -339,6 +343,7 @@ paths:
         httpMethod: POST
         type: aws_proxy
   # Schema - SchemaFunction
+  # FIXME: get signed URL for S3 upload
   /rest/openapi/document/v1/installation/{installationId}/schema:
     put:
       tags:
@@ -372,7 +377,7 @@ paths:
       #              file:
       #                contentType: application/pdf
       responses:
-        "201":
+        "200":
           description: Resource created.
           content:
             application/json:
@@ -396,6 +401,7 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
+    # FIXME get signed URL to download the schema
     get:
       tags:
         - Schema
@@ -479,6 +485,8 @@ paths:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
+
+    # FIXME get signed URL to overwrite the Attachment
     put:
       tags:
         - Attachment
@@ -543,6 +551,7 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
+    # FIXME get signed URL to delete the Attachment
     delete:
       tags:
         - Attachment
@@ -702,6 +711,9 @@ components:
         name:
           type: string
           example: 2737_H1 Pelletanlage Hauptsteuerung Silosteuerung_V004
+        description:
+          type: string
+          example: 2737_H1 Pelletanlage Hauptsteuerung Silosteuerung_V004
         licenseType:
           type: string
           example: public
@@ -750,7 +762,8 @@ components:
           type: string
           readOnly: true
           format: date-time
-          example: Sep 5, 2023, 9:12:18PM
+          description: Creation date in the cirQit environment of the installation in ISO 8601 format "YYYY-MM-DDTHH:MM:SS".
+          example: 2023-09-05T21:12:18
 
     DocumentMetadata:
       type: object
@@ -785,8 +798,9 @@ components:
           example: folder/subfolder1/subfolder2
         creationDate:
           type: string
-          format: date
-          description: Creation date in the cirQit environment of the document in ISO format "YYYY-MM-DD-HHMMSS".
+          format: date-time
+          description: Creation date in the cirQit environment of the document in ISO 8601 format "YYYY-MM-DDTHH:MM:SS".
+          example: 2023-09-05T21:12:18
         mimeType:
           type: string
           description: Mime type of the document.
@@ -832,25 +846,25 @@ components:
 
   responses:
     CirQitError400:
-      description: Client error, e.g. bad request
+      description: Bad request, e.g. missing or invalid parameters
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/CirQitError'
     CirQitError401:
-      description: Unauthorized, no access to the requested resource
+      description: Unauthorized, no access to the requested url / resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/CirQitError'
     CirQitError403:
-      description: Forbidden, no access to the requested document
+      description: Forbidden, no access to the resource object
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/CirQitError'
     CirQitError404:
-      description: Resource is not available
+      description: Requested resource is not available
       content:
         application/json:
           schema:
