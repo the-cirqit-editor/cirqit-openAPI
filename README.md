@@ -50,9 +50,16 @@ the versions to be displayed in the dropdown are configured like:
 ## OpenAPI
 The OpenAPI is written in YAML and can be found in the file `cirqitOpenApi_vX.X.X.yml`.
 
-We use https://openapi-generator.tech/ to generate the code for the server.
+### validate the OpenAPI
+To align to the OpenAPI specification, the OpenAPI file can be validated:
+* https://oas-validation.com/process_file
+* https://github.com/python-openapi/openapi-spec-validator
+  * `pip install openapi-spec-validator`
+  * `openapi-spec-validator cirqitOpenApi_v0.0.1.yml`
 
-### cirQit OpenAPI implementation
+
+### generate cirQit OpenAPI implementation
+We use https://openapi-generator.tech/ to generate the code for the server.
 * generating the code from the OpenAPI for the cirQit backend
 * fix and generate the code to the backend project
 * run `./generateJavaCode.sh`
