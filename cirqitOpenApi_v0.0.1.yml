@@ -218,11 +218,12 @@ paths:
           $ref: '#/components/responses/CirQitError409'
         "500":
           $ref: '#/components/responses/CirQitError500'
-
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
+
+
   # Installation - AnyInstallationFunction
   /rest/openapi/document/v1/installation/{installationId}:
     get:
@@ -342,87 +343,32 @@ paths:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
+
   # Schema - SchemaFunction
-  # FIXME: get signed URL for S3 upload
   /rest/openapi/document/v1/installation/{installationId}/schema:
-    put:
+    get:
       tags:
-        - Schema
-      operationId: uploadPdf
-      summary: Upload or overwrite a schema PDF file
-      description: Upload or overwrite a PDF file for the given installation ID
+        - Installation
+      operationId: getSchema
+      summary: get the signed URL to download the schema
+      description: the signed URL is used to download the schema from the AWS S3 bucket in your next step
       parameters:
         - name: installationId
-          description: Filter results to match a given installation
+          description: The ID of the  installation
           in: path
           required: true
           schema:
             $ref: '#/components/schemas/IdSchema'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Installation'
-              # FIXME: request body is a  placeholder, just to get it compiled...
-      #          multipart/form-data:
-      #            schema:
-      #              type: object
-      #              properties:
-      #                file:
-      #                  type: string
-      #                  format: binary
-      #                  description: the display-name of the pdf file
-      #            encoding:
-      #              file:
-      #                contentType: application/pdf
       responses:
         "200":
-          description: Resource created.
+          description: temporary valid signed URL to communicate with AWS S3 object store.
           content:
             application/json:
               schema:
-                type: string
-                format: json
-        "400":
-          $ref: '#/components/responses/CirQitError400'
-        "401":
-          $ref: '#/components/responses/CirQitError401'
-        "403":
-          $ref: '#/components/responses/CirQitError403'
-        "405":
-          $ref: '#/components/responses/CirQitError405'
-        "409":
-          $ref: '#/components/responses/CirQitError409'
-        "500":
-          $ref: '#/components/responses/CirQitError500'
-      x-amazon-apigateway-integration:
-        uri: ### OpenApiFunction ###
-        httpMethod: POST
-        type: aws_proxy
-
-    # FIXME get signed URL to download the schema
-    get:
-      tags:
-        - Schema
-      operationId: getSchema
-      summary: get the schema of the installation
-      description: get the schema of the installation
-      parameters:
-        - name: installationId
-          description: Filter results to match a given installation
-          in: path
-          required: true
-          schema:
-            $ref: '#/components/schemas/IdSchema'
-      responses:
-        "200":
-          description: download the document.
-          content:
-            application/pdf:
-              schema:
-                type: string
-                format: binary
+                type: object
+                properties:
+                  signedUrl:
+                    $ref: '#/components/schemas/SignedUrl'
         "400":
           $ref: '#/components/responses/CirQitError400'
         "401":
@@ -439,6 +385,48 @@ paths:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
+
+    put:
+      tags:
+        - Installation
+      operationId: getSchemaUpload
+      summary: get the signed URL to upload the schema
+      description: the signed URL is used to upload the schema to the AWS S3 bucket in your next step
+      parameters:
+        - name: installationId
+          description: The ID of the  installation
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/IdSchema'
+      responses:
+        "200":
+          description: temporary valid signed URL to communicate with AWS S3 object store.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signedUrl:
+                    $ref: '#/components/schemas/SignedUrl'
+        "400":
+          $ref: '#/components/responses/CirQitError400'
+        "401":
+          $ref: '#/components/responses/CirQitError401'
+        "403":
+          $ref: '#/components/responses/CirQitError403'
+        "404":
+          $ref: '#/components/responses/CirQitError404'
+        "405":
+          $ref: '#/components/responses/CirQitError405'
+        "500":
+          $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+
   # Attachment - AttachmentFunction
   /rest/openapi/document/v1/installation/{installationId}/attachment:
     get:
@@ -463,7 +451,8 @@ paths:
                 type: object
                 required:
                   - items
-                  - pagination
+                  # FIXME: ja oder nein, ich denke nicht das wir jemals mehr als 100 items haben werden...
+                  # - pagination
                 properties:
                   items:
                     type: array
@@ -486,13 +475,12 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-    # FIXME get signed URL to overwrite the Attachment
-    put:
+    post:
       tags:
         - Attachment
-      operationId: overwriteDocument
-      summary: upload or overwrite a document
-      description: upload or overwrite a document
+      operationId: uploadDocument
+      summary: get the signed URL to upload the Attachment
+      description: the signed URL is used to upload the attachment to the AWS S3 bucket in your next step
       parameters:
         - name: installationId
           description: Filter results to match a given installation
@@ -504,36 +492,19 @@ paths:
           in: path
           required: true
           schema:
+            # FIXME: ich kann ein /directoryName/filename.pdf haben, oder nur filename.pdf
+            #             wie escape ich den pfad? URL encoded?
             type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Installation'
-              # FIXME: request body is a  placeholder, just to get it compiled...
-
-      #          multipart/form-data:
-      #            schema:
-      #              type: object
-      #              properties:
-      #                file:
-      #                  type: string
-      #                  format: binary
-      #                  description: the display-name of the pdf file
-      #            encoding:
-      #              file:
-      #                contentType: application/pdf
       responses:
-        "201":
-          description: Resource created.
+        "200":
+          description: temporary valid signed URL to communicate with AWS S3 object store.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  metadata:
-                    $ref: '#/components/schemas/DocumentMetadata'
+                  signedUrl:
+                    $ref: '#/components/schemas/SignedUrl'
         "400":
           $ref: '#/components/responses/CirQitError400'
         "401":
@@ -544,6 +515,8 @@ paths:
           $ref: '#/components/responses/CirQitError409'
         "405":
           $ref: '#/components/responses/CirQitError405'
+        "409":
+          $ref: '#/components/responses/CirQitError405'
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-integration:
@@ -551,13 +524,14 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-    # FIXME get signed URL to delete the Attachment
-    delete:
+
+  /rest/openapi/document/v1/installation/{installationId}/attachment/{filePath}:
+    put:
       tags:
         - Attachment
-      operationId: deleteDocument
-      summary: delete a existing document
-      description: remove a existing document based on the documentId
+      operationId: overwriteDocument
+      summary: get the signed URL to update a existing document
+      description: the signed URL is used to update the attachment in the AWS S3 bucket in your next step
       parameters:
         - name: installationId
           description: Filter results to match a given installation
@@ -568,20 +542,67 @@ paths:
         - name: filePath
           in: path
           required: true
-          description: Path to the file, including folders and subfolders
+          description: URL encoded Path to the file, including folders and subfolders
           schema:
             type: string
-            example: folder/subfolder/filename.pdf
+            example: folder%2Fsubfolder%2Ffilename.pdf
       responses:
         "200":
-          description: Successful operation.
+          description: created signed URL to communicate with AWS S3 object store.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  metadata:
-                    $ref: '#/components/schemas/DocumentMetadata'
+                  signedUrl:
+                    $ref: '#/components/schemas/SignedUrl'
+        "400":
+          $ref: '#/components/responses/CirQitError400'
+        "401":
+          $ref: '#/components/responses/CirQitError401'
+        "403":
+          $ref: '#/components/responses/CirQitError403'
+        "404":
+          $ref: '#/components/responses/CirQitError404'
+        "405":
+          $ref: '#/components/responses/CirQitError405'
+        "500":
+          $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+    delete:
+      tags:
+        - Attachment
+      operationId: deleteDocument
+      summary: get the signed URL to delete a existing document
+      description: the signed URL is used to delete the attachment in the AWS S3 bucket in your next step
+      parameters:
+        - name: installationId
+          description: Filter results to match a given installation
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/IdSchema'
+        - name: filePath
+          in: path
+          required: true
+          description: URL encoded Path to the file, including folders and subfolders
+          schema:
+            type: string
+            example: folder%2Fsubfolder%2Ffilename.pdf
+      responses:
+        "200":
+          description: created signed URL to communicate with AWS S3 object store.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signedUrl:
+                    $ref: '#/components/schemas/SignedUrl'
         "400":
           $ref: '#/components/responses/CirQitError400'
         "401":
@@ -805,6 +826,23 @@ components:
           type: string
           description: Mime type of the document.
           example: application/pdf
+
+    SignedUrl:
+      type: object
+      required:
+        - signedUrl
+      properties:
+        name:
+          type: string
+          example: https://app.cirqit.cloud/data/anlage/MHXKN-XSDUA/pdf/schema.pdf?Expires=173xxxx&Signature=1iOxxxx&Key-Pair-Id=K2Gxxxx
+          description: get the signed URL to communicate with the AWS S3 bucket store
+
+
+
+
+    Empty:
+      title: Empty Schema
+      type: object
 
     CirQitError:
       type: object
