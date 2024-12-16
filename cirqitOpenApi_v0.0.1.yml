@@ -42,6 +42,7 @@ paths:
     post:
       tags:
         - Auth
+      operationId: getAccessToken
       summary: Request a new access token using a refresh token
       description: This endpoint allows you to request a short-living access token using a valid refresh token.
       # FIXME auth parameter im body oder als headers?
@@ -718,6 +719,7 @@ components:
           example: FGHIJ-67890
 
     DirectoryTree:
+      type: object
       description: the directory tree object to build a recursive tree
       allOf:
         - $ref: '#/components/schemas/Directory'
@@ -729,7 +731,7 @@ components:
                 oneOf:
                   - $ref: '#/components/schemas/Installation'
                 # FIXME: fails for validation, but guess it's OK like this
-                 #  - $ref: '#/components/schemas/DirectoryTree'
+                  - $ref: '#/components/schemas/DirectoryTree'
 
     Installation:
       type: object
@@ -799,8 +801,8 @@ components:
           example: "2023-09-05T21:12:18"
 
     DocumentMetadata:
-      description: the metadata of the document stored in the AWS S3 bucket
       type: object
+      description: the metadata of the document stored in the AWS S3 bucket
       required:
         - fileName
       properties:
@@ -931,7 +933,6 @@ components:
           schema:
             $ref: '#/components/schemas/CirQitError'
 
-  parameters: { }
 externalDocs:
   description: Developer documentation for cirQit OpenAPI
   url: https://www.cirqit.cloud/openAPI
