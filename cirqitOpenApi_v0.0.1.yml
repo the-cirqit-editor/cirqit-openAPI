@@ -30,8 +30,6 @@ tags:
     description: Operations regarding the Directory Tree
   - name: Installation
     description: Operations create and modify a installation
-  - name: Schema
-    description: Operations related to the schema editable document
   - name: Attachment
     description: Operations related to the additional documents of a Installation
 #  - name: Logbook
@@ -46,6 +44,7 @@ paths:
         - Auth
       summary: Request a new access token using a refresh token
       description: This endpoint allows you to request a short-living access token using a valid refresh token.
+      # FIXME auth parameter im body oder als headers?
       requestBody:
         required: true
         content:
@@ -80,6 +79,8 @@ paths:
       description: get the properties of the Company
       parameters:
         - name: companyName
+          description: the URL encoded name of the company
+          example: Example%20Ltd.
           in: path
           required: true
           schema:
@@ -489,6 +490,8 @@ paths:
           schema:
             $ref: '#/components/schemas/IdSchema'
         - name: filePath
+          description: URL encoded Path to the file, including folders and subfolders
+          example: folder%2Fsubfolder%2Ffilename.pdf
           in: path
           required: true
           schema:
@@ -624,6 +627,7 @@ paths:
 components:
   schemas:
     JWTAccessTokenRequest:
+      description: Request a new access token using a refresh token. The refresh token is provided by the cirQit application.
       type: object
       required:
         - jwtRefreshToken
@@ -649,11 +653,13 @@ components:
 
     IdSchema:
       type: string
+      description: The ID of the object
       pattern: '^[A-Z0-9]{5}-[A-Z0-9]{5}$'
       example: ABCDE-12345
 
     Company:
       type: object
+      description: The Company data
       required:
         - companyName
       properties:
@@ -668,7 +674,7 @@ components:
           example: die strasse
         postalCode:
           type: string
-          example: 8400
+          example: "8400"
         city:
           type: string
           example: Winterthur
@@ -677,7 +683,7 @@ components:
           example: Schweiz
         phone:
           type: string
-          example: 0785556677
+          example: "0785556677"
         email:
           type: string
           format: email
@@ -688,6 +694,7 @@ components:
 
     Directory:
       type: object
+      description: the directory object which can hold a installation or another directory
       required:
         - name
       properties:
@@ -711,6 +718,7 @@ components:
           example: FGHIJ-67890
 
     DirectoryTree:
+      description: the directory tree object to build a recursive tree
       allOf:
         - $ref: '#/components/schemas/Directory'
         - type: object
@@ -720,10 +728,12 @@ components:
               items:
                 oneOf:
                   - $ref: '#/components/schemas/Installation'
-                  - $ref: '#/components/schemas/DirectoryTree'
+                # FIXME: fails for validation, but guess it's OK like this
+                 #  - $ref: '#/components/schemas/DirectoryTree'
 
     Installation:
       type: object
+      description: the Installation object
       required:
         - licenseType
         - commission
@@ -745,7 +755,9 @@ components:
           type: string
           example: 82256 Fürstenfeldbruck, Deutschland
         location:
+          description: the GEO location of the installation
           type: object
+          example: { "latitude": 48.17394, "longitude": 11.243008 }
           properties:
             latitude:
               type: number
@@ -784,9 +796,10 @@ components:
           readOnly: true
           format: date-time
           description: Creation date in the cirQit environment of the installation in ISO 8601 format "YYYY-MM-DDTHH:MM:SS".
-          example: 2023-09-05T21:12:18
+          example: "2023-09-05T21:12:18"
 
     DocumentMetadata:
+      description: the metadata of the document stored in the AWS S3 bucket
       type: object
       required:
         - fileName
@@ -817,34 +830,25 @@ components:
           type: string
           description: slash delimited path of the directory where the document is stored.
           example: folder/subfolder1/subfolder2
-        creationDate:
+        createdDate:
           type: string
           format: date-time
           description: Creation date in the cirQit environment of the document in ISO 8601 format "YYYY-MM-DDTHH:MM:SS".
-          example: 2023-09-05T21:12:18
+          example: "2023-09-05T21:12:18"
         mimeType:
           type: string
           description: Mime type of the document.
           example: application/pdf
 
     SignedUrl:
-      type: object
-      required:
-        - signedUrl
-      properties:
-        name:
-          type: string
-          example: https://app.cirqit.cloud/data/anlage/MHXKN-XSDUA/pdf/schema.pdf?Expires=173xxxx&Signature=1iOxxxx&Key-Pair-Id=K2Gxxxx
-          description: get the signed URL to communicate with the AWS S3 bucket store
+        type: string
+        description: get the signed URL to communicate with the AWS S3 bucket store
+        example: https://app.cirqit.cloud/data/anlage/MHXKN-XSDUA/pdf/schema.pdf?Expires=173xxxx&Signature=1iOxxxx&Key-Pair-Id=K2Gxxxx
 
-
-
-
-    Empty:
-      title: Empty Schema
-      type: object
 
     CirQitError:
+      description: >-
+        Error object for cirQit API. This object is used to return error messages in case of an error.
       type: object
       required:
         - errorCode
@@ -859,6 +863,7 @@ components:
           example: Input validation failed
           description: Short description of the error.
         errorReasons:
+          example: [{ "message": "Attribute 'xxxx' must not be longer than 50 chars.", "code": "ERROR_012", "location": "/rootLevel/xxxx" }]
           type: array
           items:
             type: object
