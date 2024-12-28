@@ -30,37 +30,63 @@ tags:
     description: Operations regarding the Directory Tree
   - name: Installation
     description: Operations create and modify a installation
-  - name: Attachment
-    description: Operations related to the additional documents of a Installation
+  - name: Document
+    description: Operations related to the documents of a Installation
 #  - name: Logbook
 #    description: Operations to download the logbook of an Installation in csv format (NOT YET DEFINED)
 
 
 paths:
-  # auth-token - PostJWTFunction
-  /auth/access-token:
+  #  ################################################### #
+  #  #                                AUTHENTICATION                                            # #
+  #  ################################################### #
+  /auth/token:
     post:
       tags:
         - Auth
-      operationId: getAccessToken
-      summary: Request a new access token using a refresh token
-      description: This endpoint allows you to request a short-living access token using a valid refresh token.
-      # FIXME auth parameter im body oder als headers?
+      operationId: getJWTAccessToken
+      summary: Get authentication token with ClientID and Secret
+      description: Obtain an authentication token by providing the ClientID and Secret
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/JWTAccessTokenRequest'
+              type: object
+              properties:
+                clientId:
+                  type: string
+                  example: your-client-id
+                clientSecret:
+                  type: string
+                  example: your-client-secret
+                scope:
+                    type: string
+                    example: cirqit/read cirqit/write
       responses:
-        "200":
-          description: New access token
+        '200':
+          description: Authentication token retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JWTAccessToken'
-        "400":
-          $ref: '#/components/responses/CirQitError400'
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    description: The access token string as issued by the authorization server.
+                    example: your jwt access-token (ey....)
+                  token_type:
+                    type: string
+                    description: the type of token this is, typically just the string “Bearer”.
+                    example: your jwt access-token (ey....)
+                  expires_in:
+                    type: string
+                    description: the time in seconds when this token expires
+                    example: your jwt access-token (ey....)
+                  scope:
+                    type: string
+                    description: the scope of the access token
+                    example: your jwt access-token (ey....)
         "401":
           $ref: '#/components/responses/CirQitError401'
         "500":
@@ -70,8 +96,54 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-  # Company - GetCompanyFunction
-  /rest/openapi/document/v1/company/{companyName}:
+  /auth/verify:
+    post:
+      tags:
+        - Auth
+      operationId: verifyAuthToken
+      summary: Verify authentication token
+      description: Verify the provided authentication token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - access_token
+              properties:
+                access_token:
+                  type: string
+                  example: your-access-token
+                scope:
+                  type: string
+                  description: the scope of the access token, it is verified whether the scope is covered with the token
+                  example: your jwt access-token (ey....)
+      responses:
+        '200':
+          description: Token verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                    example: true
+        "401":
+          $ref: '#/components/responses/CirQitError401'
+        "500":
+          $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+
+  #  ################################################### #
+  #  #                                COMPANY                                                         # #
+  #  ################################################### #
+  /rest/v1/company/{companyName}:
     get:
       tags:
         - Company
@@ -111,8 +183,11 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-  # Tree - GetTreeFunction
-  /rest/openapi/document/v1/tree:
+  #  ################################################### #
+  #  #                                Directory and Tree                                             # #
+  #  ################################################### #
+  # Tree / Directory - GetDirectoryTreeFunction
+  /rest/v1/tree:
     get:
       tags:
         - Tree
@@ -143,7 +218,7 @@ paths:
         httpMethod: POST
         type: aws_proxy
   # Tree / Directory - CreateDirectoryFunction
-  /rest/openapi/document/v1/tree/{parentId}:
+  /rest/v1/tree/{parentId}:
     post:
       tags:
         - Tree
@@ -187,8 +262,11 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
+  #  ################################################### #
+  #  #                                INSTALLATION                                                  # #
+  #  ################################################### #
   # Installation - CreateInstallationFunction
-  /rest/openapi/document/v1/installation:
+  /rest/v1/installation:
     post:
       tags:
         - Installation
@@ -227,7 +305,7 @@ paths:
 
 
   # Installation - AnyInstallationFunction
-  /rest/openapi/document/v1/installation/{installationId}:
+  /rest/v1/installation/{installationId}:
     get:
       tags:
         - Installation
@@ -346,95 +424,16 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-  # Schema - SchemaFunction
-  /rest/openapi/document/v1/installation/{installationId}/schema:
+
+  #  ################################################### #
+  #  #                                DOCUMENT                                                       # #
+  #  ################################################### #
+  # Document - DocumentFunction
+  /rest/v1/installation/{installationId}/listDocuments:
     get:
       tags:
-        - Installation
-      operationId: getSchema
-      summary: get the signed URL to download the schema
-      description: the signed URL is used to download the schema from the AWS S3 bucket in your next step
-      parameters:
-        - name: installationId
-          description: The ID of the  installation
-          in: path
-          required: true
-          schema:
-            $ref: '#/components/schemas/IdSchema'
-      responses:
-        "200":
-          description: temporary valid signed URL to communicate with AWS S3 object store.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  signedUrl:
-                    $ref: '#/components/schemas/SignedUrl'
-        "400":
-          $ref: '#/components/responses/CirQitError400'
-        "401":
-          $ref: '#/components/responses/CirQitError401'
-        "403":
-          $ref: '#/components/responses/CirQitError403'
-        "404":
-          $ref: '#/components/responses/CirQitError404'
-        "405":
-          $ref: '#/components/responses/CirQitError405'
-        "500":
-          $ref: '#/components/responses/CirQitError500'
-      x-amazon-apigateway-integration:
-        uri: ### OpenApiFunction ###
-        httpMethod: POST
-        type: aws_proxy
-
-    put:
-      tags:
-        - Installation
-      operationId: getSchemaUpload
-      summary: get the signed URL to upload the schema
-      description: the signed URL is used to upload the schema to the AWS S3 bucket in your next step
-      parameters:
-        - name: installationId
-          description: The ID of the  installation
-          in: path
-          required: true
-          schema:
-            $ref: '#/components/schemas/IdSchema'
-      responses:
-        "200":
-          description: temporary valid signed URL to communicate with AWS S3 object store.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  signedUrl:
-                    $ref: '#/components/schemas/SignedUrl'
-        "400":
-          $ref: '#/components/responses/CirQitError400'
-        "401":
-          $ref: '#/components/responses/CirQitError401'
-        "403":
-          $ref: '#/components/responses/CirQitError403'
-        "404":
-          $ref: '#/components/responses/CirQitError404'
-        "405":
-          $ref: '#/components/responses/CirQitError405'
-        "500":
-          $ref: '#/components/responses/CirQitError500'
-      x-amazon-apigateway-integration:
-        uri: ### OpenApiFunction ###
-        httpMethod: POST
-        type: aws_proxy
-
-
-  # Attachment - AttachmentFunction
-  /rest/openapi/document/v1/installation/{installationId}/attachment:
-    get:
-      tags:
-        - Attachment
-      operationId: getList
+        - Document
+      operationId: getDocumentList
       summary: list the available documents
       description: get the listing of the documents for the given installationId
       parameters:
@@ -453,8 +452,6 @@ paths:
                 type: object
                 required:
                   - items
-                  # FIXME: ja oder nein, ich denke nicht das wir jemals mehr als 100 items haben werden...
-                  # - pagination
                 properties:
                   items:
                     type: array
@@ -477,12 +474,13 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
+  /rest/v1/installation/{installationId}/getDocumentUrl:
     post:
       tags:
-        - Attachment
-      operationId: uploadDocument
-      summary: get the signed URL to upload the Attachment
-      description: the signed URL is used to upload the attachment to the AWS S3 bucket in your next step
+        - Document
+      operationId: getSignedDocumentUrl
+      summary: get the signed URL to upload an Document
+      description: the signed URL is used to upload the Document to the AWS S3 bucket in your next step
       parameters:
         - name: installationId
           description: Filter results to match a given installation
@@ -490,15 +488,12 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/IdSchema'
-        - name: filePath
-          description: URL encoded Path to the file, including folders and subfolders
-          example: folder%2Fsubfolder%2Ffilename.pdf
-          in: path
-          required: true
-          schema:
-            # FIXME: ich kann ein /directoryName/filename.pdf haben, oder nur filename.pdf
-            #             wie escape ich den pfad? URL encoded?
-            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Document'
       responses:
         "200":
           description: temporary valid signed URL to communicate with AWS S3 object store.
@@ -529,102 +524,9 @@ paths:
         type: aws_proxy
 
 
-  /rest/openapi/document/v1/installation/{installationId}/attachment/{filePath}:
-    put:
-      tags:
-        - Attachment
-      operationId: overwriteDocument
-      summary: get the signed URL to update a existing document
-      description: the signed URL is used to update the attachment in the AWS S3 bucket in your next step
-      parameters:
-        - name: installationId
-          description: Filter results to match a given installation
-          in: path
-          required: true
-          schema:
-            $ref: '#/components/schemas/IdSchema'
-        - name: filePath
-          in: path
-          required: true
-          description: URL encoded Path to the file, including folders and subfolders
-          schema:
-            type: string
-            example: folder%2Fsubfolder%2Ffilename.pdf
-      responses:
-        "200":
-          description: created signed URL to communicate with AWS S3 object store.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  signedUrl:
-                    $ref: '#/components/schemas/SignedUrl'
-        "400":
-          $ref: '#/components/responses/CirQitError400'
-        "401":
-          $ref: '#/components/responses/CirQitError401'
-        "403":
-          $ref: '#/components/responses/CirQitError403'
-        "404":
-          $ref: '#/components/responses/CirQitError404'
-        "405":
-          $ref: '#/components/responses/CirQitError405'
-        "500":
-          $ref: '#/components/responses/CirQitError500'
-      x-amazon-apigateway-integration:
-        uri: ### OpenApiFunction ###
-        httpMethod: POST
-        type: aws_proxy
-
-    delete:
-      tags:
-        - Attachment
-      operationId: deleteDocument
-      summary: get the signed URL to delete a existing document
-      description: the signed URL is used to delete the attachment in the AWS S3 bucket in your next step
-      parameters:
-        - name: installationId
-          description: Filter results to match a given installation
-          in: path
-          required: true
-          schema:
-            $ref: '#/components/schemas/IdSchema'
-        - name: filePath
-          in: path
-          required: true
-          description: URL encoded Path to the file, including folders and subfolders
-          schema:
-            type: string
-            example: folder%2Fsubfolder%2Ffilename.pdf
-      responses:
-        "200":
-          description: created signed URL to communicate with AWS S3 object store.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  signedUrl:
-                    $ref: '#/components/schemas/SignedUrl'
-        "400":
-          $ref: '#/components/responses/CirQitError400'
-        "401":
-          $ref: '#/components/responses/CirQitError401'
-        "403":
-          $ref: '#/components/responses/CirQitError403'
-        "404":
-          $ref: '#/components/responses/CirQitError404'
-        "405":
-          $ref: '#/components/responses/CirQitError405'
-        "500":
-          $ref: '#/components/responses/CirQitError500'
-      x-amazon-apigateway-integration:
-        uri: ### OpenApiFunction ###
-        httpMethod: POST
-        type: aws_proxy
-
-
+#  ################################################### #
+#  #                                COMPONENTS                                                  # #
+#  ################################################### #
 components:
   schemas:
     JWTAccessTokenRequest:
@@ -730,16 +632,19 @@ components:
               items:
                 oneOf:
                   - $ref: '#/components/schemas/Installation'
-                # FIXME: fails for validation, but guess it's OK like this
                   - $ref: '#/components/schemas/DirectoryTree'
 
     Installation:
       type: object
       description: the Installation object
       required:
-        - licenseType
-        - commission
         - name
+        - licenseType
+        - companyName
+        - commission
+        - rootId
+        - parentId
+        - accountId
       properties:
         name:
           type: string
@@ -771,23 +676,18 @@ components:
               example: 11.243008
         id:
           type: string
-          readOnly: true
           example: ABCDE-12345
         companyName:
           type: string
-          readOnly: true
           example: Huber AG
         rootId:
           type: string
-          readOnly: true
           example: FGHIJ-56789
         parentId:
           type: string
-          readOnly: true
           example: KLMNO-98765
         accountId:
           type: string
-          readOnly: true
           example: mario
         role:
           type: string
@@ -818,11 +718,6 @@ components:
           type: boolean
           description: if the document is visible for the administrator only
           example: true
-        version:
-          type: string
-          readOnly: true
-          description: the version of the document in the cirQit environment
-          example: abcd1234EFGH5678jklm
         installationId:
           type: string
           readOnly: true
@@ -832,15 +727,119 @@ components:
           type: string
           description: slash delimited path of the directory where the document is stored.
           example: folder/subfolder1/subfolder2
-        createdDate:
+        versions:
+          type: array
+          description: List of version objects containing version information
+          items:
+            $ref: '#/components/schemas/DocumentVersion'
+
+    DocumentVersion:
+      type: object
+      description: | 
+        Version information of the document. 
+        At the time being, only the versionId "latest" is supported. 
+        There will be support for more version coming soon.
+      required:
+        - version
+        - size
+        - createdDate
+      properties:
+        versionId:
           type: string
-          format: date-time
-          description: Creation date in the cirQit environment of the document in ISO 8601 format "YYYY-MM-DDTHH:MM:SS".
-          example: "2023-09-05T21:12:18"
+          description: The versionId of the document
+          example: abcd1234EFGH5678jklm
+        size:
+          type: number
+          description: Size of the document in bytes
+          example: 123456
         mimeType:
           type: string
           description: Mime type of the document.
           example: application/pdf
+        createdDate:
+          type: string
+          format: date-time
+          description: Creation date in the cirQit environment of the document in ISO 8601 format "YYYY-MM-DDTHH:MM:SS"
+          example: "2023-09-05T21:12:18"
+
+    Document:
+      description: Path to the file, including folders and subfolders
+      oneOf:
+
+        - type: object
+          title: Attachment
+          description: Attachment document type
+          required:
+            - documentType
+            - fileName
+            - path
+            - action
+          properties:
+            documentType:
+              type: string
+              description: Type of the document in the installation.
+              enum:
+                - ATTACHMENT
+              example: ATTACHMENT
+            fileName:
+              type: string
+              description: name of the document.
+              example: my-file.txt
+            path:
+              type: string
+              description: slash delimited path of the directory where the document is stored.
+              example: folder/subfolder1/subfolder2
+            action:
+              type: string
+              description: Action to be performed on the document.
+              enum:
+                - UPLOAD
+                - DOWNLOAD
+                - OVERWRITE
+                - DELETE
+              example: UPLOAD
+            version:
+              type: string
+              description: |
+                Version of the document. The version is provided in the response of the DocumentMetadata. 
+                If the version is not provided, the latest version is used.
+              example: abcd1234EFGH5678jklm
+
+        - type: object
+          title: Schema
+          description: Schema document type
+          required:
+            - documentType
+            - action
+          properties:
+            documentType:
+              type: string
+              description: Type of the document in the installation.
+              enum:
+                - SCHEMA
+              example: SCHEMA
+            action:
+              type: string
+              description: Action to be performed on the document.
+              enum:
+                - UPLOAD
+                - DOWNLOAD
+                - OVERWRITE
+                - DELETE
+              example: UPLOAD
+            version:
+              type: string
+              description: |
+                Version of the schema. The version is provided in the response of the DocumentMetadata. 
+                If the version is not provided, the latest version is used.
+                With the version ORIGINAL, the uploaded schema is used.
+              enum:
+                - ORIGINAL
+                - LATEST
+              default: LATEST
+              example: abcd1234EFGH5678jklm
+              pattern: '^(ORIGINAL|LATEST|.*)$'
+
 
     SignedUrl:
         type: string
