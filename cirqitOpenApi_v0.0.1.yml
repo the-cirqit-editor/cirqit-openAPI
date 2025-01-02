@@ -763,49 +763,52 @@ components:
           example: "2023-09-05T21:12:18"
 
     Document:
-      description: Path to the file, including folders and subfolders
       oneOf:
+        - $ref: '#/components/schemas/AttachmentDocument'
+        - $ref: '#/components/schemas/SchemaDocument'
 
-        - type: object
-          title: AttachmentDocument
-          description: Attachment document type
-          required:
-            - documentType
-            - fileName
-            - path
-            - action
-          properties:
-            documentType:
-              type: string
-              description: Type of the document in the installation.
-              enum:
-                - ATTACHMENT
-              example: ATTACHMENT
-            fileName:
-              type: string
-              description: name of the document.
-              example: my-file.txt
-            path:
-              type: string
-              description: slash delimited path of the directory where the document is stored.
-              example: folder/subfolder1/subfolder2
-            action:
-              type: string
-              description: Action to be performed on the document.
-              enum:
-                - UPLOAD
-                - DOWNLOAD
-                - OVERWRITE
-                - DELETE
-              example: UPLOAD
-            version:
-              type: string
-              description: |
-                Version of the document. The version is provided in the response of the DocumentMetadata. 
-                If the version is not provided, the latest version is used.
-              example: abcd1234EFGH5678jklm
+    AttachmentDocument:
+      type: object
+      title: AttachmentDocument
+      description: Attachment document type
+      required:
+        - documentType
+        - fileName
+        - path
+        - action
+      properties:
+        documentType:
+          type: string
+          description: Type of the document in the installation.
+          enum:
+            - ATTACHMENT
+          example: ATTACHMENT
+        fileName:
+          type: string
+          description: name of the document.
+          example: my-file.txt
+        path:
+          type: string
+          description: slash delimited path of the directory where the document is stored.
+          example: folder/subfolder1/subfolder2
+        action:
+          type: string
+          description: Action to be performed on the document.
+          enum:
+            - UPLOAD
+            - DOWNLOAD
+            - OVERWRITE
+            - DELETE
+          example: UPLOAD
+        version:
+          type: string
+          description: |
+            Version of the document. The version is provided in the response of the DocumentMetadata. 
+            If the version is not provided, the latest version is used.
+          example: abcd1234EFGH5678jklm
 
-        - type: object
+    SchemaDocument:
+          type: object
           title: SchemaDocument
           description: Schema document type
           required:
