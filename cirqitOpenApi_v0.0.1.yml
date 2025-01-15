@@ -187,7 +187,7 @@ paths:
   #  #                                Directory and Tree                                             # #
   #  ################################################### #
   # Tree / Directory - GetDirectoryTreeFunction
-  /rest/v1/tree:
+  /rest/v1/directoryTree:
     get:
       tags:
         - Tree
@@ -196,11 +196,13 @@ paths:
       description: get the listing with all the directories and subdirectories
       responses:
         "200":
-          description: DirectoryTree.
+          description: the tree of directories with the children
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DirectoryTree'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Directory'
         "400":
           $ref: '#/components/responses/CirQitError400'
         "401":
@@ -217,21 +219,14 @@ paths:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
-  # Tree / Directory - CreateDirectoryFunction
-  /rest/v1/tree/{parentId}:
+
+  /rest/v1/directory:
     post:
       tags:
         - Tree
       operationId: createDirectory
       summary: create a directory
       description: create a directory in the tree.
-      parameters:
-        - name: parentId
-          description: the parent directory
-          in: path
-          required: true
-          schema:
-            $ref: '#/components/schemas/IdSchema'
       requestBody:
         required: true
         content:
@@ -241,6 +236,45 @@ paths:
       responses:
         "201":
           description: the created directory
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Directory'
+        "400":
+          $ref: '#/components/responses/CirQitError400'
+        "401":
+          $ref: '#/components/responses/CirQitError401'
+        "403":
+          $ref: '#/components/responses/CirQitError403'
+        "405":
+          $ref: '#/components/responses/CirQitError405'
+        "409":
+          $ref: '#/components/responses/CirQitError409'
+        "500":
+          $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+  #  Directory - DirectoryFunction
+  /rest/v1/directory/{directoryId}:
+    get:
+      tags:
+        - Tree
+      operationId: getDirectory
+      summary: get a directory
+      description: get the directory with the given Id.
+      parameters:
+        - name: directoryId
+          description: the ID of the directory
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/IdSchema'
+      responses:
+        "200":
+          description: the directory
           content:
             application/json:
               schema:
@@ -449,14 +483,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - items
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/DocumentMetadata'
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentMetadata'
         "400":
           $ref: '#/components/responses/CirQitError400'
         "401":
@@ -604,35 +633,45 @@ components:
         name:
           type: string
           example: Project on the street
+          description: the name of the directory
         description:
           type: string
           example: a description of the directory
+          description: the description of the directory
+        parentId:
+          type: string
+          example: KLMNO-98765
+          description: the ID of the parent directory
+
         accountId:
           type: string
           readOnly: true
           example: mario
+          description: the accountID of the user who created the directory
         role:
           type: string
           readOnly: true
           example: ADMINISTRATOR
+          description: the role of this user in this directory
         id:
           type: string
           readOnly: true
           example: FGHIJ-67890
-
-    DirectoryTree:
-      type: object
-      description: the directory tree object to build a recursive tree
-      allOf:
-        - $ref: '#/components/schemas/Directory'
-        - type: object
-          properties:
-            children:
-              type: array
-              items:
-                oneOf:
-                  - $ref: '#/components/schemas/Installation'
-                  - $ref: '#/components/schemas/DirectoryTree'
+          description: the ID of the directory
+        installations:
+           type: array
+           readOnly: true
+           description: the installations in this directory
+           items:
+                type: string
+                example: ABCDE-12345
+                description: the ID of the installation
+        children:
+           type: array
+           readOnly: true
+           description: the children directories in this directory
+           items:
+                $ref: '#/components/schemas/Directory'
 
     Installation:
       type: object
@@ -705,18 +744,30 @@ components:
       description: the metadata of the document stored in the AWS S3 bucket
       required:
         - fileName
+        - documentType
       properties:
         fileName:
           type: string
           description: alphanumeric name of the document.
           example: my-file.txt
+        documentType:
+          type: string
+          description: Type of the document in the installation.
+          enum:
+            - ATTACHMENT
+            - SCHEMA
+          example: ATTACHMENT
         displayName:
           type: string
           description: display name of the document.
           example: My File
+        description:
+          type: string
+          description: details of the document content
+          example: Lorem ipsum dolor sit amet, consectetur adipiscing elit
         locked:
           type: boolean
-          description: if the document is visible for the administrator only
+          description: whether the document is visible for Admins (true) only or open for everybody (false)
           example: true
         installationId:
           type: string
@@ -791,6 +842,14 @@ components:
           type: string
           description: slash delimited path of the directory where the document is stored.
           example: folder/subfolder1/subfolder2
+        description:
+          type: string
+          description: description of the document.
+          example: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+        locked:
+          type: boolean
+          description: whether the document is visible for Admins only (true) or open for everybody (false)
+          example: true
         action:
           type: string
           description: Action to be performed on the document.
