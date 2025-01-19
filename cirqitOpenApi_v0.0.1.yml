@@ -61,6 +61,7 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
+              title: JWTAccessTokenRequest
               type: object
               properties:
                 client_id:
@@ -72,9 +73,9 @@ paths:
                   example: your-client-secret
                   description: the user secret which is provided by the cirQit application
                 scope:
-                    type: string
-                    example: cirqit/read cirqit/write
-                    description: the scope of the access token
+                  type: string
+                  example: cirqit/read cirqit/write
+                  description: the scope of the access token
       responses:
         '200':
           description: Authentication token retrieved successfully
@@ -103,6 +104,7 @@ paths:
           $ref: '#/components/responses/CirQitError401'
         "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-request-validator: FormBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
@@ -114,13 +116,14 @@ paths:
         - OAuth2
       operationId: verifyAuthToken
       summary: Verify authentication token
-      description: | 
+      description: |
         Verify the provided authentication token similar to a introspect endpoint (https://oauth.net/2/token-introspection/).
         This endpoint should be used if you need to validate your token. It is not required for the normal operation of the API.
       requestBody:
         required: true
         content:
           application/x-www-form-urlencoded:
+            title: JWTAccessTokenVerification
             schema:
               type: object
               required:
@@ -162,6 +165,7 @@ paths:
           $ref: '#/components/responses/CirQitError401'
         "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-request-validator: FormBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
@@ -205,6 +209,7 @@ paths:
           $ref: '#/components/responses/CirQitError405'
         "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-request-validator: JsonBodyValidation
       x-amazon-apigateway-integration:
         # NOTE: the API is called by a GET, but we forward a POST to the Lambda because the API-Gateway adds some information
         uri: ### OpenApiFunction ###
@@ -243,6 +248,7 @@ paths:
           $ref: '#/components/responses/CirQitError405'
         "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-request-validator: JsonBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
@@ -280,6 +286,7 @@ paths:
           $ref: '#/components/responses/CirQitError409'
         "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-request-validator: JsonBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
@@ -319,6 +326,7 @@ paths:
           $ref: '#/components/responses/CirQitError409'
         "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-request-validator: JsonBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
@@ -360,6 +368,7 @@ paths:
           $ref: '#/components/responses/CirQitError409'
         "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-request-validator: JsonBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
@@ -400,6 +409,7 @@ paths:
           $ref: '#/components/responses/CirQitError405'
         "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-request-validator: JsonBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
@@ -443,6 +453,7 @@ paths:
           $ref: '#/components/responses/CirQitError405'
         "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-request-validator: JsonBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
@@ -481,6 +492,7 @@ paths:
           $ref: '#/components/responses/CirQitError405'
         "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-request-validator: JsonBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
@@ -586,30 +598,6 @@ paths:
 #  ################################################### #
 components:
   schemas:
-#    JWTAccessTokenRequest:
-#      description: Request a new access token using a refresh token. The refresh token is provided by the cirQit application.
-#      type: object
-#      required:
-#        - jwtRefreshToken
-#        - clientId
-#        - scope
-#      properties:
-#        jwtRefreshToken:
-#          type: string
-#          description: The refresh token
-#          example: your-refresh-token
-#        clientId:
-#          type: string
-#          description: The ID of the requesting application
-#          example: ElektroForm Solar
-#        scope:
-#          type: string
-#          description: The scope of the access token
-#          example: cirqit/read cirqit/write
-#    JWTAccessToken:
-#      type: string
-#      description: The JWT Token
-#      example: your-new-JWT-access-token
 
     IdSchema:
       type: string
@@ -687,19 +675,19 @@ components:
           example: FGHIJ-67890
           description: the ID of the directory
         installations:
-           type: array
-           readOnly: true
-           description: the installations in this directory
-           items:
-                type: string
-                example: ABCDE-12345
-                description: the ID of the installation
+          type: array
+          readOnly: true
+          description: the installations in this directory
+          items:
+            type: string
+            example: ABCDE-12345
+            description: the ID of the installation
         children:
-           type: array
-           readOnly: true
-           description: the children directories in this directory
-           items:
-                $ref: '#/components/schemas/Directory'
+          type: array
+          readOnly: true
+          description: the children directories in this directory
+          items:
+            $ref: '#/components/schemas/Directory'
 
 
 
@@ -817,7 +805,7 @@ components:
 
     DocumentVersion:
       type: object
-      description: | 
+      description: |
         Version information of the document. 
         At the time being, only the versionId "latest" is supported. 
         There will be support for more version coming soon.
@@ -898,46 +886,46 @@ components:
           example: abcd1234EFGH5678jklm
 
     SchemaDocument:
-          type: object
-          title: SchemaDocument
-          description: Schema document type
-          required:
-            - documentType
-            - action
-          properties:
-            documentType:
-              type: string
-              description: Type of the document in the installation.
-              enum:
-                - SCHEMA
-              example: SCHEMA
-            action:
-              type: string
-              description: Action to be performed on the document.
-              enum:
-                - UPLOAD
-                - DOWNLOAD
-                - OVERWRITE
-                - DELETE
-              example: UPLOAD
-            version:
-              type: string
-              description: |
-                Version of the schema. The version is provided in the response of the DocumentMetadata. 
-                If the version is not provided, the latest version is used.
-                With the version ORIGINAL, the uploaded schema is used.
-              enum:
-                - ORIGINAL
-                - LATEST
-              default: LATEST
-              example: abcd1234EFGH5678jklm
-              pattern: '^(ORIGINAL|LATEST|.*)$'
+      type: object
+      title: SchemaDocument
+      description: Schema document type
+      required:
+        - documentType
+        - action
+      properties:
+        documentType:
+          type: string
+          description: Type of the document in the installation.
+          enum:
+            - SCHEMA
+          example: SCHEMA
+        action:
+          type: string
+          description: Action to be performed on the document.
+          enum:
+            - UPLOAD
+            - DOWNLOAD
+            - OVERWRITE
+            - DELETE
+          example: UPLOAD
+        version:
+          type: string
+          description: |
+            Version of the schema. The version is provided in the response of the DocumentMetadata. 
+            If the version is not provided, the latest version is used.
+            With the version ORIGINAL, the uploaded schema is used.
+          enum:
+            - ORIGINAL
+            - LATEST
+          default: LATEST
+          example: abcd1234EFGH5678jklm
+          pattern: '^(ORIGINAL|LATEST|.*)$'
 
 
     SignedUrl:
-        type: string
-        description: get the signed URL to communicate with the AWS S3 bucket store
-        example: https://app.cirqit.cloud/data/anlage/MHXKN-XSDUA/pdf/schema.pdf?Expires=173xxxx&Signature=1iOxxxx&Key-Pair-Id=K2Gxxxx
+      type: string
+      description: get the signed URL to communicate with the AWS S3 bucket store
+      example: https://app.cirqit.cloud/data/anlage/MHXKN-XSDUA/pdf/schema.pdf?Expires=173xxxx&Signature=1iOxxxx&Key-Pair-Id=K2Gxxxx
 
 
     CirQitError:
