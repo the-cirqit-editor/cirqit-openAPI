@@ -15,14 +15,23 @@ info:
   x-visibility: public
 
 servers:
-  - url: https://472d09ov47.execute-api.eu-central-1.amazonaws.com
+  - url: https://c9nc9jotk8.execute-api.eu-central-1.amazonaws.com/api
     description: Development API-Gateway
     variables: { }
-  - url: https://api.github.com/api
-    description: Productive CloudFront access
+  - url: https://d3kqo5uf0sz7wm.cloudfront.net/api
+    description: Development Cloudfront
+    variables: { }
+  - url: https://api-dev.cirqit.cloud
+    description: Development OpenAPI access
+    variables: { }
+  - url: https://api-test.cirqit.cloud
+    description: Test OpenAPI access
+    variables: { }
+  - url: https://api.cirqit.cloud
+    description: Prod OpenAPI access
     variables: { }
 tags:
-  - name: Auth
+  - name: OAuth2
     description: the Authorization process
   - name: Company
     description: Operations to get the Company data
@@ -40,29 +49,32 @@ paths:
   #  ################################################### #
   #  #                                AUTHENTICATION                                            # #
   #  ################################################### #
-  /auth/token:
+  /oauth2/token:
     post:
       tags:
-        - Auth
+        - OAuth2
       operationId: getJWTAccessToken
       summary: Get authentication token with ClientID and Secret
-      description: Obtain an authentication token by providing the ClientID and Secret
+      description: Obtain an authentication token by providing the ClientID and Secret (https://oauth.net/2/client-authentication/)
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-www-form-urlencoded:
             schema:
               type: object
               properties:
-                clientId:
+                client_id:
                   type: string
                   example: your-client-id
-                clientSecret:
+                  description: the user which has obtained the client secret from the cirQit application
+                client_secret:
                   type: string
                   example: your-client-secret
+                  description: the user secret which is provided by the cirQit application
                 scope:
                     type: string
                     example: cirqit/read cirqit/write
+                    description: the scope of the access token
       responses:
         '200':
           description: Authentication token retrieved successfully
@@ -82,7 +94,7 @@ paths:
                   expires_in:
                     type: string
                     description: the time in seconds when this token expires
-                    example: your jwt access-token (ey....)
+                    example: 876543
                   scope:
                     type: string
                     description: the scope of the access token
@@ -96,29 +108,27 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-  /auth/verify:
+  /oauth2/verify:
     post:
       tags:
-        - Auth
+        - OAuth2
       operationId: verifyAuthToken
       summary: Verify authentication token
-      description: Verify the provided authentication token
+      description: | 
+        Verify the provided authentication token similar to a introspect endpoint (https://oauth.net/2/token-introspection/).
+        This endpoint should be used if you need to validate your token. It is not required for the normal operation of the API.
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-www-form-urlencoded:
             schema:
               type: object
               required:
-                - access_token
+                - token
               properties:
-                access_token:
+                token:
                   type: string
                   example: your-access-token
-                scope:
-                  type: string
-                  description: the scope of the access token, it is verified whether the scope is covered with the token
-                  example: your jwt access-token (ey....)
       responses:
         '200':
           description: Token verified successfully
@@ -130,6 +140,24 @@ paths:
                   valid:
                     type: boolean
                     example: true
+                    description: The token is valid
+                  token_type:
+                    type: string
+                    description: the type of token this is, typically just the string “Bearer”.
+                    example: your jwt access-token (ey....)
+                  expires_in:
+                    type: number
+                    description: the time in seconds when this token expires
+                    example: 876543
+                  expire_date:
+                    type: string
+                    format: date-time
+                    description: the human readable date when this token expires
+                    example: "2023-09-05T21:12:18"
+                  scope:
+                    type: string
+                    description: the scope of the access token
+                    example: cirqit/read cirqit/write
         "401":
           $ref: '#/components/responses/CirQitError401'
         "500":
@@ -558,30 +586,30 @@ paths:
 #  ################################################### #
 components:
   schemas:
-    JWTAccessTokenRequest:
-      description: Request a new access token using a refresh token. The refresh token is provided by the cirQit application.
-      type: object
-      required:
-        - jwtRefreshToken
-        - clientId
-        - scope
-      properties:
-        jwtRefreshToken:
-          type: string
-          description: The refresh token
-          example: your-refresh-token
-        clientId:
-          type: string
-          description: The ID of the requesting application
-          example: ElektroForm Solar
-        scope:
-          type: string
-          description: The scope of the access token
-          example: cirqit/read cirqit/write
-    JWTAccessToken:
-      type: string
-      description: The JWT Token
-      example: your-new-JWT-access-token
+#    JWTAccessTokenRequest:
+#      description: Request a new access token using a refresh token. The refresh token is provided by the cirQit application.
+#      type: object
+#      required:
+#        - jwtRefreshToken
+#        - clientId
+#        - scope
+#      properties:
+#        jwtRefreshToken:
+#          type: string
+#          description: The refresh token
+#          example: your-refresh-token
+#        clientId:
+#          type: string
+#          description: The ID of the requesting application
+#          example: ElektroForm Solar
+#        scope:
+#          type: string
+#          description: The scope of the access token
+#          example: cirqit/read cirqit/write
+#    JWTAccessToken:
+#      type: string
+#      description: The JWT Token
+#      example: your-new-JWT-access-token
 
     IdSchema:
       type: string
@@ -672,6 +700,9 @@ components:
            description: the children directories in this directory
            items:
                 $ref: '#/components/schemas/Directory'
+
+
+
 
     Installation:
       type: object

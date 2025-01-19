@@ -4,6 +4,17 @@
 * import Collection
 * OpenAPI v3 File
 
+NOTE: OpenAPI allows to define recursive components. But Bruno does not support recursions. Therefore,
+the Directory-Children parameter needs to be deleted to import it.
+
+```aiignore
+        children:
+           type: array
+           readOnly: true
+           description: the children directories in this directory
+           items:
+                $ref: '#/components/schemas/Directory'
+```
 
 ## configure authentication
 ### get token
@@ -20,16 +31,18 @@ body:json {
 ```
 
 #### store the token as environment variable
+(see store-auth-token-with-tests.png)
+
 ```aiignore 
 tests {
-    console.log("execute tests "+res.getBody())
     // Set the token as a variable
     bru.setEnvVar("jwtToken", res.getBody());
-    console.log("jwt token set "+bru.getEnvVar("jwtToken") )
 }
 ```
 
 ### set the token to the header
+(see use-auth-token-in-all-requests.png)
+
 * cirQit OpenAPI -> Settings
 * add Header:
     * key: Authorization
