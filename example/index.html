@@ -56,6 +56,15 @@
             padding: 10px;
             vertical-align: top;
         }
+        td:first-child {
+            width: 40%;
+        }
+        td:last-child {
+            width: 10%;
+        }
+        td {
+            vertical-align: top;
+        }
         .icon {
             width: 100px;
             height: 50px;
@@ -92,24 +101,28 @@
 <div class="container">
     <div class="section">
         <h2>Get the secret</h2>
-        <a href="https://app-dev.cirqit.cloud/#/account" target="_blank">Authentisierungsdaten in cirQit beziehen</a><br/>
+        Click me:  <a href="https://app-dev.cirqit.cloud/#/account" target="_blank">Authentisierungsdaten in cirQit beziehen</a><br/>
+        <span id="jwtToken" hidden="hidden"></span>
         <table>
             <tr>
                 <td>client_id:</td>
                 <td><input type="text" name="cirQit login Name" id="clientId" placeholder="cirQit login Name"
                            value="mario">
                 </td>
+                <td></td>
             </tr>
             <tr>
                 <td>client_secret:</td>
-                <td><textarea name="Schlüssel für Open API" id="clientSecret" placeholder="Schlüssel für Open API" rows="4">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjaXJRaXQtYXV0aDAiLCJjb21wYW55IjoiZG9mZXIgbmFtZSIsInVzZXJJZCI6Im1hcmlvIiwiZXhwIjoxNzM5ODcwMjgxLCJhdWQiOiJjaXJxaXQuY2xvdWQvb3BlbmFwaSIsImlhdCI6MTczNzI3ODI4MSwiZ3JhbnRfdHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsInNjb3BlIjoiY2lycWl0LmFwaS5yZWFkIiwidG9rZW5fdHlwZSI6InJlZnJlc2gifQ.6fgzCo5yo5sG32YwEfnNcAZSi60Z40l-2uHzHDoHZFI</textarea>
-
-                </textarea></td>
+                <td>
+                    <textarea name="Schlüssel für Open API" id="clientSecret" placeholder="Schlüssel für Open API" rows="4"
+                    >eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjaXJRaXQtYXV0aDAiLCJjb21wYW55IjoiZG9mZXIgbmFtZSIsInVzZXJJZCI6Im1hcmlvIiwiZXhwIjoxNzM5ODcwMjgxLCJhdWQiOiJjaXJxaXQuY2xvdWQvb3BlbmFwaSIsImlhdCI6MTczNzI3ODI4MSwiZ3JhbnRfdHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsInNjb3BlIjoiY2lycWl0LmFwaS5yZWFkIiwidG9rZW5fdHlwZSI6InJlZnJlc2gifQ.6fgzCo5yo5sG32YwEfnNcAZSi60Z40l-2uHzHDoHZFI</textarea>
+                </td>
+                <td></td>
             </tr>
             <tr>
                 <td><button onclick="getAccessToken()">request access token</button></td>
-                <td><span id="jwtValidate"></span></td>
-                <span id="jwtToken" hidden="hidden"></span>
+                <td></td>
+                <td><span id="jwtValidateIcon"></span></td>
             </tr>
         </table>
     </div>
@@ -118,55 +131,54 @@
         <h2>get company</h2>
         <table>
             <tr>
+                <td><button onclick="loadCompany()">request my company</button></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
                 <td>company name</td>
                 <td><span id="companyName"></span></td>
+                <td></td>
             </tr>
             <tr>
                 <td>commissions</td>
                 <td><span id="commission"></span></td>
-            </tr>
-            <tr>
-                <td><button onclick="loadCompany()">request my company</button></td>
                 <td><span id="companyIcon"></span></td>
             </tr>
         </table>
     </div>
 
     <div class="section">
-        <h2>load existing directory tree from cirQit</h2>
+        <h2>select directory from existing tree</h2>
         <table>
-            <tr>
-                <td id="directoryTree">request access token before continue</td>
-                <td></td>
-            </tr>
             <tr>
                 <td><button onclick="loadTree()">request directory tree</button></td>
                 <td><textarea id="jsonTextarea" class="json-textarea" readonly></textarea></td>
+                <td><span id="treeIcon"></span></td>
+            </tr>
+            <tr>
+                <td>enter existing directory name</td>
+                <td><input type="text" id="directoryIdInput" placeholder="Enter Directory Name"></td>
+                <td><span id="directoryExists"></span></td>
             </tr>
         </table>
     </div>
     <div class="section">
-        <h2>Select the directory to upload</h2>
+        <h2>create directory</h2>
         <table>
             <tr>
+                <td>directory name</td>
                 <td>
-                    Find name in existing directory tree:
-                </td>
-                <td><input type="text" id="directoryIdInput" placeholder="Enter Directory Name"></td>
-            </tr>
-            <tr>
-                <td>
-                </td>
-                <td><span id="directoryExists"></span></td>
-            </tr>
-            <tr>
-                <td>
-                    create new directory in the root of the tree
                     <input type="text" id="createDir" placeholder="Enter Directory Name">
-                    <button onclick="createDirectory()">create directory</button>
                 </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><button onclick="createDirectory()">create directory</button></td>
+                <td></td>
                 <td><span id="directoryCreated"></span></td>
             </tr>
+
         </table>
     </div>
     <div class="section">
@@ -175,14 +187,28 @@
             <tr>
                 <td>Directory ID</td>
                 <td><span id="directoryId"></span></td>
+                <td></td>
             </tr>
             <tr>
+                <td>Name of Installation</td>
                 <td>
                     <input type="text" id="installationName" placeholder="Enter Installation Name">
                 </td>
                 <td></td>
             </tr>
             <tr>
+                <td>directory name (directory ID)</td>
+                <td>... ()</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>company name</td>
+                <td>...
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>comission</td>
                 <td>
                     <input type="text" id="commissionInput" placeholder="Enter comission">
                 </td>
@@ -190,18 +216,24 @@
             </tr>
             <tr>
                 <td>
-                    <button onclick="createInstallation()">create directory</button>
+                    <button onclick="createInstallation()">create installation</button>
                 </td>
+                <td></td>
                 <td>
-                    <span id="installationId"></span>
                     <span id="installationIcon"></span>
                 </td>
+            </tr>
+            <tr>
+                <td>Installation ID</td>
+                <td><span id="installationId"></span></td>
+                <td></td>
             </tr>
             <tr>
                 <td>Link to created installation</td>
                 <td>
                     <span id="installationLink"></span>
                 </td>
+                <td></td>
             </tr>
         </table>
     </div>
@@ -235,11 +267,10 @@
 
             const data = await response.json();
             if (data.access_token) {
-                setButtonState("jwtValidate", "ok");
-                directoryTree.innerHTML = `get directory tree from cirQit (account: <span class="gray-text">${clientId}</span>)`;
+                setButtonState("jwtValidateIcon", "ok");
                 jwtToken.innerText = data.access_token;
             } else {
-                setButtonState("jwtValidate", "nok");
+                setButtonState("jwtValidateIcon", "nok");
             }
         } catch (error) {
             okIcon.style.display = 'none';
@@ -265,8 +296,15 @@
 
         const data = await response.json();
         console.log(data);
-        document.getElementById('companyName').innerHTML = data.companyName;
+        if (data.companyName) {
+            setButtonState('companyIcon', 'ok');
+            document.getElementById('companyName').innerHTML = data.companyName;
             document.getElementById('commission').innerHTML = data.commission;
+        } else {
+            setButtonState('companyIcon', 'nok');
+            document.getElementById('companyName').innerHTML = ""
+            document.getElementById('commission').innerHTML = ""
+        }
     }
 
 
@@ -286,13 +324,15 @@
 
         const data = await response.json();
         console.log(data);
-        document.getElementById('jsonTextarea').value = JSON.stringify(data, null, 2);
+        if (data) {
+            setButtonState('treeIcon', 'ok');
+            document.getElementById('jsonTextarea').value = JSON.stringify(data, null, 2);
+        } else {
+            setButtonState('treeIcon', 'nok');
+            document.getElementById('jsonTextarea').value = "";
+        }
     }
 
-
-    /** ********************************************************** */
-    /**                    Select the directory to upload                                */
-    /** ********************************************************** */
     document.getElementById('directoryIdInput').addEventListener('input', function() {
         const directoryName = this.value;
         const jsonTextarea = document.getElementById('jsonTextarea').value;
@@ -324,6 +364,10 @@
         return false;
     }
 
+
+    /** ********************************************************** */
+    /**                    create directory                                                     */
+    /** ********************************************************** */
     async function createDirectory() {
         const clientId = document.getElementById('clientId').value;
         const clientSecret = document.getElementById('clientSecret').value;
@@ -406,7 +450,7 @@
         console.log(data);
         if (data.id) {
             document.getElementById('installationId').innerHTML = data.id;
-            document.getElementById('installationLink').innerHTML = "<a href='http://app-dev.cirqit.cloud/#/installation/"+data.id+"'>go to "+data.name+"</a>"
+            document.getElementById('installationLink').innerHTML = '<a href=\'http://app-dev.cirqit.cloud/#/installation/'+data.id+'\' target=\'_blank\'>http://app-dev.cirqit.cloud/#/installation/'+data.id+'</a>'
             setButtonState('installationIcon', 'ok');
         } else {
             setButtonState('installationIcon', 'nok');
