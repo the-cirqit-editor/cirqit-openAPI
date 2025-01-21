@@ -122,11 +122,11 @@
                 <td><span id="companyName"></span></td>
             </tr>
             <tr>
-                <td>commission</td>
+                <td>commissions</td>
                 <td><span id="commission"></span></td>
             </tr>
             <tr>
-                <td><button onclick="loadCompany()">directory tree laden</button></td>
+                <td><button onclick="loadCompany()">request my company</button></td>
                 <td><span id="companyIcon"></span></td>
             </tr>
         </table>
@@ -140,7 +140,7 @@
                 <td></td>
             </tr>
             <tr>
-                <td><button onclick="loadTree()">directory tree laden</button></td>
+                <td><button onclick="loadTree()">request directory tree</button></td>
                 <td><textarea id="jsonTextarea" class="json-textarea" readonly></textarea></td>
             </tr>
         </table>
@@ -184,7 +184,7 @@
             </tr>
             <tr>
                 <td>
-                    <input type="text" id="comission" placeholder="Enter comission">
+                    <input type="text" id="commissionInput" placeholder="Enter comission">
                 </td>
                 <td></td>
             </tr>
@@ -192,12 +192,18 @@
                 <td>
                     <button onclick="createInstallation()">create directory</button>
                 </td>
-                <td></td>
+                <td>
+                    <span id="installationId"></span>
+                    <span id="installationIcon"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>Link to created installation</td>
+                <td>
+                    <span id="installationLink"></span>
+                </td>
             </tr>
         </table>
-    </div>
-    <div class="section">
-        <h2>link to "Schematasche"</h2>
     </div>
 </div>
 
@@ -305,7 +311,7 @@
         if (typeof data === 'object' && data !== null) {
             if (data.name === directoryName) {
                 console.log("ID: ", data);
-                document.getElementById('directoryId').innerHTML = "ID: "+ data.id;
+                document.getElementById('directoryId').innerHTML = data.id;
                 return true;
             }
             for (let key in data) {
@@ -363,12 +369,12 @@
     /**                    create installation                                                  */
     /** ********************************************************** */
     async function createInstallation() {
-        const clientId = document.getElementById('clientId').value;
-        const clientSecret = document.getElementById('clientSecret').value;
+        const clientId = document.getElementById('clientId').value
+        const clientSecret = document.getElementById('clientSecret').value
         const directoryId = document.getElementById('directoryId').innerText
         const companyName = document.getElementById('companyName').innerText
-        const installationName = document.getElementById('installationName').value;
-        const commission = document.getElementById('commission').value;
+        const installationName = document.getElementById('installationName').value
+        const commission = document.getElementById('commissionInput').value
         const token = jwtToken.innerText
 
         if (installationName === '') {
@@ -376,24 +382,35 @@
             return;
         }
 
+        const jsonBody = { name: installationName,
+            accountId: clientId,
+            parentId: directoryId,
+            rootId: directoryId,
+            role: 'admin',
+            description: 'created by cirQit OpenAPI example',
+            licenseType: "public",
+            commission: commission,
+            companyName: companyName
+        }
+        console.log("jsonBody: ",jsonBody)
         const response = await fetch('https://api-dev.cirqit.cloud/rest/v1/installation', {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + token,
                 'content-type': 'application/json'
             },
-            body: JSON.stringify({
-                name: installationName,
-                accountId: clientId,
-                parentId: directoryId,
-                rootId: directoryId,
-                role: 'admin',
-                description: 'created by cirQit OpenAPI example',
-                licenseType: "public",
-                commission: commission,
-                companyName: companyName
-            })
+            body: JSON.stringify(jsonBody)
         });
+
+        const data = await response.json();
+        console.log(data);
+        if (data.id) {
+            document.getElementById('installationId').innerHTML = data.id;
+            document.getElementById('installationLink').innerHTML = "<a href='http://app-dev.cirqit.cloud/#/installation/"+data.id+"'>go to "+data.name+"</a>"
+            setButtonState('installationIcon', 'ok');
+        } else {
+            setButtonState('installationIcon', 'nok');
+        }
     }
 
 
