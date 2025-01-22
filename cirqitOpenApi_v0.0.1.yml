@@ -61,7 +61,6 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              title: JWTAccessTokenRequest
               type: object
               properties:
                 client_id:
@@ -123,7 +122,6 @@ paths:
         required: true
         content:
           application/x-www-form-urlencoded:
-            title: JWTAccessTokenVerification
             schema:
               type: object
               required:
@@ -175,21 +173,13 @@ paths:
   #  ################################################### #
   #  #                                COMPANY                                                         # #
   #  ################################################### #
-  /rest/v1/company/{companyName}:
+  /rest/v1/company:
     get:
       tags:
         - Company
       operationId: getCompany
       summary: get the Company data
-      description: get the properties of the Company
-      parameters:
-        - name: companyName
-          description: the URL encoded name of the company
-          example: Example%20Ltd.
-          in: path
-          required: true
-          schema:
-            type: string
+      description: get the properties of the users Company
       responses:
         "200":
           description: Company.
@@ -639,6 +629,12 @@ components:
         website:
           type: string
           example: www.example.com
+        commission:
+          type: array
+          description: the comissioners of the company
+          example: ["Project 3730", "Project 9382"]
+          items:
+            type: string
 
     Directory:
       type: object
