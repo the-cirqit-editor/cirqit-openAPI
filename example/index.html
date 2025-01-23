@@ -81,6 +81,9 @@
         .nok {
             background-color: red;
         }
+        .waiting {
+            background-color: lightskyblue;
+        }
         .unknown {
             background-color: gray;
         }
@@ -178,7 +181,6 @@
                 <td></td>
                 <td><span id="directoryCreated"></span></td>
             </tr>
-
         </table>
     </div>
     <div class="section">
@@ -237,6 +239,34 @@
             </tr>
         </table>
     </div>
+    <div class="section">
+        <h2>upload attachments</h2>
+        <table>
+            <tr>
+                <td>Installation ID</td>
+                <td>
+                    <input type="text" id="targetInstallationId" placeholder="Enter comission">
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>directory or files to upload</td>
+                <td>
+                    <input type="file" id="fileUpload" name="fileUpload" multiple>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><button onclick="uploadFiles()">upload files</button></td>
+                <td></td>
+                <td>
+                   <span id="attachmentCreatedCounter"></span>
+                   <span id="fileUploadCounter"></span>
+                   <span id="filesUploaded"></span>
+                </td>
+            </tr>
+        </table>
+    </div>
 </div>
 
 
@@ -250,6 +280,7 @@
         const clientSecret = document.getElementById('clientSecret').value;
         const okIcon = document.getElementById('okIcon');
         const nokIcon = document.getElementById('nokIcon');
+        setButtonState("jwtValidateIcon", "waiting");
 
         const formData = new URLSearchParams();
         formData.append('client_id', clientId);
@@ -273,8 +304,7 @@
                 setButtonState("jwtValidateIcon", "nok");
             }
         } catch (error) {
-            okIcon.style.display = 'none';
-            nokIcon.style.display = 'inline-block';
+            setButtonState("jwtValidateIcon", "nok");
         }
     }
 
@@ -286,6 +316,7 @@
     {
         const clientId = document.getElementById('clientId').value;
         const clientSecret = document.getElementById('clientSecret').value;
+        setButtonState('companyIcon', 'waiting');
 
         const response = await fetch('https://api-dev.cirqit.cloud/rest/v1/company', {
             method: 'GET',
@@ -314,6 +345,7 @@
     async function loadTree() {
         const clientId = document.getElementById('clientId').value;
         const clientSecret = document.getElementById('clientSecret').value;
+        setButtonState('treeIcon', 'waiting');
 
         const response = await fetch('https://api-dev.cirqit.cloud/rest/v1/directoryTree', {
             method: 'GET',
@@ -373,11 +405,11 @@
         const clientSecret = document.getElementById('clientSecret').value;
         const directoryName = document.getElementById('createDir').value;
         const token = jwtToken.innerText
+        setButtonState('directoryCreated', 'waiting');
 
         if (directoryName === '') {
             setButtonState('directoryExists', 'undefined');
             setButtonState('directoryCreated', 'nok');
-
             return;
         }
 
@@ -420,6 +452,7 @@
         const installationName = document.getElementById('installationName').value
         const commission = document.getElementById('commissionInput').value
         const token = jwtToken.innerText
+        setButtonState('installationIcon', 'waiting');
 
         if (installationName === '') {
             setButtonState('installationCreated', 'nok');
@@ -450,13 +483,101 @@
         console.log(data);
         if (data.id) {
             document.getElementById('installationId').innerHTML = data.id;
-            document.getElementById('installationLink').innerHTML = '<a href=\'http://app-dev.cirqit.cloud/#/installation/'+data.id+'\' target=\'_blank\'>http://app-dev.cirqit.cloud/#/installation/'+data.id+'</a>'
+            document.getElementById('installationLink').innerHTML = "<a href=\'http://app-dev.cirqit.cloud/#/installation/"+data.id+"\' target=\'_blank\'>http://app-dev.cirqit.cloud/#/installation/"+data.id+"</a>"
+            document.getElementById('targetInstallationId').innerHTML = data.id;
             setButtonState('installationIcon', 'ok');
         } else {
             setButtonState('installationIcon', 'nok');
         }
     }
 
+    /** ********************************************************** */
+    /**                           upload attachments                                        */
+    /** ********************************************************** */
+    async function uploadFiles() {
+        const files = document.getElementById('fileUpload').files;
+        const token = jwtToken.innerText;
+        const target = document.getElementById('targetInstallationId').value;
+        let attachmentCreatedCount = 0;
+        let fileUploadCount = 0;
+
+        for (const file of files) {
+            const directoryPath = file.webkitRelativePath ? file.webkitRelativePath.split('/').slice(0, -1).join('/') : '';
+            const uploadJson = {
+                documentType: 'ATTACHMENT',
+                fileName: file.name,
+                path: directoryPath,
+                action: 'UPLOAD'
+            };
+
+            try {
+                const response = await fetch('https://api-dev.cirqit.cloud/rest/v1/installation/'+target+'/getDocumentUrl', {
+                    method: 'POST',
+                    headers : {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(uploadJson)
+                });
+
+                const data = await response.json();
+                if (data.signedUrl) {
+                    attachmentCreatedCount++;
+                    document.getElementById('attachmentCreatedCounter').innerText = attachmentCreatedCount;
+                    await uploadToS3(data.signedUrl, file);
+                    fileUploadCount++;
+                    document.getElementById('fileUploadCounter').innerText = fileUploadCount;
+                } else {
+                    setButtonState('filesUploaded', 'nok');
+                    return;
+                }
+            } catch (error) {
+                console.error('Error uploading file:', error);
+                setButtonState('filesUploaded', 'nok');
+                return;
+            }
+        }
+
+        setButtonState('filesUploaded', 'ok')
+    }
+
+    async function uploadToS3(signedUrl, file) {
+        try {
+            const contentType = "application/octet-stream";
+            const idToken = jwtToken.innerText;
+            const userName = "mario";
+            const metadata = {
+                name: "test",
+                description: "test",
+                id: "test",
+                locked: "test",
+                directory: "test"
+            };
+            const response = await fetch(signedUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': contentType,
+                    'x-amz-acl': 'bucket-owner-full-control',
+                    'Content-Transfer-Encoding': 'base64',
+                    'Authorization': 'Bearer '+idToken,
+                    'x-amz-meta-user': userName,
+                    'x-amz-meta-name': metadata?metadata.name:"",
+                    'x-amz-meta-description': metadata?metadata.description:"",
+                    'x-amz-meta-installation-id': metadata?metadata.id:"",
+                    'x-amz-meta-locked': metadata?metadata.locked:"",
+                    'x-amz-meta-directory': metadata?metadata.directory:"",
+                },
+                body: file
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to upload to S3');
+            }
+        } catch (error) {
+            console.error('Error uploading to S3:', error);
+            throw error;
+        }
+    }
 
     /** ********************************************************** */
     /**                                   helper function                                        */
@@ -469,12 +590,16 @@
         } else if (state == "nok") {
             element.className = 'icon nok';
             element.innerText =  '_✗_';
+        } else if (state == "waiting") {
+            element.className = 'icon waiting';
+            element.innerText =  '...';
         } else {
             element.className = 'icon unknown';
             element.innerText = '_?_';
-
         }
     }
+
+
 </script>
 </body>
 </html>
