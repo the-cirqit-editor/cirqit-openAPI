@@ -210,7 +210,7 @@
                 <td></td>
             </tr>
             <tr>
-                <td>comission</td>
+                <td>comission (from the response of the get company request)</td>
                 <td>
                     <input type="text" id="commissionInput" placeholder="Enter comission">
                 </td>
@@ -245,7 +245,7 @@
             <tr>
                 <td>Installation ID</td>
                 <td>
-                    <input type="text" id="targetInstallationId" placeholder="Enter comission">
+                    <input type="text" id="targetInstallationId" placeholder="Enter ID of the Installation (XXXXX-XXXXX)">
                 </td>
                 <td></td>
             </tr>
@@ -547,16 +547,18 @@
             const idToken = jwtToken.innerText;
             const userName = "mario";
             const metadata = {
-                name: "test",
-                description: "test",
-                id: "test",
-                locked: "test",
-                directory: "test"
+                name: "trial-requests",
+                description: "trial",
+                id: "5I5RB-LIMH7",
+                directory: ""
             };
+
+
+
             const response = await fetch(signedUrl, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': contentType,
+
                     'x-amz-acl': 'bucket-owner-full-control',
                     'Content-Transfer-Encoding': 'base64',
                     'Authorization': 'Bearer '+idToken,
@@ -569,6 +571,8 @@
                 },
                 body: file
             });
+
+            console.log("put resonse: ",response);
 
             if (!response.ok) {
                 throw new Error('Failed to upload to S3');
