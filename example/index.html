@@ -653,6 +653,8 @@
     async function ___fetchJsonPut(requestUrl, contentType, body, metadata) {
         console.log("fetch put to " + requestUrl, contentType, body, metadata);
         let user = "mario";
+        const idToken = jwtToken.innerText;
+        console.log("idToken: ", idToken);
         console.log("fetch json put. to " + requestUrl + " with user " + user);
         let response = await fetch(requestUrl, {
             method: 'PUT',
@@ -660,7 +662,7 @@
                 'Content-Type': contentType,
                 'x-amz-acl': 'bucket-owner-full-control',
                 'Content-Transfer-Encoding': 'base64',
-       //          'Authorization': 'Bearer ' + idToken,
+                'Authorization': 'Bearer ' + idToken,
                 'x-amz-meta-user': user,
                 'x-amz-meta-name': metadata ? metadata.name : "",
                 'x-amz-meta-description': metadata ? metadata.description : "",
