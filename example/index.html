@@ -308,12 +308,10 @@
         }
     }
 
-
     /** ********************************************************** */
     /**            load company                                                                */
     /** ********************************************************** */
-    async function loadCompany()
-    {
+    async function loadCompany() {
         const clientId = document.getElementById('clientId').value;
         const clientSecret = document.getElementById('clientSecret').value;
         setButtonState('companyIcon', 'waiting');
@@ -333,11 +331,10 @@
             document.getElementById('commission').innerHTML = data.commission;
         } else {
             setButtonState('companyIcon', 'nok');
-            document.getElementById('companyName').innerHTML = ""
-            document.getElementById('commission').innerHTML = ""
+            document.getElementById('companyName').innerHTML = "";
+            document.getElementById('commission').innerHTML = "";
         }
     }
-
 
     /** ********************************************************** */
     /**            load existing directory tree from cirQit                          */
@@ -372,10 +369,10 @@
 
         if (searchDirectory(jsonData, directoryName)) {
             setButtonState('directoryExists', 'ok');
-            setButtonState('directoryCreated', 'undefined');
+            setButtonState('directoryCreated', 'unknown');
         } else {
             setButtonState('directoryExists', 'nok');
-            setButtonState('directoryCreated', 'undefined');
+            setButtonState('directoryCreated', 'unknown');
         }
     });
 
@@ -392,10 +389,9 @@
                 }
             }
         }
-        document.getElementById('directoryId').innerHTML = ""
+        document.getElementById('directoryId').innerHTML = "";
         return false;
     }
-
 
     /** ********************************************************** */
     /**                    create directory                                                     */
@@ -404,11 +400,11 @@
         const clientId = document.getElementById('clientId').value;
         const clientSecret = document.getElementById('clientSecret').value;
         const directoryName = document.getElementById('createDir').value;
-        const token = jwtToken.innerText
+        const token = jwtToken.innerText;
         setButtonState('directoryCreated', 'waiting');
 
         if (directoryName === '') {
-            setButtonState('directoryExists', 'undefined');
+            setButtonState('directoryExists', 'unknown');
             setButtonState('directoryCreated', 'nok');
             return;
         }
@@ -431,27 +427,26 @@
         const data = await response.json();
         console.log(data);
         if (data.id) {
-            document.getElementById('directoryId').innerHTML = "ID: "+ data.id;
-            setButtonState('directoryExists', 'undefined');
+            document.getElementById('directoryId').innerHTML = "ID: " + data.id;
+            setButtonState('directoryExists', 'unknown');
             setButtonState('directoryCreated', 'ok');
         } else {
-            setButtonState('directoryExists', 'undefined');
+            setButtonState('directoryExists', 'unknown');
             setButtonState('directoryCreated', 'nok');
         }
     }
-
 
     /** ********************************************************** */
     /**                    create installation                                                  */
     /** ********************************************************** */
     async function createInstallation() {
-        const clientId = document.getElementById('clientId').value
-        const clientSecret = document.getElementById('clientSecret').value
-        const directoryId = document.getElementById('directoryId').innerText
-        const companyName = document.getElementById('companyName').innerText
-        const installationName = document.getElementById('installationName').value
-        const commission = document.getElementById('commissionInput').value
-        const token = jwtToken.innerText
+        const clientId = document.getElementById('clientId').value;
+        const clientSecret = document.getElementById('clientSecret').value;
+        const directoryId = document.getElementById('directoryId').innerText;
+        const companyName = document.getElementById('companyName').innerText;
+        const installationName = document.getElementById('installationName').value;
+        const commission = document.getElementById('commissionInput').value;
+        const token = jwtToken.innerText;
         setButtonState('installationIcon', 'waiting');
 
         if (installationName === '') {
@@ -459,7 +454,8 @@
             return;
         }
 
-        const jsonBody = { name: installationName,
+        const jsonBody = {
+            name: installationName,
             accountId: clientId,
             parentId: directoryId,
             rootId: directoryId,
@@ -468,8 +464,8 @@
             licenseType: "public",
             commission: commission,
             companyName: companyName
-        }
-        console.log("jsonBody: ",jsonBody)
+        };
+        console.log("jsonBody: ", jsonBody);
         const response = await fetch('https://api-dev.cirqit.cloud/rest/v1/installation', {
             method: 'POST',
             headers: {
@@ -483,7 +479,7 @@
         console.log(data);
         if (data.id) {
             document.getElementById('installationId').innerHTML = data.id;
-            document.getElementById('installationLink').innerHTML = "<a href=\'http://app-dev.cirqit.cloud/#/installation/"+data.id+"\' target=\'_blank\'>http://app-dev.cirqit.cloud/#/installation/"+data.id+"</a>"
+            document.getElementById('installationLink').innerHTML = "<a href='http://app-dev.cirqit.cloud/#/installation/" + data.id + "' target='_blank'>http://app-dev.cirqit.cloud/#/installation/" + data.id + "</a>";
             document.getElementById('targetInstallationId').innerHTML = data.id;
             setButtonState('installationIcon', 'ok');
         } else {
@@ -511,9 +507,9 @@
             };
 
             try {
-                const response = await fetch('https://api-dev.cirqit.cloud/rest/v1/installation/'+target+'/getDocumentUrl', {
+                const response = await fetch('https://api-dev.cirqit.cloud/rest/v1/installation/' + target + '/getDocumentUrl', {
                     method: 'POST',
-                    headers : {
+                    headers: {
                         'Authorization': 'Bearer ' + token,
                         'Content-Type': 'application/json'
                     },
@@ -521,10 +517,23 @@
                 });
 
                 const data = await response.json();
+                console.log("signed url "+data.signedUrl);
+
+                const metadata  = {
+                    id: "5I5RB-LIMH7",
+                    name : file.name,
+                    description :  "trial",
+                    locked : false,
+                    directory: "",
+                    timestamp : Date.now(),
+                }
                 if (data.signedUrl) {
                     attachmentCreatedCount++;
                     document.getElementById('attachmentCreatedCounter').innerText = attachmentCreatedCount;
-                    await uploadToS3(data.signedUrl, file);
+                    // await uploadToS3(data.signedUrl, file);
+                    // let ret = await ___fetchJsonPut(signedUrl, file.type, file, metadata);
+                    await ___fetchJsonPut(data.signedUrl, file.type, file, metadata)
+
                     fileUploadCount++;
                     document.getElementById('fileUploadCounter').innerText = fileUploadCount;
                 } else {
@@ -538,41 +547,38 @@
             }
         }
 
-        setButtonState('filesUploaded', 'ok')
+        setButtonState('filesUploaded', 'ok');
     }
 
     async function uploadToS3(signedUrl, file) {
         try {
-            const contentType = "application/octet-stream";
+            const contentType = "application/json";
             const idToken = jwtToken.innerText;
             const userName = "mario";
             const metadata = {
                 name: "trial-requests",
                 description: "trial",
-                id: "5I5RB-LIMH7",
                 directory: ""
             };
-
-
 
             const response = await fetch(signedUrl, {
                 method: 'PUT',
                 headers: {
-
+                    'Content-Type': 'application/json',
                     'x-amz-acl': 'bucket-owner-full-control',
                     'Content-Transfer-Encoding': 'base64',
-                    'Authorization': 'Bearer '+idToken,
+                    'Authorization': 'Bearer ' + idToken,
                     'x-amz-meta-user': userName,
-                    'x-amz-meta-name': metadata?metadata.name:"",
-                    'x-amz-meta-description': metadata?metadata.description:"",
-                    'x-amz-meta-installation-id': metadata?metadata.id:"",
-                    'x-amz-meta-locked': metadata?metadata.locked:"",
-                    'x-amz-meta-directory': metadata?metadata.directory:"",
+                    'x-amz-meta-name': metadata ? metadata.name : "",
+                    'x-amz-meta-description': metadata ? metadata.description : "",
+                    'x-amz-meta-installation-id': metadata ? metadata.id : "",
+                    'x-amz-meta-locked': metadata ? metadata.locked : "",
+                    'x-amz-meta-directory': metadata ? metadata.directory : "",
                 },
                 body: file
             });
 
-            console.log("put resonse: ",response);
+            console.log("put response: ", response);
 
             if (!response.ok) {
                 throw new Error('Failed to upload to S3');
@@ -590,20 +596,85 @@
         let element = document.getElementById(iconId);
         if (state == "ok") {
             element.className = 'icon ok';
-            element.innerText = '_✓_';
+            element.innerText = '✓';
         } else if (state == "nok") {
             element.className = 'icon nok';
-            element.innerText =  '_✗_';
+            element.innerText = '✗';
         } else if (state == "waiting") {
             element.className = 'icon waiting';
-            element.innerText =  '...';
+            element.innerText = '...';
         } else {
             element.className = 'icon unknown';
-            element.innerText = '_?_';
+            element.innerText = '?';
         }
     }
 
+    /* ****************************************** */
+    /* ****      upload attachment           **** */
+    /* ****************************************** */
+    async function ___uploadAttachment(files) {
+        let hasWarning = false;
+        for (let i = 0; files && i < files.length; i++) {
+            // compute metadata
+            let description = (files[i].name);
+            let fileName = (files[i].name);
+            const metadata  = {
+                id: "5I5RB-LIMH7",
+                name : file.name,
+                description :  "trial",
+                locked : false,
+                directory: "",
+                timestamp : Date.now(),
+            }
+            // upload the file. The file is uploaded with the metadata to the S3 bucket.
+            // An event will then trigger the S3EventHandler lambda-function which reads the metadata and writes it to the DynamoDB table
+            console.log("upload attachment: " + description + " (" + fileName + ") for installation " + metadata.id, metadata);
+            const url = ___createFileRequestUrl("put", metadata.id, ATTACHMENT_SERVICE, fileName);
+            await uploadFile(url, files[i], metadata);
 
+        }
+    }
+
+    async function ___createFileRequestUrl(action, id, directory, fileName) {
+        return this.$root.backend + "/file/" + action + "/installation/" + id + "/directory/" + directory + "/file/" + fileName;
+    }
+
+    async function uploadFile(url, file, metadata) {
+        let response = await ___fetchJsonGet(url);
+        console.log("upload file ", response);
+        if (!file) {
+            throw new Error("file to upload not set, do not upload ", metadata);
+        }
+        let signedUrl = response.signedUrl;
+        let ret = await ___fetchJsonPut(signedUrl, file.type, file, metadata);
+        return ret;
+    }
+
+    async function ___fetchJsonPut(requestUrl, contentType, body, metadata) {
+        console.log("fetch put to " + requestUrl, contentType, body, metadata);
+        let user = "mario";
+        console.log("fetch json put. to " + requestUrl + " with user " + user);
+        let response = await fetch(requestUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': contentType,
+                'x-amz-acl': 'bucket-owner-full-control',
+                'Content-Transfer-Encoding': 'base64',
+       //          'Authorization': 'Bearer ' + idToken,
+                'x-amz-meta-user': user,
+                'x-amz-meta-name': metadata ? metadata.name : "",
+                'x-amz-meta-description': metadata ? metadata.description : "",
+                'x-amz-meta-installation-id': metadata ? metadata.id : "",
+                'x-amz-meta-locked': metadata ? metadata.locked : "",
+                'x-amz-meta-directory': metadata ? metadata.directory : "",
+            },
+            body: body // body data type must match "Content-Type" header
+        });
+        if (!response.ok) {
+            throw new Error("server " + requestUrl + " status: " + response.statusText + ". Response:", response);
+        }
+        console.log("fetch put response: ", response);
+    }
 </script>
 </body>
 </html>
