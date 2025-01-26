@@ -502,6 +502,8 @@
             const uploadJson = {
                 documentType: 'ATTACHMENT',
                 fileName: file.name,
+                description: file.name,
+                locked: false,
                 path: directoryPath,
                 action: 'UPLOAD'
             };
@@ -519,20 +521,13 @@
                 const data = await response.json();
                 console.log("signed url "+data.signedUrl);
 
-                const metadata  = {
-                    id: "5I5RB-LIMH7",
-                    name : file.name,
-                    description :  "trial",
-                    locked : false,
-                    directory: "",
-                    timestamp : Date.now(),
-                }
+
                 if (data.signedUrl) {
                     attachmentCreatedCount++;
                     document.getElementById('attachmentCreatedCounter').innerText = attachmentCreatedCount;
-                    // await uploadToS3(data.signedUrl, file);
+                    await uploadToS3(data.signedUrl, file);
                     // let ret = await ___fetchJsonPut(signedUrl, file.type, file, metadata);
-                    await ___fetchJsonPut(data.signedUrl, file.type, file, metadata)
+                    //await ___fetchJsonPut(data.signedUrl, file.type, file, metadata)
 
                     fileUploadCount++;
                     document.getElementById('fileUploadCounter').innerText = fileUploadCount;
@@ -552,28 +547,11 @@
 
     async function uploadToS3(signedUrl, file) {
         try {
-            const contentType = "application/json";
-            const idToken = jwtToken.innerText;
-            const userName = "mario";
-            const metadata = {
-                name: "trial-requests",
-                description: "trial",
-                directory: ""
-            };
-
             const response = await fetch(signedUrl, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
                     'x-amz-acl': 'bucket-owner-full-control',
-                    'Content-Transfer-Encoding': 'base64',
-                    'Authorization': 'Bearer ' + idToken,
-                    'x-amz-meta-user': userName,
-                    'x-amz-meta-name': metadata ? metadata.name : "",
-                    'x-amz-meta-description': metadata ? metadata.description : "",
-                    'x-amz-meta-installation-id': metadata ? metadata.id : "",
-                    'x-amz-meta-locked': metadata ? metadata.locked : "",
-                    'x-amz-meta-directory': metadata ? metadata.directory : "",
+                    'Content-Transfer-Encoding': 'base64'
                 },
                 body: file
             });
@@ -609,74 +587,6 @@
         }
     }
 
-    /* ****************************************** */
-    /* ****      upload attachment           **** */
-    /* ****************************************** */
-    async function ___uploadAttachment(files) {
-        let hasWarning = false;
-        for (let i = 0; files && i < files.length; i++) {
-            // compute metadata
-            let description = (files[i].name);
-            let fileName = (files[i].name);
-            const metadata  = {
-                id: "5I5RB-LIMH7",
-                name : file.name,
-                description :  "trial",
-                locked : false,
-                directory: "",
-                timestamp : Date.now(),
-            }
-            // upload the file. The file is uploaded with the metadata to the S3 bucket.
-            // An event will then trigger the S3EventHandler lambda-function which reads the metadata and writes it to the DynamoDB table
-            console.log("upload attachment: " + description + " (" + fileName + ") for installation " + metadata.id, metadata);
-            const url = ___createFileRequestUrl("put", metadata.id, ATTACHMENT_SERVICE, fileName);
-            await uploadFile(url, files[i], metadata);
-
-        }
-    }
-
-    async function ___createFileRequestUrl(action, id, directory, fileName) {
-        return this.$root.backend + "/file/" + action + "/installation/" + id + "/directory/" + directory + "/file/" + fileName;
-    }
-
-    async function uploadFile(url, file, metadata) {
-        let response = await ___fetchJsonGet(url);
-        console.log("upload file ", response);
-        if (!file) {
-            throw new Error("file to upload not set, do not upload ", metadata);
-        }
-        let signedUrl = response.signedUrl;
-        let ret = await ___fetchJsonPut(signedUrl, file.type, file, metadata);
-        return ret;
-    }
-
-    async function ___fetchJsonPut(requestUrl, contentType, body, metadata) {
-        console.log("fetch put to " + requestUrl, contentType, body, metadata);
-        let user = "mario";
-        const idToken = jwtToken.innerText;
-        console.log("idToken: ", idToken);
-        console.log("fetch json put. to " + requestUrl + " with user " + user);
-        let response = await fetch(requestUrl, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': contentType,
-                'x-amz-acl': 'bucket-owner-full-control',
-                'Content-Transfer-Encoding': 'base64',
-                'Authorization': 'Bearer ' + idToken,
-                'x-amz-meta-user': user,
-                'x-amz-meta-name': metadata ? metadata.name : "",
-                'x-amz-meta-description': metadata ? metadata.description : "",
-                'x-amz-meta-installation-id': metadata ? metadata.id : "",
-                'x-amz-meta-locked': metadata ? metadata.locked : "",
-                'x-amz-meta-directory': metadata ? metadata.directory : "",
-            },
-            body: body // body data type must match "Content-Type" header
-        });
-        if (!response.ok) {
-            throw new Error("server " + requestUrl + " status: " + response.statusText + ". Response:", response);
-        }
-        console.log("fetch put response: ", response);
-    }
 </script>
 </body>
 </html>

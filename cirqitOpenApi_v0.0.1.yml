@@ -2,7 +2,25 @@ openapi: 3.0.3
 info:
   title: cirQit OpenAPI
   version: 0.0.1
-  description: openAPI for REST communication with the cirQit application
+  description: |
+    # ApenAPI for REST communication with the cirQit application
+
+    This OpenAPI allows to automate the communication with the cirQit application. It covers the 
+    basic operations to create and maintain the cirQit Installations (aka digitale Schaltplantasche).
+    
+     - authenticate with OAuth2
+     - load  the existing directory tree of the user
+     - create a new directory in the tree
+     - create a new Installation in one of the directories
+     - upload the attachments and schematics to the installation
+
+    To get started, use the Example implementation of the cirQit application, it shows the basic operations in a plain JS / HTML implementation.
+    <div style="border: 1px solid #f00; padding: 10px; background-color: #fdd; color: #333;">
+    <strong>NOTE:</strong> 
+    The OpenAPI does not yet properly support CORS to upload the Attachments. But as it is a API, it is not intended to be called from a browser directly.
+    If you work with the Browser, disable CORS. See <a href="https://medium.com/@beligh.hamdi/run-chrome-browser-without-cors-872747142c61">this article</a> for more information.
+    </div>
+
   contact:
     email: info@cirqit.cloud
     name: cirQit
@@ -42,8 +60,6 @@ tags:
     description: Operations create and modify a installation
   - name: Document
     description: Operations related to the documents of a Installation
-#  - name: Logbook
-#    description: Operations to download the logbook of an Installation in csv format (NOT YET DEFINED)
 
 
 paths:
