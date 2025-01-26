@@ -7,10 +7,10 @@ let configurations = {
     url: "swagger.yaml",
   },
   "cirQit-v0.0.1": {
-    url: "cirqitOpenApi_v0.0.1.yml",
+    url: "openAPI/cirqitOpenApi_v0.0.1.yml",
   },
   "cirQit-v0.0.x": {
-    url: "cirqitOpenApi_v0.0.1.yml",
+    url: "openAPI/cirqitOpenApi_v0.0.1.yml",
   },
 };
 
