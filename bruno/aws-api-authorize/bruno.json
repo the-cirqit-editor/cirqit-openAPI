@@ -1,9 +1,0 @@
-{
-  "version": "1",
-  "name": "aws-api-authorize",
-  "type": "collection",
-  "ignore": [
-    "node_modules",
-    ".git"
-  ]
-}
