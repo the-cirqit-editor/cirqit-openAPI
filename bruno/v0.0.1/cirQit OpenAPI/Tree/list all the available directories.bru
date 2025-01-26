@@ -1,0 +1,11 @@
+meta {
+  name: list all the available directories
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/v1/directoryTree
+  body: none
+  auth: none
+}

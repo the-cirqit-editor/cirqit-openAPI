@@ -1,0 +1,36 @@
+meta {
+  name: overwrite the data of the installation
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/rest/v1/installation/:installationId
+  body: json
+  auth: none
+}
+
+params:path {
+  installationId: 
+}
+
+body:json {
+  {
+    "name": "",
+    "description": "",
+    "licenseType": "",
+    "commission": "",
+    "address": "",
+    "location": {
+      "latitude": "",
+      "longitude": ""
+    },
+    "id": "",
+    "companyName": "",
+    "rootId": "",
+    "parentId": "",
+    "accountId": "",
+    "role": "",
+    "createdDate": ""
+  }
+}

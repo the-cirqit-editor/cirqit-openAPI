@@ -1,0 +1,22 @@
+meta {
+  name: Verify authentication token
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/oauth2/verify
+  body: formUrlEncoded
+  auth: none
+}
+
+body:json {
+  {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjaXJRaXQtYXV0aDAiLCJjb21wYW55IjoiZG9mZXIgbmFtZSIsInVzZXJJZCI6Im1hcmlvIiwiZXhwIjoxNzM5ODcwMjgxLCJhdWQiOiJjaXJxaXQuY2xvdWQvb3BlbmFwaSIsImlhdCI6MTczNzI3ODI4MSwiZ3JhbnRfdHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsInNjb3BlIjoiY2lycWl0LmFwaS5yZWFkIiwidG9rZW5fdHlwZSI6InJlZnJlc2gifQ.6fgzCo5yo5sG32YwEfnNcAZSi60Z40l-2uHzHDoHZFI",
+    "scope": "cirqit/read cirqit/write"
+  }
+}
+
+body:form-urlencoded {
+  token: {{jwtToken}}
+}

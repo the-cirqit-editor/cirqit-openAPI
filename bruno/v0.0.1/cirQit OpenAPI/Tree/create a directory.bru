@@ -1,0 +1,22 @@
+meta {
+  name: create a directory
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/rest/v1/directory
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "test",
+    "description": "",
+    "parentId": null,
+    "accountId": "mario",
+    "role": ""
+  
+  }
+}
