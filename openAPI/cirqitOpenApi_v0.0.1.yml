@@ -20,6 +20,8 @@ info:
     The OpenAPI does not yet properly support CORS to upload the Attachments. But as it is a API, it is not intended to be called from a browser directly.
     If you work with the Browser, disable CORS. See <a href="https://medium.com/@beligh.hamdi/run-chrome-browser-without-cors-872747142c61">this article</a> for more information.
     </div>
+    
+    
 
   contact:
     email: info@cirqit.cloud
