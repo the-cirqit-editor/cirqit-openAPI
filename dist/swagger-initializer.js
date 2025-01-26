@@ -3,9 +3,6 @@ let defaultVersion = "cirQit-v0.0.1";
 
 let configurations = {
 
-  "Petstore": {
-    url: "swagger.yaml",
-  },
   "cirQit-v0.0.1": {
     url: "openAPI/cirqitOpenApi_v0.0.1.yml",
   },

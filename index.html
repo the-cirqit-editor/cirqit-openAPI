@@ -9,10 +9,20 @@
     <link rel="icon" type="image/png" href="dist/favicon-32x32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="dist/favicon-16x16.png" sizes="16x16" />
   </head>
-
+  <style>
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      height: 40px;
+    }
+  </style>
   <body>
-    <!-- TODO: add the cirQit bar and logo on the top -->
     <h3>Select version of OpenAPI <select id="version-dropdown"></select></h3>
+    <img src="https://cirqit.cloud/wp-content/uploads/2021/01/cirQit_kp_200x80.png" alt="cirQit Logo" class="logo" />
+
     <div id="swagger-ui"></div>
     <script src="dist/swagger-ui-bundle.js" charset="UTF-8"> </script>
     <script src="dist/swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
