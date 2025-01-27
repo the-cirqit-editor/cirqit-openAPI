@@ -14,14 +14,14 @@ info:
      - create a new Installation in one of the directories
      - upload the attachments and schematics to the installation
 
-    To get started, use the <a href="https://the-cirqit-editor.github.io/cirqit-openAPI/example/">Example implementation</a> of the cirQit OpenAPI. It shows the basic operations in a plain JS / HTML implementation.
+    To get started, use the <a href="https://the-cirqit-editor.github.io/cirqit-openAPI/example/"  target="_blank">Example implementation</a> of the cirQit OpenAPI. It shows the basic operations in a plain JS / HTML implementation.
     
     
     
     <div style="border: 1px solid #00f; padding: 10px; background-color: #ddf; color: #333;">
     <strong>NOTE:</strong> 
     The OpenAPI does not yet properly support CORS to upload the Attachments. But as it is a API, it is not intended to be called from a browser directly.
-    If you work with the Browser, disable CORS. See <a href="https://medium.com/@beligh.hamdi/run-chrome-browser-without-cors-872747142c61">this article</a> for more information.
+    If you work with the Browser, disable CORS. See <a href="https://medium.com/@beligh.hamdi/run-chrome-browser-without-cors-872747142c61"  target="_blank">this article</a> for more information.
     </div>
     
     
@@ -39,15 +39,6 @@ info:
 
 
 servers:
-  - url: https://c9nc9jotk8.execute-api.eu-central-1.amazonaws.com/api
-    description: Development API-Gateway
-    variables: { }
-  - url: https://d3kqo5uf0sz7wm.cloudfront.net/api
-    description: Development Cloudfront
-    variables: { }
-  - url: https://api-dev.cirqit.cloud
-    description: Development OpenAPI access
-    variables: { }
   - url: https://api-test.cirqit.cloud
     description: Test OpenAPI access
     variables: { }
@@ -873,16 +864,16 @@ components:
           example: ATTACHMENT
         fileName:
           type: string
-          description: name of the document.
+          description: filename of the document.
           example: my-file.txt
         path:
           type: string
-          description: slash delimited path of the directory where the document is stored.
-          example: folder/subfolder1/subfolder2
-        description:
+          description: directory where the document is stored. At the time being, subdirectories are not supported.
+          example: folder
+        displayName:
           type: string
-          description: description of the document.
-          example: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+          description: the name to show in the frontend
+          example: My File
         locked:
           type: boolean
           description: whether the document is visible for Admins only (true) or open for everybody (false)
