@@ -135,7 +135,7 @@ The request can be executed in this order:
 <div class="container">
     <div class="section">
         <h2>Get the access-token</h2>
-        Click me:  <a href="https://app-dev.cirqit.cloud/#/account" target="_blank">Authentisierungsdaten in cirQit beziehen</a><br/>
+        Authentisierungsdaten in cirQit beziehen: <a href="https://app-test.cirqit.cloud/#/account" target="_blank">app-test.cirqit.cloud</a> oder prod: <a href="https://app.cirqit.cloud/#/account" target="_blank">app.cirqit.cloud</a><br/>
         <span id="jwtToken" hidden="hidden"></span>
         <table>
             <tr>
@@ -313,7 +313,7 @@ The request can be executed in this order:
         formData.append('scope', 'cirqit/read cirqit/write');
 
         try {
-            const response = await fetch('https://api-dev.cirqit.cloud/oauth2/token', {
+            const response = await fetch('https://api-test.cirqit.cloud/oauth2/token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
@@ -341,7 +341,7 @@ The request can be executed in this order:
         const clientSecret = document.getElementById('clientSecret').value;
         setButtonState('companyIcon', 'waiting');
 
-        const response = await fetch('https://api-dev.cirqit.cloud/rest/v1/company', {
+        const response = await fetch('https://api-test.cirqit.cloud/rest/v1/company', {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + jwtToken.innerText
@@ -371,7 +371,7 @@ The request can be executed in this order:
     async function loadTree() {
         setButtonState('treeIcon', 'waiting');
 
-        const response = await fetch('https://api-dev.cirqit.cloud/rest/v1/directoryTree', {
+        const response = await fetch('https://api-test.cirqit.cloud/rest/v1/directoryTree', {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + jwtToken.innerText
@@ -436,7 +436,7 @@ The request can be executed in this order:
             return;
         }
 
-        const response = await fetch('https://api-dev.cirqit.cloud/rest/v1/directory', {
+        const response = await fetch('https://api-test.cirqit.cloud/rest/v1/directory', {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + token,
@@ -493,7 +493,7 @@ The request can be executed in this order:
             companyName: companyName
         };
         console.log("jsonBody: ", jsonBody);
-        const response = await fetch('https://api-dev.cirqit.cloud/rest/v1/installation', {
+        const response = await fetch('https://api-test.cirqit.cloud/rest/v1/installation', {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + token,
@@ -547,7 +547,7 @@ The request can be executed in this order:
             };
 
             try {
-                const response = await fetch('https://api-dev.cirqit.cloud/rest/v1/installation/' + target + '/getDocumentUrl', {
+                const response = await fetch('https://api-test.cirqit.cloud/rest/v1/installation/' + target + '/getDocumentUrl', {
                     method: 'POST',
                     headers: {
                         'Authorization': 'Bearer ' + token,
