@@ -14,8 +14,11 @@ info:
      - create a new Installation in one of the directories
      - upload the attachments and schematics to the installation
 
-    To get started, use the Example implementation of the cirQit application, it shows the basic operations in a plain JS / HTML implementation.
-    <div style="border: 1px solid #f00; padding: 10px; background-color: #fdd; color: #333;">
+    To get started, use the <a href="https://the-cirqit-editor.github.io/cirqit-openAPI/example/">Example implementation</a> of the cirQit OpenAPI. It shows the basic operations in a plain JS / HTML implementation.
+    
+    
+    
+    <div style="border: 1px solid #00f; padding: 10px; background-color: #ddf; color: #333;">
     <strong>NOTE:</strong> 
     The OpenAPI does not yet properly support CORS to upload the Attachments. But as it is a API, it is not intended to be called from a browser directly.
     If you work with the Browser, disable CORS. See <a href="https://medium.com/@beligh.hamdi/run-chrome-browser-without-cors-872747142c61">this article</a> for more information.
@@ -1028,6 +1031,3 @@ components:
           schema:
             $ref: '#/components/schemas/CirQitError'
 
-externalDocs:
-    description: Example implementation of the cirQit OpenAPI
-    url: https://the-cirqit-editor.github.io/cirqit-openAPI/example/
