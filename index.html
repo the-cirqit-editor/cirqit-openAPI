@@ -10,18 +10,25 @@
     <link rel="icon" type="image/png" href="dist/favicon-16x16.png" sizes="16x16" />
   </head>
   <style>
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    /** overwrite the swagger settings - place the select box on the left side of the page */
+    .wrapper {
+      width: 75% !important;
+      margin-left: 0px !important;
     }
+    /** due to the changes in the wrapper, the cirQit logo can be placed in the header */
     .logo {
-      height: 40px;
+      height: 45px;
+      margin-top: 25px;
+      position: absolute;
+      right: 20px;
+      flex: 2;
+      justify-content: space-between;
+
     }
   </style>
   <body>
-    <h3>Select version of OpenAPI <select id="version-dropdown"></select></h3>
-    <img src="https://cirqit.cloud/wp-content/uploads/2021/01/cirQit_kp_200x80.png" alt="cirQit Logo" class="logo" />
+    <span class="header">Select version of OpenAPI <select id="version-dropdown"></select></span>
+    <img src="dist/cirQit_Landscape_white.png" alt="cirQit Logo" class="logo" />
 
     <div id="swagger-ui"></div>
     <script src="dist/swagger-ui-bundle.js" charset="UTF-8"> </script>
