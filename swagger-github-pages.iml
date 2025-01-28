@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="WEB_MODULE" version="4">
-  <component name="NewModuleRootManager" inherit-compiler-output="true">
+  <component name="NewModuleRootManager" inherit-compiler-output="$AWS_JAVA_V1_DISABLE_DEPRECATION_ANNOUNCEMENT$">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/server-code/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/server-code/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/server-code/src/test/java" isTestSource="$AWS_JAVA_V1_DISABLE_DEPRECATION_ANNOUNCEMENT$" />
       <sourceFolder url="file://$MODULE_DIR$/wiremock-server/src/main/java" isTestSource="false" />
     </content>
+    <content url="file://$MODULE_DIR$/dist" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

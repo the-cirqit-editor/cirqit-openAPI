@@ -3,7 +3,7 @@ info:
   title: cirQit OpenAPI
   version: 0.0.1
   description: |
-    # ApenAPI for REST communication with the cirQit application
+    # OpenAPI for REST communication with the cirQit application
 
     This OpenAPI allows to automate the communication with the cirQit application. It covers the 
     basic operations to create and maintain the cirQit Installations (aka digitale Schaltplantasche).

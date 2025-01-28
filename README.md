@@ -43,20 +43,19 @@ the versions to be displayed in the dropdown are configured like:
 > },
 > };
 
-> **To be clarified:** are this files overwritten by the GitHub action?
-
 
 
 ## OpenAPI
 The OpenAPI is written in YAML and can be found in the file `cirqitOpenApi_vX.X.X.yml`.
 
 ### validate the OpenAPI
+NOTE: some validators struggle with the circular reference of the Directory Tree, just ignore it.
+
 To align to the OpenAPI specification, the OpenAPI file can be validated:
 * https://oas-validation.com/process_file
 * https://github.com/python-openapi/openapi-spec-validator
   * `pip install openapi-spec-validator`
   * `openapi-spec-validator cirqitOpenApi_v0.0.1.yml`
-
 
 ### generate cirQit OpenAPI implementation
 We use https://openapi-generator.tech/ to generate the code for the server.
@@ -64,23 +63,21 @@ We use https://openapi-generator.tech/ to generate the code for the server.
 * fix and generate the code to the backend project
 * run `./generateJavaCode.sh`
 
+### test openAPI with Cats
+With cats, the OpenAPI can be tested with real requests. 
+It gives a lot of warnings, e.g. because AWS Cloudfront responds with 403 if the method is not supported (should be 405)
 
-# TRIAL AND ERROR (to be  deleted later)
-### mock server
-```aiignore
-# install openapi-generator-cli
-npm install @openapitools/openapi-generator-cli -g
-# generate the server code with mock answers
-openapi-generator-/home/huembi/workspace/cirQit-openAPIcli generate -i cirqitOpenApi_v0.0.1.yml -g spring -o ./mock-server --additional-properties=interfaceOnly=true
-# run the server
-## before running the mvnv maven wrapper must be installed
-mvn -N io.takari:maven:wrapper
-## run the server
-cd mock-server
-./mvnw spring-boot:run
+As these checks are not configurable, it might be better to clone the project and adjust it in the Java code. 
 
 ```
-
-openapi-generator-cli generate -i cirqitOpenApi_v0.0.1.yml -g java-wiremock -o ./wiremock-server --additional-properties=interfaceOnly=true
-
-huembi@huembi-Yoga:~/workspace/cirQit-openAPI$ cp -r wiremock-server/src/main ../cirqit-backend/openAPI/src/
+  java -jar cats-runner.jar \
+     --contract=cirqitOpenApi_v0.0.1.yml \
+     -H "Authorization=Bearer eyJhb... \
+     --server=https://api-dev.cirqit.cloud
+ 
+  [][] ▶ Starting cats-13.0.1-SNAPSHOT, build time 2025-01-07T17:12:03Z UTC, platform Linux-6.8.0-51-generic-amd64
+  [][] ⚙ OpenAPI specs: cirqitOpenApi_v0.0.1.yml
+  [][] ⚙ API base url: https://api-dev.cirqit.cloud
+  [][] ⚙ Reporting path: cats-report 
+  ...
+```
