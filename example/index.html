@@ -140,16 +140,15 @@ The request can be executed in this order:
         <table>
             <tr>
                 <td>client_id:</td>
-                <td><input type="text" name="cirQit login Name" id="clientId" placeholder="cirQit login Name"
-                           value="mario">
+                <td><input type="text" name="cirQit login Name" id="clientId" placeholder="cirQit login Name">
                 </td>
                 <td></td>
             </tr>
             <tr>
                 <td>client_secret:</td>
                 <td>
-                    <textarea name="Schlüssel für Open API" id="clientSecret" placeholder="Schlüssel für Open API" rows="4"
-                    >eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjaXJRaXQtYXV0aDAiLCJjb21wYW55IjoiZG9mZXIgbmFtZSIsInVzZXJJZCI6Im1hcmlvIiwiZXhwIjoxNzM5ODcwMjgxLCJhdWQiOiJjaXJxaXQuY2xvdWQvb3BlbmFwaSIsImlhdCI6MTczNzI3ODI4MSwiZ3JhbnRfdHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsInNjb3BlIjoiY2lycWl0LmFwaS5yZWFkIiwidG9rZW5fdHlwZSI6InJlZnJlc2gifQ.6fgzCo5yo5sG32YwEfnNcAZSi60Z40l-2uHzHDoHZFI</textarea>
+                    <textarea name="Schlüssel für Open API" id="clientSecret" placeholder="Schlüssel für Open AP (ey....)I" rows="4"
+                    ></textarea>
                 </td>
                 <td></td>
             </tr>
@@ -303,9 +302,9 @@ The request can be executed in this order:
     async function getAccessToken() {
         const clientId = document.getElementById('clientId').value;
         const clientSecret = document.getElementById('clientSecret').value;
-        const okIcon = document.getElementById('okIcon');
-        const nokIcon = document.getElementById('nokIcon');
         setButtonState("jwtValidateIcon", "waiting");
+
+        console.log("get the access token for the clientSecret (OAuth2, client_credentials)");
 
         const formData = new URLSearchParams();
         formData.append('client_id', clientId);
@@ -333,12 +332,11 @@ The request can be executed in this order:
         }
     }
 
+
     /** ********************************************************** */
     /**            load company                                                                */
     /** ********************************************************** */
     async function loadCompany() {
-        const clientId = document.getElementById('clientId').value;
-        const clientSecret = document.getElementById('clientSecret').value;
         setButtonState('companyIcon', 'waiting');
 
         const response = await fetch('https://api-test.cirqit.cloud/rest/v1/company', {
@@ -348,8 +346,8 @@ The request can be executed in this order:
             }
         });
 
+        console.log("load the data for the company based on the jwtToken");
         const data = await response.json();
-        console.log(data);
         if (data.companyName) {
             setButtonState('companyIcon', 'ok');
             document.getElementById('companyName').innerHTML = data.companyName;
@@ -365,6 +363,7 @@ The request can be executed in this order:
         }
     }
 
+
     /** ********************************************************** */
     /**            load existing directory tree from cirQit                          */
     /** ********************************************************** */
@@ -378,8 +377,8 @@ The request can be executed in this order:
             }
         });
 
+        console.log("load the directory tree for the user");
         const data = await response.json();
-        console.log(data);
         if (data) {
             setButtonState('treeIcon', 'ok');
             document.getElementById('jsonTextarea').value = JSON.stringify(data, null, 2);
@@ -389,6 +388,7 @@ The request can be executed in this order:
         }
     }
 
+    // event listener for the directory input field, trigger the searchDirectory
     document.getElementById('directoryIdInput').addEventListener('input', function() {
         const directoryName = this.value;
         const jsonTextarea = document.getElementById('jsonTextarea').value;
@@ -403,6 +403,7 @@ The request can be executed in this order:
         }
     });
 
+    // recursive function to search for a directory in the tree
     function searchDirectory(data, directoryName) {
         if (typeof data === 'object' && data !== null) {
             if (data.name === directoryName) {
@@ -421,6 +422,7 @@ The request can be executed in this order:
         return false;
     }
 
+
     /** ********************************************************** */
     /**                    create directory                                                     */
     /** ********************************************************** */
@@ -436,6 +438,7 @@ The request can be executed in this order:
             return;
         }
 
+        console.log("create director with name: "+ directoryName+" in the root of the tree ");
         const response = await fetch('https://api-test.cirqit.cloud/rest/v1/directory', {
             method: 'POST',
             headers: {
@@ -445,14 +448,14 @@ The request can be executed in this order:
             body: JSON.stringify({
                 name: directoryName,
                 accountId: clientId,
-                parentId: null,
+                parentId: null, // set here the parent ID if you want to create a subdirectory
                 role: 'admin',
                 description: 'created by cirQit OpenAPI example',
             })
         });
 
         const data = await response.json();
-        console.log(data);
+        console.log("directory created: ",data);
         if (data.id) {
             document.getElementById('directoryId').innerHTML = "ID: " + data.id;
             setButtonState('directoryExists', 'unknown');
@@ -462,6 +465,7 @@ The request can be executed in this order:
             setButtonState('directoryCreated', 'nok');
         }
     }
+
 
     /** ********************************************************** */
     /**                    create installation                                                  */
@@ -492,7 +496,7 @@ The request can be executed in this order:
             commission: commission,
             companyName: companyName
         };
-        console.log("jsonBody: ", jsonBody);
+        console.log("create installation: ", jsonBody);
         const response = await fetch('https://api-test.cirqit.cloud/rest/v1/installation', {
             method: 'POST',
             headers: {
@@ -503,10 +507,10 @@ The request can be executed in this order:
         });
 
         const data = await response.json();
-        console.log(data);
+        console.log("installation created: ",data);
         if (data.id) {
             document.getElementById('installationId').innerHTML = data.id;
-            document.getElementById('installationLink').innerHTML = "<a href='http://app-dev.cirqit.cloud/#/installation/" + data.id + "' target='_blank'>http://app-dev.cirqit.cloud/#/installation/" + data.id + "</a>";
+            document.getElementById('installationLink').innerHTML = "<a href='http://app-test.cirqit.cloud/#/installation/" + data.id + "' target='_blank'>http://app-test.cirqit.cloud/#/installation/" + data.id + "</a>";
             document.getElementById('targetInstallationId').innerHTML = data.id;
             setButtonState('installationIcon', 'ok');
         } else {
@@ -545,7 +549,7 @@ The request can be executed in this order:
                 path: directoryPath,
                 action: 'UPLOAD'
             };
-
+            console.log("upload attachment ",uploadJson)
             try {
                 const response = await fetch('https://api-test.cirqit.cloud/rest/v1/installation/' + target + '/getDocumentUrl', {
                     method: 'POST',
@@ -557,16 +561,13 @@ The request can be executed in this order:
                 });
 
                 const data = await response.json();
-                console.log("signed url "+data.signedUrl);
+                console.log("signed url to upload the document: "+data.signedUrl);
 
 
                 if (data.signedUrl) {
                     attachmentCreatedCount++;
                     document.getElementById('attachmentCreatedCounter').innerText = attachmentCreatedCount;
                     await uploadToS3(data.signedUrl, file);
-                    // let ret = await ___fetchJsonPut(signedUrl, file.type, file, metadata);
-                    //await ___fetchJsonPut(data.signedUrl, file.type, file, metadata)
-
                     fileUploadCount++;
                     document.getElementById('fileUploadCounter').innerText = fileUploadCount;
                 } else {
@@ -584,6 +585,8 @@ The request can be executed in this order:
     }
 
     async function uploadToS3(signedUrl, file) {
+        console.log("upload to S3: "+ signedUrl);
+        console.warn("fails if CORS is enabled in the browser");
         try {
             const response = await fetch(signedUrl, {
                 method: 'PUT',
