@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.0.4
 info:
   title: cirQit OpenAPI
   version: 0.0.1
@@ -37,14 +37,15 @@ info:
     url: https://cirqit.cloud/wp-content/uploads/2021/01/cirQit_kp_200x80.png
   x-visibility: public
 
-
 servers:
   - url: https://api-test.cirqit.cloud
     description: Test OpenAPI access
     variables: { }
+    x-internal: false
   - url: https://api.cirqit.cloud
     description: Prod OpenAPI access
     variables: { }
+    x-internal: false
 tags:
   - name: OAuth2
     description: the Authorization process
@@ -64,6 +65,8 @@ paths:
   #  ################################################### #
   /oauth2/token:
     post:
+      security:
+        - NoAuth: []
       tags:
         - OAuth2
       operationId: getJWTAccessToken
@@ -77,15 +80,15 @@ paths:
               type: object
               properties:
                 client_id:
-                  type: string
+                  $ref: '#/components/schemas/CommonString'
                   example: your-client-id
                   description: the user which has obtained the client secret from the cirQit application
                 client_secret:
-                  type: string
+                  $ref: '#/components/schemas/LongString'
                   example: your-client-secret
                   description: the user secret which is provided by the cirQit application
                 scope:
-                  type: string
+                  $ref: '#/components/schemas/CommonString'
                   example: cirqit/read cirqit/write
                   description: the scope of the access token
       responses:
@@ -97,33 +100,50 @@ paths:
                 type: object
                 properties:
                   access_token:
-                    type: string
+                    $ref: '#/components/schemas/CommonString'
                     description: The access token string as issued by the authorization server.
                     example: your jwt access-token (ey....)
                   token_type:
-                    type: string
+                    $ref: '#/components/schemas/CommonString'
                     description: the type of token this is, typically just the string “Bearer”.
                     example: your jwt access-token (ey....)
                   expires_in:
-                    type: string
+                    # FIXME: is this a string or a number
+                    $ref: '#/components/schemas/ShortString'
                     description: the time in seconds when this token expires
                     example: 876543
                   scope:
-                    type: string
+                    $ref: '#/components/schemas/CommonString'
                     description: the scope of the access token
                     example: your jwt access-token (ey....)
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: '#/components/headers/X-Rate-Limit-Limit'
+            X-Rate-Limit-Remaining:
+              $ref: '#/components/headers/X-Rate-Limit-Remaining'
+            X-Rate-Limit-Reset:
+              $ref: '#/components/headers/X-Rate-Limit-Reset'
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+        "400":
+          $ref: '#/components/responses/CirQitError400'
         "401":
           $ref: '#/components/responses/CirQitError401'
+        "429":
+          $ref: '#/components/responses/CirQitError429'
         "500":
           $ref: '#/components/responses/CirQitError500'
-      x-amazon-apigateway-request-validator: FormBodyValidation
+#      x-amazon-apigateway-request-validator: FormBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
 
+
   /oauth2/verify:
     post:
+      security:
+        - NoAuth: []
       tags:
         - OAuth2
       operationId: verifyAuthToken
@@ -141,7 +161,7 @@ paths:
                 - token
               properties:
                 token:
-                  type: string
+                  $ref: '#/components/schemas/CommonString'
                   example: your-access-token
       responses:
         '200':
@@ -156,7 +176,7 @@ paths:
                     example: true
                     description: The token is valid
                   token_type:
-                    type: string
+                    $ref: '#/components/schemas/CommonString'
                     description: the type of token this is, typically just the string “Bearer”.
                     example: your jwt access-token (ey....)
                   expires_in:
@@ -164,19 +184,33 @@ paths:
                     description: the time in seconds when this token expires
                     example: 876543
                   expire_date:
-                    type: string
+                    # FIXME: replace all dates with a date-time
+                    $ref: '#/components/schemas/CommonString'
                     format: date-time
                     description: the human readable date when this token expires
                     example: "2023-09-05T21:12:18"
                   scope:
-                    type: string
+                    $ref: '#/components/schemas/CommonString'
                     description: the scope of the access token
                     example: cirqit/read cirqit/write
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: '#/components/headers/X-Rate-Limit-Limit'
+            X-Rate-Limit-Remaining:
+              $ref: '#/components/headers/X-Rate-Limit-Remaining'
+            X-Rate-Limit-Reset:
+              $ref: '#/components/headers/X-Rate-Limit-Reset'
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+        "400":
+          $ref: '#/components/responses/CirQitError400'
         "401":
           $ref: '#/components/responses/CirQitError401'
+        "429":
+          $ref: '#/components/responses/CirQitError429'
         "500":
           $ref: '#/components/responses/CirQitError500'
-      x-amazon-apigateway-request-validator: FormBodyValidation
+#      x-amazon-apigateway-request-validator: FormBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
@@ -188,6 +222,8 @@ paths:
   #  ################################################### #
   /rest/v1/company:
     get:
+      security:
+        - OAuth2: [ cirqit/read ]
       tags:
         - Company
       operationId: getCompany
@@ -200,6 +236,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Company'
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: '#/components/headers/X-Rate-Limit-Limit'
+            X-Rate-Limit-Remaining:
+              $ref: '#/components/headers/X-Rate-Limit-Remaining'
+            X-Rate-Limit-Reset:
+              $ref: '#/components/headers/X-Rate-Limit-Reset'
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
         "400":
           $ref: '#/components/responses/CirQitError400'
         "401":
@@ -210,9 +255,10 @@ paths:
           $ref: '#/components/responses/CirQitError404'
         "405":
           $ref: '#/components/responses/CirQitError405'
+        "429":
+          $ref: '#/components/responses/CirQitError429'
         "500":
           $ref: '#/components/responses/CirQitError500'
-      x-amazon-apigateway-request-validator: JsonBodyValidation
       x-amazon-apigateway-integration:
         # NOTE: the API is called by a GET, but we forward a POST to the Lambda because the API-Gateway adds some information
         uri: ### OpenApiFunction ###
@@ -225,6 +271,8 @@ paths:
   # Tree / Directory - GetDirectoryTreeFunction
   /rest/v1/directoryTree:
     get:
+      security:
+        - OAuth2: [ cirqit/read ]
       tags:
         - Tree
       operationId: getDirectoryTree
@@ -237,8 +285,19 @@ paths:
             application/json:
               schema:
                 type: array
+                minItems: 1
+                maxItems: 100
                 items:
                   $ref: '#/components/schemas/Directory'
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: '#/components/headers/X-Rate-Limit-Limit'
+            X-Rate-Limit-Remaining:
+              $ref: '#/components/headers/X-Rate-Limit-Remaining'
+            X-Rate-Limit-Reset:
+              $ref: '#/components/headers/X-Rate-Limit-Reset'
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
         "400":
           $ref: '#/components/responses/CirQitError400'
         "401":
@@ -249,9 +308,10 @@ paths:
           $ref: '#/components/responses/CirQitError404'
         "405":
           $ref: '#/components/responses/CirQitError405'
+        "429":
+          $ref: '#/components/responses/CirQitError429'
         "500":
           $ref: '#/components/responses/CirQitError500'
-      x-amazon-apigateway-request-validator: JsonBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
@@ -259,6 +319,8 @@ paths:
 
   /rest/v1/directory:
     post:
+      security:
+        - OAuth2: [ cirqit/write ]
       tags:
         - Tree
       operationId: createDirectory
@@ -277,6 +339,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Directory'
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: '#/components/headers/X-Rate-Limit-Limit'
+            X-Rate-Limit-Remaining:
+              $ref: '#/components/headers/X-Rate-Limit-Remaining'
+            X-Rate-Limit-Reset:
+              $ref: '#/components/headers/X-Rate-Limit-Reset'
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
         "400":
           $ref: '#/components/responses/CirQitError400'
         "401":
@@ -287,6 +358,8 @@ paths:
           $ref: '#/components/responses/CirQitError405'
         "409":
           $ref: '#/components/responses/CirQitError409'
+        "429":
+          $ref: '#/components/responses/CirQitError429'
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-request-validator: JsonBodyValidation
@@ -298,6 +371,8 @@ paths:
   #  Directory - DirectoryFunction
   /rest/v1/directory/{directoryId}:
     get:
+      security:
+        - OAuth2: [ cirqit/read ]
       tags:
         - Tree
       operationId: getDirectory
@@ -317,6 +392,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Directory'
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: '#/components/headers/X-Rate-Limit-Limit'
+            X-Rate-Limit-Remaining:
+              $ref: '#/components/headers/X-Rate-Limit-Remaining'
+            X-Rate-Limit-Reset:
+              $ref: '#/components/headers/X-Rate-Limit-Reset'
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
         "400":
           $ref: '#/components/responses/CirQitError400'
         "401":
@@ -327,9 +411,10 @@ paths:
           $ref: '#/components/responses/CirQitError405'
         "409":
           $ref: '#/components/responses/CirQitError409'
+        "429":
+          $ref: '#/components/responses/CirQitError429'
         "500":
           $ref: '#/components/responses/CirQitError500'
-      x-amazon-apigateway-request-validator: JsonBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
@@ -341,6 +426,8 @@ paths:
   # Installation - CreateInstallationFunction
   /rest/v1/installation:
     post:
+      security:
+        - OAuth2: [ cirqit/write ]
       tags:
         - Installation
       operationId: createInstallation
@@ -359,6 +446,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Installation'
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: '#/components/headers/X-Rate-Limit-Limit'
+            X-Rate-Limit-Remaining:
+              $ref: '#/components/headers/X-Rate-Limit-Remaining'
+            X-Rate-Limit-Reset:
+              $ref: '#/components/headers/X-Rate-Limit-Reset'
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
         "400":
           $ref: '#/components/responses/CirQitError400'
         "401":
@@ -369,6 +465,8 @@ paths:
           $ref: '#/components/responses/CirQitError405'
         "409":
           $ref: '#/components/responses/CirQitError409'
+        "429":
+          $ref: '#/components/responses/CirQitError429'
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-request-validator: JsonBodyValidation
@@ -381,6 +479,8 @@ paths:
   # Installation - AnyInstallationFunction
   /rest/v1/installation/{installationId}:
     get:
+      security:
+        - OAuth2: [ cirqit/read ]
       tags:
         - Installation
       operationId: getInstallation
@@ -400,6 +500,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Installation'
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: '#/components/headers/X-Rate-Limit-Limit'
+            X-Rate-Limit-Remaining:
+              $ref: '#/components/headers/X-Rate-Limit-Remaining'
+            X-Rate-Limit-Reset:
+              $ref: '#/components/headers/X-Rate-Limit-Reset'
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
         "400":
           $ref: '#/components/responses/CirQitError400'
         "401":
@@ -410,15 +519,18 @@ paths:
           $ref: '#/components/responses/CirQitError404'
         "405":
           $ref: '#/components/responses/CirQitError405'
+        "429":
+          $ref: '#/components/responses/CirQitError429'
         "500":
           $ref: '#/components/responses/CirQitError500'
-      x-amazon-apigateway-request-validator: JsonBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
 
     put:
+      security:
+        - OAuth2: [ cirqit/write ]
       tags:
         - Installation
       operationId: putInstallation
@@ -444,6 +556,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Installation'
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: '#/components/headers/X-Rate-Limit-Limit'
+            X-Rate-Limit-Remaining:
+              $ref: '#/components/headers/X-Rate-Limit-Remaining'
+            X-Rate-Limit-Reset:
+              $ref: '#/components/headers/X-Rate-Limit-Reset'
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
         "400":
           $ref: '#/components/responses/CirQitError400'
         "401":
@@ -454,6 +575,8 @@ paths:
           $ref: '#/components/responses/CirQitError404'
         "405":
           $ref: '#/components/responses/CirQitError405'
+        "429":
+          $ref: '#/components/responses/CirQitError429'
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-request-validator: JsonBodyValidation
@@ -463,6 +586,8 @@ paths:
         type: aws_proxy
 
     delete:
+      security:
+        - OAuth2: [ cirqit/write ]
       tags:
         - Installation
       operationId: deleteInstallation
@@ -481,8 +606,18 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                # FIXME: da könnte ich etwas genauer definieren.  Vor allem weil ich mehrere ähnliche responses habe....
+                $ref: '#/components/schemas/CommonString'
                 format: json
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: '#/components/headers/X-Rate-Limit-Limit'
+            X-Rate-Limit-Remaining:
+              $ref: '#/components/headers/X-Rate-Limit-Remaining'
+            X-Rate-Limit-Reset:
+              $ref: '#/components/headers/X-Rate-Limit-Reset'
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
         "400":
           $ref: '#/components/responses/CirQitError400'
         "401":
@@ -493,9 +628,10 @@ paths:
           $ref: '#/components/responses/CirQitError404'
         "405":
           $ref: '#/components/responses/CirQitError405'
+        "429":
+          $ref: '#/components/responses/CirQitError429'
         "500":
           $ref: '#/components/responses/CirQitError500'
-      x-amazon-apigateway-request-validator: JsonBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
@@ -508,6 +644,8 @@ paths:
   # Document - DocumentFunction
   /rest/v1/installation/{installationId}/listDocuments:
     get:
+      security:
+        - OAuth2: [ cirqit/read ]
       tags:
         - Document
       operationId: getDocumentList
@@ -527,8 +665,19 @@ paths:
             application/json:
               schema:
                 type: array
+                minItems: 1
+                maxItems: 100
                 items:
                   $ref: '#/components/schemas/DocumentMetadata'
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: '#/components/headers/X-Rate-Limit-Limit'
+            X-Rate-Limit-Remaining:
+              $ref: '#/components/headers/X-Rate-Limit-Remaining'
+            X-Rate-Limit-Reset:
+              $ref: '#/components/headers/X-Rate-Limit-Reset'
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
         "400":
           $ref: '#/components/responses/CirQitError400'
         "401":
@@ -539,6 +688,8 @@ paths:
           $ref: '#/components/responses/CirQitError404'
         "405":
           $ref: '#/components/responses/CirQitError405'
+        "429":
+          $ref: '#/components/responses/CirQitError429'
         "500":
           $ref: '#/components/responses/CirQitError500'
       x-amazon-apigateway-integration:
@@ -548,6 +699,8 @@ paths:
 
   /rest/v1/installation/{installationId}/getDocumentUrl:
     post:
+      security:
+        - OAuth2: [ cirqit/write ]
       tags:
         - Document
       operationId: getSignedDocumentUrl
@@ -576,6 +729,15 @@ paths:
                 properties:
                   signedUrl:
                     $ref: '#/components/schemas/SignedUrl'
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: '#/components/headers/X-Rate-Limit-Limit'
+            X-Rate-Limit-Remaining:
+              $ref: '#/components/headers/X-Rate-Limit-Remaining'
+            X-Rate-Limit-Reset:
+              $ref: '#/components/headers/X-Rate-Limit-Reset'
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
         "400":
           $ref: '#/components/responses/CirQitError400'
         "401":
@@ -588,8 +750,11 @@ paths:
           $ref: '#/components/responses/CirQitError405'
         "409":
           $ref: '#/components/responses/CirQitError405'
+        "429":
+          $ref: '#/components/responses/CirQitError429'
         "500":
           $ref: '#/components/responses/CirQitError500'
+      x-amazon-apigateway-request-validator: JsonBodyValidation
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
         httpMethod: POST
@@ -604,9 +769,39 @@ components:
 
     IdSchema:
       type: string
-      description: The ID of the object
+      minLength: 11
+      maxLength: 11
       pattern: '^[A-Z0-9]{5}-[A-Z0-9]{5}$'
+      description: The unique cirQIt ID of the object
       example: ABCDE-12345
+
+    ShortString:
+      type: string
+      minLength: 1
+      maxLength: 12
+      # FIXME: mach einen alphanumerischen mit einigen sonderzeichen
+      pattern: '^[A-Z0-9]{5}-[A-Z0-9]{5}$'
+      description: pretty short string
+      example: kurzer Name
+
+    CommonString:
+      type: string
+      minLength: 1
+      maxLength: 128
+      # FIXME: mach einen alphanumerischen mit einigen sonderzeichen
+      pattern: '^[A-Z0-9]{5}-[A-Z0-9]{5}$'
+      description: string for names, address, ...
+      example: ein name oder text der ca. einer Zeile entspricht.
+
+    LongString:
+      type: string
+      minLength: 1
+      maxLength: 512
+      description: long string descriptions
+      # FIXME: mach einen alphanumerischen mit einigen sonderzeichen
+      pattern: '^[A-Z0-9]{5}-[A-Z0-9]{5}$'
+      example: Ein langer text, ca. eine viertel A4 Seite
+
 
     Company:
       type: object
@@ -615,39 +810,44 @@ components:
         - companyName
       properties:
         companyName:
-          type: string
+          $ref: '#/components/schemas/CommonString'
+          description: the name of the company
           example: Example Ltd.
         addition:
-          type: string
-          example: Postfach
+          $ref: '#/components/schemas/CommonString'
+          description: additional information about the company
+          example: c/o box 1392
         street:
-          type: string
-          example: die strasse
+          $ref: '#/components/schemas/CommonString'
+          example: Main Street 12
         postalCode:
-          type: string
+          $ref: '#/components/schemas/ShortString'
           example: "8400"
         city:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           example: Winterthur
         country:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           example: Schweiz
         phone:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           example: "0785556677"
         email:
           type: string
+          maxLength: 128
           format: email
           example: info@example.com
         website:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           example: www.example.com
         commission:
           type: array
+          minItems: 1
+          maxItems: 100
           description: the comissioners of the company
           example: ["Project 3730", "Project 9382"]
           items:
-            type: string
+            $ref: '#/components/schemas/CommonString'
 
     Directory:
       type: object
@@ -656,43 +856,43 @@ components:
         - name
       properties:
         name:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           example: Project on the street
           description: the name of the directory
         description:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           example: a description of the directory
           description: the description of the directory
         parentId:
-          type: string
-          example: KLMNO-98765
+          $ref: '#/components/schemas/IdSchema'
           description: the ID of the parent directory
 
         accountId:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           readOnly: true
           example: mario
           description: the accountID of the user who created the directory
         role:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           readOnly: true
           example: ADMINISTRATOR
           description: the role of this user in this directory
         id:
-          type: string
+          $ref: '#/components/schemas/IdSchema'
           readOnly: true
-          example: FGHIJ-67890
           description: the ID of the directory
         installations:
           type: array
+          minItems: 1
+          maxItems: 100
           readOnly: true
           description: the installations in this directory
           items:
-            type: string
-            example: ABCDE-12345
-            description: the ID of the installation
+            $ref: '#/components/schemas/IdSchema'
         children:
           type: array
+          minItems: 1
+          maxItems: 100
           readOnly: true
           description: the children directories in this directory
           items:
@@ -714,19 +914,23 @@ components:
         - accountId
       properties:
         name:
-          type: string
-          example: 2737_H1 Pelletanlage Hauptsteuerung Silosteuerung_V004
+          $ref: '#/components/schemas/CommonString'
+          example: Pelletanlage Hauptsteuerung Silosteuerung
         description:
-          type: string
-          example: 2737_H1 Pelletanlage Hauptsteuerung Silosteuerung_V004
+          $ref: '#/components/schemas/LongString'
+          example: Die Hauptsteuerung der Pelletanlage mit der Silosteuerung
         licenseType:
           type: string
+          enum:
+            - private
+            - public
           example: public
+          description: the license type of the installation
         commission:
-          type: string
-          example: Hase
+          $ref: '#/components/schemas/CommonString'
+          example: Project Dr. Huber - Neftenbach
         address:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           example: 82256 Fürstenfeldbruck, Deutschland
         location:
           description: the GEO location of the installation
@@ -742,26 +946,30 @@ components:
               format: float
               example: 11.243008
         id:
-          type: string
-          example: ABCDE-12345
+          $ref: '#/components/schemas/IdSchema'
+          description: the uniqe cirQit ID of the installation
         companyName:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           example: Huber AG
+          description: the name of the company who created the installation
         rootId:
-          type: string
-          example: FGHIJ-56789
+          $ref: '#/components/schemas/IdSchema'
+          description: the uniqe cirQit ID of the root directory
         parentId:
-          type: string
-          example: KLMNO-98765
+          $ref: '#/components/schemas/IdSchema'
+          description: the uniqe cirQit ID of the parent directory
         accountId:
-          type: string
+          $ref: '#/components/schemas/CommonString'
+          description: the user who cerated the installation
           example: mario
         role:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           readOnly: true
+          description: the role of this user in this installation
           example: ADMIN
         createdDate:
           type: string
+          maxLength: 128
           readOnly: true
           format: date-time
           description: Creation date in the cirQit environment of the installation in ISO 8601 format "YYYY-MM-DDTHH:MM:SS".
@@ -775,7 +983,7 @@ components:
         - documentType
       properties:
         fileName:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           description: alphanumeric name of the document.
           example: my-file.txt
         documentType:
@@ -786,11 +994,11 @@ components:
             - SCHEMA
           example: ATTACHMENT
         displayName:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           description: display name of the document.
           example: My File
         description:
-          type: string
+          $ref: '#/components/schemas/LongString'
           description: details of the document content
           example: Lorem ipsum dolor sit amet, consectetur adipiscing elit
         locked:
@@ -798,16 +1006,18 @@ components:
           description: whether the document is visible for Admins (true) only or open for everybody (false)
           example: true
         installationId:
-          type: string
+          $ref: '#/components/schemas/IdSchema'
           readOnly: true
           description: installationID related to the document.
           example: ABCDE-12345
         path:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           description: slash delimited path of the directory where the document is stored.
           example: folder/subfolder1/subfolder2
         versions:
           type: array
+          minItems: 1
+          maxItems: 100
           description: List of version objects containing version information
           items:
             $ref: '#/components/schemas/DocumentVersion'
@@ -824,20 +1034,22 @@ components:
         - createdDate
       properties:
         versionId:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           description: The versionId of the document
           example: abcd1234EFGH5678jklm
         size:
           type: number
+          format: int64
           description: Size of the document in bytes
           example: 123456
         mimeType:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           description: Mime type of the document.
           example: application/pdf
         createdDate:
           type: string
           format: date-time
+          maxLength: 19
           description: Creation date in the cirQit environment of the document in ISO 8601 format "YYYY-MM-DDTHH:MM:SS"
           example: "2023-09-05T21:12:18"
 
@@ -857,21 +1069,21 @@ components:
         - action
       properties:
         documentType:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           description: Type of the document in the installation.
           enum:
             - ATTACHMENT
           example: ATTACHMENT
         fileName:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           description: filename of the document.
           example: my-file.txt
         path:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           description: directory where the document is stored. At the time being, subdirectories are not supported.
           example: folder
         displayName:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           description: the name to show in the frontend
           example: My File
         locked:
@@ -888,7 +1100,7 @@ components:
             - DELETE
           example: UPLOAD
         version:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           description: |
             Version of the document. The version is provided in the response of the DocumentMetadata. 
             If the version is not provided, the latest version is used.
@@ -932,7 +1144,7 @@ components:
 
 
     SignedUrl:
-      type: string
+      $ref: '#/components/schemas/CommonString'
       description: get the signed URL to communicate with the AWS S3 bucket store
       example: https://app.cirqit.cloud/data/anlage/MHXKN-XSDUA/pdf/schema.pdf?Expires=173xxxx&Signature=1iOxxxx&Key-Pair-Id=K2Gxxxx
 
@@ -946,16 +1158,18 @@ components:
         - errorMessage
       properties:
         errorCode:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           example: VALIDATION_ERROR
           description: Unique error code.
         errorMessage:
-          type: string
+          $ref: '#/components/schemas/CommonString'
           example: Input validation failed
           description: Short description of the error.
         errorReasons:
           example: [{ "message": "Attribute 'xxxx' must not be longer than 50 chars.", "code": "ERROR_012", "location": "/rootLevel/xxxx" }]
           type: array
+          minItems: 1
+          maxItems: 10
           items:
             type: object
             required:
@@ -963,20 +1177,43 @@ components:
               - code
             properties:
               message:
-                type: string
+                $ref: '#/components/schemas/CommonString'
                 example: Attribute 'xxxx' must not be longer than 50 chars.
               code:
-                type: string
+                $ref: '#/components/schemas/CommonString'
                 example: ERROR_012
                 description: Unique reason code for this specific reason.
               location:
-                type: string
+                $ref: '#/components/schemas/CommonString'
                 example: /rootLevel/xxxx
                 description: Location within message where the error is related to.
           description: >-
             List of error reasons if multiple reasons are related to the same error.
+
+
   
-  
+
+  headers:
+    X-Rate-Limit-Limit:
+      description: The number of allowed requests in the current period
+      schema:
+        type: number
+        format: int64
+    X-Rate-Limit-Remaining:
+      description: The number of remaining requests in the current period
+      schema:
+        type: number
+        format: int64
+    X-Rate-Limit-Reset:
+      description: The number of seconds until the rate limit resets
+      schema:
+        type: number
+        format: int64
+    Access-Control-Allow-Origin:
+      description: Specifies the origin that is allowed to access the resource
+      schema:
+        $ref: '#/components/schemas/ShortString'
+        example: "*"
 
   responses:
     CirQitError400:
@@ -985,40 +1222,157 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/CirQitError'
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: '#/components/headers/X-Rate-Limit-Limit'
+        X-Rate-Limit-Remaining:
+          $ref: '#/components/headers/X-Rate-Limit-Remaining'
+        X-Rate-Limit-Reset:
+          $ref: '#/components/headers/X-Rate-Limit-Reset'
+        Access-Control-Allow-Origin:
+          $ref: '#/components/headers/Access-Control-Allow-Origin'
+
     CirQitError401:
       description: Unauthorized, no access to the requested url / resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/CirQitError'
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: '#/components/headers/X-Rate-Limit-Limit'
+        X-Rate-Limit-Remaining:
+          $ref: '#/components/headers/X-Rate-Limit-Remaining'
+        X-Rate-Limit-Reset:
+          $ref: '#/components/headers/X-Rate-Limit-Reset'
+        Access-Control-Allow-Origin:
+          $ref: '#/components/headers/Access-Control-Allow-Origin'
+
     CirQitError403:
       description: Forbidden, no access to the resource object
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/CirQitError'
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: '#/components/headers/X-Rate-Limit-Limit'
+        X-Rate-Limit-Remaining:
+          $ref: '#/components/headers/X-Rate-Limit-Remaining'
+        X-Rate-Limit-Reset:
+          $ref: '#/components/headers/X-Rate-Limit-Reset'
+        Access-Control-Allow-Origin:
+          $ref: '#/components/headers/Access-Control-Allow-Origin'
+
     CirQitError404:
       description: Requested resource is not available
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/CirQitError'
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: '#/components/headers/X-Rate-Limit-Limit'
+        X-Rate-Limit-Remaining:
+          $ref: '#/components/headers/X-Rate-Limit-Remaining'
+        X-Rate-Limit-Reset:
+          $ref: '#/components/headers/X-Rate-Limit-Reset'
+        Access-Control-Allow-Origin:
+          $ref: '#/components/headers/Access-Control-Allow-Origin'
+
     CirQitError405:
       description: Path or HTTP method not available
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/CirQitError'
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: '#/components/headers/X-Rate-Limit-Limit'
+        X-Rate-Limit-Remaining:
+          $ref: '#/components/headers/X-Rate-Limit-Remaining'
+        X-Rate-Limit-Reset:
+          $ref: '#/components/headers/X-Rate-Limit-Reset'
+        Access-Control-Allow-Origin:
+          $ref: '#/components/headers/Access-Control-Allow-Origin'
+
     CirQitError409:
       description: Resource already registered
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/CirQitError'
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: '#/components/headers/X-Rate-Limit-Limit'
+        X-Rate-Limit-Remaining:
+          $ref: '#/components/headers/X-Rate-Limit-Remaining'
+        X-Rate-Limit-Reset:
+          $ref: '#/components/headers/X-Rate-Limit-Reset'
+        Access-Control-Allow-Origin:
+          $ref: '#/components/headers/Access-Control-Allow-Origin'
+
+    CirQitError429:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CirQitError'
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: '#/components/headers/X-Rate-Limit-Limit'
+        X-Rate-Limit-Remaining:
+          $ref: '#/components/headers/X-Rate-Limit-Remaining'
+        X-Rate-Limit-Reset:
+          $ref: '#/components/headers/X-Rate-Limit-Reset'
+        Access-Control-Allow-Origin:
+          $ref: '#/components/headers/Access-Control-Allow-Origin'
+        Retry-After:
+          description: The number of seconds to wait before retrying the request
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            maximum: 999999
+          example: 60
+
     CirQitError500:
       description: Server error, e.g. internal server error.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/CirQitError'
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: '#/components/headers/X-Rate-Limit-Limit'
+        X-Rate-Limit-Remaining:
+          $ref: '#/components/headers/X-Rate-Limit-Remaining'
+        X-Rate-Limit-Reset:
+          $ref: '#/components/headers/X-Rate-Limit-Reset'
+        Access-Control-Allow-Origin:
+          $ref: '#/components/headers/Access-Control-Allow-Origin'
 
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: |
+        This security scheme uses JWTs and adheres to the best practices outlined in RFC8725.
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.cirqit.cloud/oauth2/token
+          scopes:
+            cirqit/read: Grants read access
+            cirqit/write: Grants write access
+            # I should have a refresh token, OWASP checker is not happy with this
+            # To be defined and understand why I should refresh the secret to obtain a JWT AccessToken
+            #        refreshToken:
+            #          tokenUrl: https://api.cirqit.cloud/oauth2/token
+            #          refreshUrl: https://api.cirqit.cloud/oauth2/refresh
+            #          scopes:
+            #            cirqit/read: Grants read access
+            #            cirqit/write: Grants write access
+    NoAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: this is No Authentication to satisfy the OWAS checker. Its not really RFC8725
