@@ -54,8 +54,15 @@ NOTE: some validators struggle with the circular reference of the Directory Tree
 To align to the OpenAPI specification, the OpenAPI file can be validated:
 * https://oas-validation.com/process_file
 * https://github.com/python-openapi/openapi-spec-validator
-  * `pip install openapi-spec-validator`
-  * `openapi-spec-validator cirqitOpenApi_v0.0.1.yml`
+```aiignore
+pip install openapi-spec-validator
+openapi-spec-validator openAPI/cirqitOpenApi_v0.0.1.yml
+```
+
+OWASP validate 
+```aiignore
+spectral lint openAPI/cirqitOpenApi_v0.0.2.yml --ruleset .spectral.yaml
+```
 
 ### generate cirQit OpenAPI implementation
 We use https://openapi-generator.tech/ to generate the code for the server.

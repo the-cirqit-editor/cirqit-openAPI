@@ -66,7 +66,7 @@ paths:
   /oauth2/token:
     post:
       security:
-        - NoAuth: []
+        - NoAuth: [ ]
       tags:
         - OAuth2
       operationId: getJWTAccessToken
@@ -80,17 +80,20 @@ paths:
               type: object
               properties:
                 client_id:
-                  $ref: '#/components/schemas/CommonString'
-                  example: your-client-id
-                  description: the user which has obtained the client secret from the cirQit application
+                  allOf:
+                    - $ref: '#/components/schemas/CommonString'
+                    - example: your-client-id
+                    - description: the user which has obtained the client secret from the cirQit application
                 client_secret:
-                  $ref: '#/components/schemas/LongString'
-                  example: your-client-secret
-                  description: the user secret which is provided by the cirQit application
+                  allOf:
+                    - $ref: '#/components/schemas/LongString'
+                    - example: your-client-secret
+                    - description: the user secret which is provided by the cirQit application
                 scope:
-                  $ref: '#/components/schemas/CommonString'
-                  example: cirqit/read cirqit/write
-                  description: the scope of the access token
+                  allOf:
+                    - $ref: '#/components/schemas/CommonString'
+                    - example: cirqit/read cirqit/write
+                    - description: the scope of the access token
       responses:
         '200':
           description: Authentication token retrieved successfully
@@ -100,22 +103,26 @@ paths:
                 type: object
                 properties:
                   access_token:
-                    $ref: '#/components/schemas/CommonString'
-                    description: The access token string as issued by the authorization server.
-                    example: your jwt access-token (ey....)
+                    allOf:
+                      - $ref: '#/components/schemas/CommonString'
+                      - description: The access token string as issued by the authorization server.
+                      - example: your jwt access-token (ey....)
                   token_type:
-                    $ref: '#/components/schemas/CommonString'
-                    description: the type of token this is, typically just the string “Bearer”.
-                    example: your jwt access-token (ey....)
+                    allOf:
+                      - $ref: '#/components/schemas/CommonString'
+                      - description: the type of token this is, typically just the string “Bearer”.
+                      - example: your jwt access-token (ey....)
                   expires_in:
-                    # FIXME: is this a string or a number
-                    $ref: '#/components/schemas/ShortString'
-                    description: the time in seconds when this token expires
-                    example: 876543
+                    allOf:
+                      # FIXME: is this a string or a number
+                      - $ref: '#/components/schemas/ShortString'
+                      - description: the time in seconds when this token expires
+                      - example: 876543
                   scope:
-                    $ref: '#/components/schemas/CommonString'
-                    description: the scope of the access token
-                    example: your jwt access-token (ey....)
+                    allOf:
+                      - $ref: '#/components/schemas/CommonString'
+                      - description: the scope of the access token
+                      - example: your jwt access-token (ey....)
           headers:
             X-Rate-Limit-Limit:
               $ref: '#/components/headers/X-Rate-Limit-Limit'
@@ -143,7 +150,7 @@ paths:
   /oauth2/verify:
     post:
       security:
-        - NoAuth: []
+        - NoAuth: [ ]
       tags:
         - OAuth2
       operationId: verifyAuthToken
@@ -161,8 +168,9 @@ paths:
                 - token
               properties:
                 token:
-                  $ref: '#/components/schemas/CommonString'
-                  example: your-access-token
+                  allOf:
+                    - $ref: '#/components/schemas/CommonString'
+                    - example: your-access-token
       responses:
         '200':
           description: Token verified successfully
@@ -176,23 +184,26 @@ paths:
                     example: true
                     description: The token is valid
                   token_type:
-                    $ref: '#/components/schemas/CommonString'
-                    description: the type of token this is, typically just the string “Bearer”.
-                    example: your jwt access-token (ey....)
+                    allOf:
+                      - $ref: '#/components/schemas/CommonString'
+                      - description: the type of token this is, typically just the string “Bearer”.
+                      - example: your jwt access-token (ey....)
                   expires_in:
                     type: number
                     description: the time in seconds when this token expires
                     example: 876543
                   expire_date:
-                    # FIXME: replace all dates with a date-time
-                    $ref: '#/components/schemas/CommonString'
-                    format: date-time
-                    description: the human readable date when this token expires
-                    example: "2023-09-05T21:12:18"
+                    allOf:
+                      # FIXME: replace all dates with a date-time
+                      - $ref: '#/components/schemas/CommonString'
+                      - format: date-time
+                      - description: the human readable date when this token expires
+                      - example: "2023-09-05T21:12:18"
                   scope:
-                    $ref: '#/components/schemas/CommonString'
-                    description: the scope of the access token
-                    example: cirqit/read cirqit/write
+                    allOf:
+                      - $ref: '#/components/schemas/CommonString'
+                      - description: the scope of the access token
+                      - example: cirqit/read cirqit/write
           headers:
             X-Rate-Limit-Limit:
               $ref: '#/components/headers/X-Rate-Limit-Limit'
@@ -601,14 +612,8 @@ paths:
           schema:
             $ref: '#/components/schemas/IdSchema'
       responses:
-        "200":
+        "201":
           description: Successful operation.
-          content:
-            application/json:
-              schema:
-                # FIXME: da könnte ich etwas genauer definieren.  Vor allem weil ich mehrere ähnliche responses habe....
-                $ref: '#/components/schemas/CommonString'
-                format: json
           headers:
             X-Rate-Limit-Limit:
               $ref: '#/components/headers/X-Rate-Limit-Limit'
@@ -725,10 +730,10 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  signedUrl:
-                    $ref: '#/components/schemas/SignedUrl'
+                allOf:
+                - $ref: '#/components/schemas/CommonString'
+                - description: the signed URL to communicate with the AWS S3 bucket store
+                - example: https://app.cirqit.cloud/data/anlage/MHXKN-XSDUA/pdf/schema.pdf?Expires=173xxxx&Signature=1iOxxxx&Key-Pair-Id=K2Gxxxx
           headers:
             X-Rate-Limit-Limit:
               $ref: '#/components/headers/X-Rate-Limit-Limit'
@@ -779,24 +784,24 @@ components:
       maxLength: 12
       # FIXME: mach einen alphanumerischen mit einigen sonderzeichen
       pattern: '^[A-Z0-9]{5}-[A-Z0-9]{5}$'
-#      description: pretty short string
-#      example: kurzer Name
+    #      description: pretty short string
+    #      example: kurzer Name
 
     CommonString:
       type: string
       maxLength: 128
       # FIXME: mach einen alphanumerischen mit einigen sonderzeichen
       pattern: '^[A-Z0-9]{5}-[A-Z0-9]{5}$'
-#      description: string for names, address, ...
-#      example: ein name oder text der ca. einer Zeile entspricht.
+    #      description: string for names, address, ...
+    #      example: ein name oder text der ca. einer Zeile entspricht.
 
     LongString:
       type: string
       maxLength: 512
       # FIXME: mach einen alphanumerischen mit einigen sonderzeichen
       pattern: '^[A-Z0-9]{5}-[A-Z0-9]{5}$'
-#      description: long string descriptions
-#      example: Ein langer text, ca. eine viertel A4 Seite
+    #      description: long string descriptions
+    #      example: Ein langer text, ca. eine viertel A4 Seite
 
 
     Company:
@@ -806,42 +811,57 @@ components:
         - companyName
       properties:
         companyName:
-          $ref: '#/components/schemas/CommonString'
-          description: the name of the company
-          example: Example Ltd.
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: the name of the company
+            - example: Example Ltd.
         addition:
-          $ref: '#/components/schemas/CommonString'
-          description: additional information about the company
-          example: c/o box 1392
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: additional information about the company
+            - example: c/o box 1392
         street:
-          $ref: '#/components/schemas/CommonString'
-          example: Main Street 12
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: the street of the company
+            - example: Main Street 12
         postalCode:
-          $ref: '#/components/schemas/ShortString'
-          example: "8400"
+          allOf:
+            - $ref: '#/components/schemas/ShortString'
+            - description: the postal code of the company
+            - example: 8400
         city:
-          $ref: '#/components/schemas/CommonString'
-          example: Winterthur
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: the city of the company
+            - example: Winterthur
         country:
-          $ref: '#/components/schemas/CommonString'
-          example: Schweiz
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: the country of the company
+            - example: Schweiz
         phone:
-          $ref: '#/components/schemas/CommonString'
-          example: "0785556677"
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: the phone number of the company
+            - example: "0785556677"
         email:
-          type: string
-          maxLength: 128
-          format: email
-          example: info@example.com
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - format: email
+            - description: the email address of the company
+            - example: info@example.com
         website:
-          $ref: '#/components/schemas/CommonString'
-          example: www.example.com
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: the website of the company
+            - example: www.example.com
         commission:
           type: array
           minItems: 1
           maxItems: 100
-          description: the comissioners of the company
-          example: ["Project 3730", "Project 9382"]
+          description: the commissions of the company
+          example: [ "Project 3730", "Project 9382" ]
           items:
             $ref: '#/components/schemas/CommonString'
 
@@ -854,50 +874,51 @@ components:
         name:
           allOf:
             - $ref: '#/components/schemas/CommonString'
-            - example: Project on the street
             - description: the name of the directory
+            - example: Project on the street
         description:
           allOf:
             - $ref: '#/components/schemas/CommonString'
-            - example: a description of the directory
             - description: the description of the directory
+            - example: a description of the directory
         parentId:
-            $ref: '#/components/schemas/IdSchema'
+          allOf:
+            - $ref: '#/components/schemas/IdSchema'
+            - description: the parent directory of this directory
+            - example: ABCDE-12345
         accountId:
           allOf:
             - $ref: '#/components/schemas/CommonString'
             - readOnly: true
-            - example: mario
             - description: the accountID of the user who created the directory
+            - example: mario
         role:
           allOf:
             - $ref: '#/components/schemas/CommonString'
             - readOnly: true
-            - example: ADMINISTRATOR
             - description: the role of this user in this directory
+            - example: ADMINISTRATOR
         id:
           allOf:
             - $ref: '#/components/schemas/IdSchema'
             - readOnly: true
             - description: the ID of the directory
         installations:
-          allOf:
-            - type: array
-            - minItems: 1
-            - maxItems: 100
-            - readOnly: true
-            - description: the installations in this directory
-            - items:
-                $ref: '#/components/schemas/IdSchema'
+          type: array
+          minItems: 1
+          maxItems: 100
+          readOnly: true
+          description: the installations in this directory
+          items:
+            $ref: '#/components/schemas/IdSchema'
         children:
-          allOf:
-            - type: array
-            - minItems: 1
-            - maxItems: 100
-            - readOnly: true
-            - description: the children directories in this directory
-            - items:
-                $ref: '#/components/schemas/Directory'
+          type: array
+          minItems: 1
+          maxItems: 100
+          readOnly: true
+          description: the children directories in this directory
+          items:
+            $ref: '#/components/schemas/Directory'
 
 
 
@@ -915,24 +936,32 @@ components:
         - accountId
       properties:
         name:
-          $ref: '#/components/schemas/CommonString'
-          example: Pelletanlage Hauptsteuerung Silosteuerung
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: the name of the installation
+            - example: Pelletanlage Hauptsteuerung Silosteuerung
         description:
-          $ref: '#/components/schemas/LongString'
-          example: Die Hauptsteuerung der Pelletanlage mit der Silosteuerung
+          allOf:
+            - $ref: '#/components/schemas/LongString'
+            - description: the description of the installation
+            - example: Die Hauptsteuerung der Pelletanlage mit der Silosteuerung
         licenseType:
           type: string
           enum:
             - private
             - public
-          example: public
           description: the license type of the installation
+          example: public
         commission:
-          $ref: '#/components/schemas/CommonString'
-          example: Project Dr. Huber - Neftenbach
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: the commission of the installation
+            - example: Project Dr. Huber - Neftenbach
         address:
-          $ref: '#/components/schemas/CommonString'
-          example: 82256 Fürstenfeldbruck, Deutschland
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: the address of the installation
+            - example: 82256 Fürstenfeldbruck, Deutschland
         location:
           description: the GEO location of the installation
           type: object
@@ -947,27 +976,36 @@ components:
               format: float
               example: 11.243008
         id:
-          $ref: '#/components/schemas/IdSchema'
-          description: the uniqe cirQit ID of the installation
+          allOf:
+            - $ref: '#/components/schemas/IdSchema'
+            - description: the uniqe cirQit ID of the installation
+            - example: ABCDE-12345
         companyName:
-          $ref: '#/components/schemas/CommonString'
-          example: Huber AG
-          description: the name of the company who created the installation
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: the name of the company who created the installation
+            - example: Huber AG
         rootId:
-          $ref: '#/components/schemas/IdSchema'
-          description: the uniqe cirQit ID of the root directory
+          allOf:
+            - $ref: '#/components/schemas/IdSchema'
+            - description: the uniqe cirQit ID of the root directory
+            - example: ABCDE-12345
         parentId:
-          $ref: '#/components/schemas/IdSchema'
-          description: the uniqe cirQit ID of the parent directory
+          allOf:
+            - $ref: '#/components/schemas/IdSchema'
+            - description: the uniqe cirQit ID of the parent directory
+            - example: ABCDE-12345
         accountId:
-          $ref: '#/components/schemas/CommonString'
-          description: the user who cerated the installation
-          example: mario
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: the user who cerated the installation
+            - example: mario
         role:
-          $ref: '#/components/schemas/CommonString'
-          readOnly: true
-          description: the role of this user in this installation
-          example: ADMIN
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - readOnly: true
+            - description: the role of this user in this installation
+            - example: ADMIN
         createdDate:
           type: string
           maxLength: 128
@@ -984,9 +1022,10 @@ components:
         - documentType
       properties:
         fileName:
-          $ref: '#/components/schemas/CommonString'
-          description: alphanumeric name of the document.
-          example: my-file.txt
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: alphanumeric name of the document.
+            - example: my-file.txt
         documentType:
           type: string
           description: Type of the document in the installation.
@@ -995,26 +1034,30 @@ components:
             - SCHEMA
           example: ATTACHMENT
         displayName:
-          $ref: '#/components/schemas/CommonString'
-          description: display name of the document.
-          example: My File
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: display name of the document.
+            - example: My File
         description:
-          $ref: '#/components/schemas/LongString'
-          description: details of the document content
-          example: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+          allOf:
+            - $ref: '#/components/schemas/LongString'
+            - description: details of the document content
+            - example: Lorem ipsum dolor sit amet, consectetur adipiscing elit
         locked:
           type: boolean
           description: whether the document is visible for Admins (true) only or open for everybody (false)
           example: true
         installationId:
-          $ref: '#/components/schemas/IdSchema'
-          readOnly: true
-          description: installationID related to the document.
-          example: ABCDE-12345
+          allOf:
+            - $ref: '#/components/schemas/IdSchema'
+            - readOnly: true
+            - description: installationID related to the document.
+            - example: ABCDE-12345
         path:
-          $ref: '#/components/schemas/CommonString'
-          description: slash delimited path of the directory where the document is stored.
-          example: folder/subfolder1/subfolder2
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: slash delimited path of the directory where the document is stored.
+            - example: folder/subfolder1/subfolder2
         versions:
           type: array
           minItems: 1
@@ -1035,18 +1078,22 @@ components:
         - createdDate
       properties:
         versionId:
-          $ref: '#/components/schemas/CommonString'
-          description: The versionId of the document
-          example: abcd1234EFGH5678jklm
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: The versionId of the document
+            - example: abcd1234EFGH5678jklm
         size:
           type: number
           format: int64
           description: Size of the document in bytes
           example: 123456
+          minimum: 0
+          maximum: 999999999
         mimeType:
-          $ref: '#/components/schemas/CommonString'
-          description: Mime type of the document.
-          example: application/pdf
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: Mime type of the document.
+            - example: application/pdf
         createdDate:
           type: string
           format: date-time
@@ -1070,23 +1117,26 @@ components:
         - action
       properties:
         documentType:
-          $ref: '#/components/schemas/CommonString'
+          type: string
           description: Type of the document in the installation.
           enum:
             - ATTACHMENT
           example: ATTACHMENT
         fileName:
-          $ref: '#/components/schemas/CommonString'
-          description: filename of the document.
-          example: my-file.txt
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: filename of the document.
+            - example: my-file.txt
         path:
-          $ref: '#/components/schemas/CommonString'
-          description: directory where the document is stored. At the time being, subdirectories are not supported.
-          example: folder
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: directory where the document is stored. At the time being, subdirectories are not supported.
+            - example: folder
         displayName:
-          $ref: '#/components/schemas/CommonString'
-          description: the name to show in the frontend
-          example: My File
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: the name to show in the frontend
+            - example: My File
         locked:
           type: boolean
           description: whether the document is visible for Admins only (true) or open for everybody (false)
@@ -1101,10 +1151,11 @@ components:
             - DELETE
           example: UPLOAD
         version:
-          $ref: '#/components/schemas/CommonString'
-          description: |
-            Version of the document. The version is provided in the response of the DocumentMetadata. 
-            If the version is not provided, the latest version is used.
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: |
+                Version of the document. The version is provided in the response of the DocumentMetadata. 
+                If the version is not provided, the latest version is used.
           example: abcd1234EFGH5678jklm
 
     SchemaDocument:
@@ -1144,11 +1195,6 @@ components:
           pattern: '^(ORIGINAL|LATEST|.*)$'
 
 
-    SignedUrl:
-      $ref: '#/components/schemas/CommonString'
-      description: get the signed URL to communicate with the AWS S3 bucket store
-      example: https://app.cirqit.cloud/data/anlage/MHXKN-XSDUA/pdf/schema.pdf?Expires=173xxxx&Signature=1iOxxxx&Key-Pair-Id=K2Gxxxx
-
 
     CirQitError:
       description: >-
@@ -1159,15 +1205,17 @@ components:
         - errorMessage
       properties:
         errorCode:
-          $ref: '#/components/schemas/CommonString'
-          example: VALIDATION_ERROR
-          description: Unique error code.
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - example: VALIDATION_ERROR
+            - description: Unique error code.
         errorMessage:
-          $ref: '#/components/schemas/CommonString'
-          example: Input validation failed
-          description: Short description of the error.
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - example: Input validation failed
+            - description: Short description of the error.
         errorReasons:
-          example: [{ "message": "Attribute 'xxxx' must not be longer than 50 chars.", "code": "ERROR_012", "location": "/rootLevel/xxxx" }]
+          example: [ { "message": "Attribute 'xxxx' must not be longer than 50 chars.", "code": "ERROR_012", "location": "/rootLevel/xxxx" } ]
           type: array
           minItems: 1
           maxItems: 10
@@ -1178,16 +1226,20 @@ components:
               - code
             properties:
               message:
-                $ref: '#/components/schemas/CommonString'
-                example: Attribute 'xxxx' must not be longer than 50 chars.
+                allOf:
+                  - $ref: '#/components/schemas/CommonString'
+                  - description: Detailed error message.
+                  - example: Attribute 'xxxx' must not be longer than 50 chars.
               code:
-                $ref: '#/components/schemas/CommonString'
-                example: ERROR_012
-                description: Unique reason code for this specific reason.
+                allOf:
+                  - $ref: '#/components/schemas/CommonString'
+                  - description: Unique reason code for this specific reason.
+                  - example: ERROR_012
               location:
-                $ref: '#/components/schemas/CommonString'
-                example: /rootLevel/xxxx
-                description: Location within message where the error is related to.
+                allOf:
+                  - $ref: '#/components/schemas/CommonString'
+                  - example: /rootLevel/xxxx
+                  - description: Location within message where the error is related to.
           description: >-
             List of error reasons if multiple reasons are related to the same error.
   
@@ -1213,8 +1265,9 @@ components:
     Access-Control-Allow-Origin:
       description: Specifies the origin that is allowed to access the resource
       schema:
-        $ref: '#/components/schemas/ShortString'
-        example: "*"
+        allOf:
+          - $ref: '#/components/schemas/ShortString'
+          - example: "*"
 
   responses:
     CirQitError400:

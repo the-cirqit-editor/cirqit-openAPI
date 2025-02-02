@@ -6,8 +6,8 @@ let configurations = {
   "cirQit-v0.0.1": {
     url: "openAPI/cirqitOpenApi_v0.0.1.yml",
   },
-  "cirQit-v0.0.x": {
-    url: "openAPI/cirqitOpenApi_v0.0.1.yml",
+  "cirQit-v0.0.2": {
+    url: "openAPI/cirqitOpenApi_v0.0.2.yml",
   },
 };
 

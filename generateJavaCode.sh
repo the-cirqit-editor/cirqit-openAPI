@@ -2,8 +2,10 @@
 
 GENERATED_CODE=mock-server
 TARGET_PROJECT=../cirqit-backend/openApiFunction
+TARGET_DIR_GENERATED=src/main/java/cloud/cirqit/openapi/generated
+TARGET_DIR_RESOURCES=src/main/resources
 PACKAGE=cloud.cirqit.openapi.generated
-OAS_FILE=cirqitOpenApi_v0.0.1.yml
+OAS_FILE=cirqitOpenApi_v0.0.2.yml
 
 # generate the server code with mock answers based on spring
 echo "generate API"
@@ -21,9 +23,10 @@ find . -name "*.java" -exec sed -i "s|^@Generated.*|@Generated(value = \"cirqit-
 # copy the generated code to the backend
 echo "copy API to $TARGET_PROJECT"
 rm -rf $TARGET_PROJECT/src/main/java/cloud/cirqit/openapi/generated/*
-mv $GENERATED_CODE/src/main/java/cloud/cirqit/openapi/generated/* $TARGET_PROJECT/src/main/java/cloud/cirqit/openapi/generated/
+mv $GENERATED_CODE/src/main/java/cloud/cirqit/openapi/generated/* $TARGET_PROJECT/$TARGET_DIR_GENERATED
 # copy the definition to the backend
-cp openAPI/$OAS_FILE $TARGET_PROJECT/definition/$OAS_FILE
+rm -f $TARGET_PROJECT/$TARGET_DIR_RESOURCES/cirqitOpenApi_v*
+cp openAPI/$OAS_FILE $TARGET_PROJECT/$TARGET_DIR_RESOURCES/
 
 # Define the message in the README.txt file
 readme_content="Note: this yaml definition is a copy of the definition in $(pwd). Do not modify here but only in the source location."
