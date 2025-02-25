@@ -782,26 +782,20 @@ components:
     ShortString:
       type: string
       maxLength: 12
-      # FIXME: mach einen alphanumerischen mit einigen sonderzeichen
-      pattern: '^[A-Z0-9]{5}-[A-Z0-9]{5}$'
-    #      description: pretty short string
-    #      example: kurzer Name
+      # pattern to add many special characters but not Unicode
+      pattern: '^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:,<>\./\?\\|~]*$'
 
     CommonString:
       type: string
       maxLength: 128
-      # FIXME: mach einen alphanumerischen mit einigen sonderzeichen
-      pattern: '^[A-Z0-9]{5}-[A-Z0-9]{5}$'
-    #      description: string for names, address, ...
-    #      example: ein name oder text der ca. einer Zeile entspricht.
+      # pattern to add many special characters but not Unicode
+      pattern: '^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:,<>\./\?\\|~]*$'
 
     LongString:
       type: string
       maxLength: 512
-      # FIXME: mach einen alphanumerischen mit einigen sonderzeichen
-      pattern: '^[A-Z0-9]{5}-[A-Z0-9]{5}$'
-    #      description: long string descriptions
-    #      example: Ein langer text, ca. eine viertel A4 Seite
+      # pattern to add many special characters but not Unicode
+      pattern: '^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:,<>\./\?\\|~]*$'
 
 
     Company:
@@ -931,7 +925,6 @@ components:
         - licenseType
         - companyName
         - commission
-        - rootId
         - parentId
         - accountId
       properties:
@@ -985,17 +978,13 @@ components:
             - $ref: '#/components/schemas/CommonString'
             - description: the name of the company who created the installation
             - example: Huber AG
-        rootId:
-          allOf:
-            - $ref: '#/components/schemas/IdSchema'
-            - description: the uniqe cirQit ID of the root directory
-            - example: ABCDE-12345
         parentId:
           allOf:
             - $ref: '#/components/schemas/IdSchema'
             - description: the uniqe cirQit ID of the parent directory
             - example: ABCDE-12345
         accountId:
+          readOnly: true
           allOf:
             - $ref: '#/components/schemas/CommonString'
             - description: the user who cerated the installation

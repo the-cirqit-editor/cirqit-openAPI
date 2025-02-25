@@ -28,9 +28,18 @@ mv $GENERATED_CODE/src/main/java/cloud/cirqit/openapi/generated/* $TARGET_PROJEC
 rm -f $TARGET_PROJECT/$TARGET_DIR_RESOURCES/cirqitOpenApi_v*
 cp openAPI/$OAS_FILE $TARGET_PROJECT/$TARGET_DIR_RESOURCES/
 
+# transform the yaml to json and copy it to the backend
+which yq > /dev/null
+if [ $? -ne 0 ]; then
+  echo "yq is not installed. Please install it with 'brew install yq' or 'pip install yq' or 'sudo apt-get install yq'"
+  exit 1
+fi
+cat openAPI/$OAS_FILE | yq > $TARGET_PROJECT/$TARGET_DIR_RESOURCES/$(basename $OAS_FILE .yml).json
+
+
 # Define the message in the README.txt file
 readme_content="Note: this yaml definition is a copy of the definition in $(pwd). Do not modify here but only in the source location."
-echo "$readme_content" > $TARGET_PROJECT/definition/README.txt
+echo "$readme_content" > $TARGET_PROJECT/$TARGET_DIR_RESOURCES/README.txt
 
 # cleanup
 rm -rf $GENERATED_CODE
