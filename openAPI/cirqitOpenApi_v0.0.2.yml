@@ -38,12 +38,16 @@ info:
   x-visibility: public
 
 servers:
+  - url: https://api-dev.cirqit.cloud
+    description: DEV OpenAPI access
+    variables: { }
+    x-internal: true
   - url: https://api-test.cirqit.cloud
-    description: Test OpenAPI access
+    description: TEST OpenAPI access
     variables: { }
     x-internal: false
   - url: https://api.cirqit.cloud
-    description: Prod OpenAPI access
+    description: PROD OpenAPI access
     variables: { }
     x-internal: false
 tags:
@@ -54,7 +58,10 @@ tags:
   - name: Tree
     description: Operations regarding the Directory Tree
   - name: Installation
-    description: Operations create and modify a installation
+    description: | 
+      Operations create and modify a installation.
+      
+      A Installation (aka digitale Schematasche) is the main object in the cirQit application. It contains the editable electrical schema in pdf format. Additionally, there might be a bunch of attachments. Changes on the installation are tracked in the logbook.
   - name: Document
     description: Operations related to the documents of a Installation
 
@@ -113,11 +120,11 @@ paths:
                       - description: the type of token this is, typically just the string “Bearer”.
                       - example: your jwt access-token (ey....)
                   expires_in:
-                    allOf:
-                      # FIXME: is this a string or a number
-                      - $ref: '#/components/schemas/ShortString'
-                      - description: the time in seconds when this token expires
-                      - example: 876543
+                    type: number
+                    minimum: 0
+                    maximum: 100000000 # 100000000 seconds = 3 years
+                    description: the time in seconds when this token expires
+                    example: 876543
                   scope:
                     allOf:
                       - $ref: '#/components/schemas/CommonString'
@@ -194,6 +201,7 @@ paths:
                     example: 876543
                   expire_date:
                     allOf:
+
                       # FIXME: replace all dates with a date-time
                       - $ref: '#/components/schemas/CommonString'
                       - format: date-time
@@ -710,7 +718,11 @@ paths:
         - Document
       operationId: getSignedDocumentUrl
       summary: get the signed URL to upload an Document
-      description: the signed URL is used to upload the Document to the AWS S3 bucket in your next step
+      description: | 
+        The signed URL is used to upload the Document to the AWS S3 bucket in your next step.<br>
+        Since AWS has a low limit to upload Documents through a API-Gateway, we upload files directly to the S3 bucket store.
+        This method validates the request and returns a signed URL to upload the Document.<p/>
+        Find more information about signed URL's on https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html.
       parameters:
         - name: installationId
           description: Filter results to match a given installation
@@ -730,10 +742,13 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/CommonString'
-                - description: the signed URL to communicate with the AWS S3 bucket store
-                - example: https://app.cirqit.cloud/data/anlage/MHXKN-XSDUA/pdf/schema.pdf?Expires=173xxxx&Signature=1iOxxxx&Key-Pair-Id=K2Gxxxx
+                type: object
+                properties:
+                  signedUrl:
+                    allOf:
+                      - $ref: '#/components/schemas/CommonString'
+                      - description: the signed URL to communicate with the AWS S3 bucket store
+                      - example: https://app.cirqit.cloud/data/anlage/MHXKN-XSDUA/pdf/schema.pdf?Expires=173xxxx&Signature=1iOxxxx&Key-Pair-Id=K2Gxxxx
           headers:
             X-Rate-Limit-Limit:
               $ref: '#/components/headers/X-Rate-Limit-Limit'
@@ -779,24 +794,33 @@ components:
       description: The unique cirQIt ID of the object
       example: ABCDE-12345
 
+
     ShortString:
       type: string
       maxLength: 12
       # pattern to add many special characters but not Unicode
-      pattern: '^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:,<>\./\?\\|~]*$'
+      #pattern: '^[\s\S]*$'
+      #pattern: '^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:,<>\./\?\\|~äöüÄÖÜèéà]*$'
 
     CommonString:
       type: string
       maxLength: 128
       # pattern to add many special characters but not Unicode
-      pattern: '^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:,<>\./\?\\|~]*$'
+      #pattern: '^[\s\S]*$'
+      #pattern: '^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:,<>\./\?\\|~äöüÄÖÜèéà]*$'
 
     LongString:
       type: string
       maxLength: 512
       # pattern to add many special characters but not Unicode
-      pattern: '^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:,<>\./\?\\|~]*$'
+      pattern: '^[\s\S]*$'
+      #pattern: '^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:,<>\./\?\\|~äöüÄÖÜèéà]*$'
 
+    DateTimeString:
+      type: string
+      format: date-time
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+      example: "2023-09-05T21:12:18"
 
     Company:
       type: object
@@ -926,7 +950,6 @@ components:
         - companyName
         - commission
         - parentId
-        - accountId
       properties:
         name:
           allOf:
@@ -936,19 +959,25 @@ components:
         description:
           allOf:
             - $ref: '#/components/schemas/LongString'
-            - description: the description of the installation
+            - description: the description of the installation. This is free text and depends on your needs. It might be a additional ID of your choice or a whole text to describe the installation.
             - example: Die Hauptsteuerung der Pelletanlage mit der Silosteuerung
         licenseType:
           type: string
           enum:
             - private
             - public
-          description: the license type of the installation
+          description: |
+            the license type of the installation. 
+            <ul>
+            <li>private - the access to the installation is restricted. As default, everybody has READ access, only the creator of the Installation has ADMIN rights.</li>
+            <li>public - every registered cirQit user has ADMIN access on the installation.</li>
+            </ul>
           example: public
         commission:
           allOf:
             - $ref: '#/components/schemas/CommonString'
-            - description: the commission of the installation
+            - description: | 
+                the commission of the installation to assign and bill it on a given project.
             - example: Project Dr. Huber - Neftenbach
         address:
           allOf:
@@ -956,7 +985,7 @@ components:
             - description: the address of the installation
             - example: 82256 Fürstenfeldbruck, Deutschland
         location:
-          description: the GEO location of the installation
+          description: the GEO location of the installation. In the cirQit application, it allows to find the installation using google-maps.
           type: object
           example: { "latitude": 48.17394, "longitude": 11.243008 }
           properties:
@@ -971,17 +1000,19 @@ components:
         id:
           allOf:
             - $ref: '#/components/schemas/IdSchema'
-            - description: the uniqe cirQit ID of the installation
+            - readOnly: true
+            - description: the unique cirQit ID of the installation. This ID is created by cirQit.
             - example: ABCDE-12345
         companyName:
           allOf:
             - $ref: '#/components/schemas/CommonString'
+            - readOnly: true
             - description: the name of the company who created the installation
             - example: Huber AG
         parentId:
           allOf:
             - $ref: '#/components/schemas/IdSchema'
-            - description: the uniqe cirQit ID of the parent directory
+            - description: the uniqe cirQit ID of the parent directory. Request the available directories by getting the directoryTree or post a new directory.
             - example: ABCDE-12345
         accountId:
           readOnly: true
@@ -993,15 +1024,22 @@ components:
           allOf:
             - $ref: '#/components/schemas/CommonString'
             - readOnly: true
-            - description: the role of this user in this installation
+            - description: |
+                the role of this user in this installation
+                <ul>
+                <li>ADMIN - the owner of the Installation</li>
+                <li>WRITE - allowed to modify the Installation</li>
+                <li>READ - can view the installation</li>
+                <li>OBSERVER - notify observer when something changes</li>
+                <li>NOTHING - no access</li>
+                </ul>
             - example: ADMIN
         createdDate:
-          type: string
-          maxLength: 128
-          readOnly: true
-          format: date-time
-          description: Creation date in the cirQit environment of the installation in ISO 8601 format "YYYY-MM-DDTHH:MM:SS".
-          example: "2023-09-05T21:12:18"
+          allOf:
+            - $ref: '#/components/schemas/DateTimeString'
+            - readOnly: true
+            - description: Creation date in the cirQit environment of the installation in ISO 8601 format "YYYY-MM-DDTHH:MM:SS".
+            - example: "2023-09-05T21:12:18"
 
     DocumentMetadata:
       type: object
@@ -1013,11 +1051,16 @@ components:
         fileName:
           allOf:
             - $ref: '#/components/schemas/CommonString'
-            - description: alphanumeric name of the document.
+            - description: file name of the document.
             - example: my-file.txt
         documentType:
           type: string
-          description: Type of the document in the installation.
+          description: | 
+            Type of the document in the installation.
+            <ul>
+            <li>Attachments are additional documents of any type</li>
+            <li>Schema is the pdf which can be opened in the editor</li>
+            </ul>
           enum:
             - ATTACHMENT
             - SCHEMA
@@ -1045,15 +1088,19 @@ components:
         path:
           allOf:
             - $ref: '#/components/schemas/CommonString'
-            - description: slash delimited path of the directory where the document is stored.
-            - example: folder/subfolder1/subfolder2
+            #- description: slash delimited path of the directory where the document is stored.
+            #- example: folder/subfolder1/subfolder2
+            - description: the directory where the document is stored. Currently, only one level is supported.
+            - example: folderName
         versions:
           type: array
           minItems: 1
           maxItems: 100
-          description: List of version objects containing version information
+          description: |
+            List of version objects containing version information.<br>
+            <b>Currently not supported!</b>
           items:
-            $ref: '#/components/schemas/DocumentVersion'
+           $ref: '#/components/schemas/DocumentVersion'
 
     DocumentVersion:
       type: object
@@ -1084,11 +1131,11 @@ components:
             - description: Mime type of the document.
             - example: application/pdf
         createdDate:
-          type: string
-          format: date-time
-          maxLength: 19
-          description: Creation date in the cirQit environment of the document in ISO 8601 format "YYYY-MM-DDTHH:MM:SS"
-          example: "2023-09-05T21:12:18"
+          allOf:
+            - $ref: '#/components/schemas/DateTimeString'
+            - readOnly: true
+            - description: Creation date in the cirQit environment of the document in ISO 8601 format "YYYY-MM-DDTHH:MM:SS"
+            - example: "2023-09-05T21:12:18"
 
     Document:
       oneOf:
@@ -1144,7 +1191,8 @@ components:
             - $ref: '#/components/schemas/CommonString'
             - description: |
                 Version of the document. The version is provided in the response of the DocumentMetadata. 
-                If the version is not provided, the latest version is used.
+                If the version is not provided, the latest version is used.<br>
+                <b>Currently not supported!</b>
           example: abcd1234EFGH5678jklm
 
     SchemaDocument:
@@ -1175,7 +1223,8 @@ components:
           description: |
             Version of the schema. The version is provided in the response of the DocumentMetadata. 
             If the version is not provided, the latest version is used.
-            With the version ORIGINAL, the uploaded schema is used.
+            With the version ORIGINAL, the uploaded schema is used.<br>
+            <b>Currently not supported!</b>
           enum:
             - ORIGINAL
             - LATEST

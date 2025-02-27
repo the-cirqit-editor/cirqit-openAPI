@@ -140,7 +140,7 @@ The request can be executed in this order:
         <table>
             <tr>
                 <td>client_id:</td>
-                <td><input type="text" name="cirQit login Name" id="clientId" placeholder="cirQit login Name">
+                <td><input type="text" name="cirQit login Name" id="clientId" placeholder="cirQit login Name" value="mario">
                 </td>
                 <td></td>
             </tr>
@@ -148,7 +148,8 @@ The request can be executed in this order:
                 <td>client_secret:</td>
                 <td>
                     <textarea name="Schlüssel für Open API" id="clientSecret" placeholder="Schlüssel für Open AP (ey....)I" rows="4"
-                    ></textarea>
+                    >
+                    </textarea>
                 </td>
                 <td></td>
             </tr>
@@ -296,6 +297,9 @@ The request can be executed in this order:
 
 
 <script>
+
+    //const SERVER = "https://api-test.cirqit.cloud"
+    const SERVER = "https://api-dev.cirqit.cloud"
     /** ********************************************************** */
     /**                             Get the secret                                               */
     /** ********************************************************** */
@@ -312,7 +316,7 @@ The request can be executed in this order:
         formData.append('scope', 'cirqit/read cirqit/write');
 
         try {
-            const response = await fetch('https://api-test.cirqit.cloud/oauth2/token', {
+            const response = await fetch(SERVER +'/oauth2/token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
@@ -339,7 +343,7 @@ The request can be executed in this order:
     async function loadCompany() {
         setButtonState('companyIcon', 'waiting');
 
-        const response = await fetch('https://api-test.cirqit.cloud/rest/v1/company', {
+        const response = await fetch(SERVER +'/rest/v1/company', {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + jwtToken.innerText
@@ -370,7 +374,7 @@ The request can be executed in this order:
     async function loadTree() {
         setButtonState('treeIcon', 'waiting');
 
-        const response = await fetch('https://api-test.cirqit.cloud/rest/v1/directoryTree', {
+        const response = await fetch(SERVER +'/rest/v1/directoryTree', {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + jwtToken.innerText
@@ -439,7 +443,7 @@ The request can be executed in this order:
         }
 
         console.log("create director with name: "+ directoryName+" in the root of the tree ");
-        const response = await fetch('https://api-test.cirqit.cloud/rest/v1/directory', {
+        const response = await fetch(SERVER +'/rest/v1/directory', {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + token,
@@ -497,7 +501,7 @@ The request can be executed in this order:
             companyName: companyName
         };
         console.log("create installation: ", jsonBody);
-        const response = await fetch('https://api-test.cirqit.cloud/rest/v1/installation', {
+        const response = await fetch(SERVER +'/rest/v1/installation', {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + token,
@@ -551,7 +555,7 @@ The request can be executed in this order:
             };
             console.log("upload attachment ",uploadJson)
             try {
-                const response = await fetch('https://api-test.cirqit.cloud/rest/v1/installation/' + target + '/getDocumentUrl', {
+                const response = await fetch(SERVER +'/rest/v1/installation/' + target + '/getDocumentUrl', {
                     method: 'POST',
                     headers: {
                         'Authorization': 'Bearer ' + token,
