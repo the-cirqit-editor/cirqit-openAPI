@@ -201,10 +201,7 @@ paths:
                     example: 876543
                   expire_date:
                     allOf:
-
-                      # FIXME: replace all dates with a date-time
-                      - $ref: '#/components/schemas/CommonString'
-                      - format: date-time
+                      - $ref: '#/components/schemas/DateTimeString'
                       - description: the human readable date when this token expires
                       - example: "2023-09-05T21:12:18"
                   scope:
@@ -451,7 +448,10 @@ paths:
         - Installation
       operationId: createInstallation
       summary: create a installation in the given directory
-      description: get the installation data
+      description: |
+        Create a installation in the given directory.
+        The user must be ADMINISTRATOR to the directory. 
+        Note that every user is entitled to create a directory in the root of the tree.
       requestBody:
         required: true
         content:
@@ -799,14 +799,14 @@ components:
       type: string
       maxLength: 12
       # pattern to add many special characters but not Unicode
-      #pattern: '^[\s\S]*$'
+      pattern: '^[\s\S]*$'
       #pattern: '^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:,<>\./\?\\|~äöüÄÖÜèéà]*$'
 
     CommonString:
       type: string
       maxLength: 128
       # pattern to add many special characters but not Unicode
-      #pattern: '^[\s\S]*$'
+      pattern: '^[\s\S]*$'
       #pattern: '^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:,<>\./\?\\|~äöüÄÖÜèéà]*$'
 
     LongString:
