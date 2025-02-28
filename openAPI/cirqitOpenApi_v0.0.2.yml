@@ -63,7 +63,10 @@ tags:
       
       A Installation (aka digitale Schematasche) is the main object in the cirQit application. It contains the editable electrical schema in pdf format. Additionally, there might be a bunch of attachments. Changes on the installation are tracked in the logbook.
   - name: Document
-    description: Operations related to the documents of a Installation
+    description: |
+      Operations related to the documents of a Installation
+      
+      A Document (aka Attachment) is a file which is the content of the Installation. It can be a PDF, a picture or any other file format. The Document is stored in the AWS S3 bucket and is referenced in the Installation object.
 
 
 paths:
@@ -401,6 +404,20 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/IdSchema'
+        - name: idType
+          in: query
+          required: false
+          description: >-
+            Flag if the directoryId in the path is an cirQit ID or an external ID
+            set by the cooperation partner. Default is cirQit ID.
+          schema:
+            type: string
+            enum:
+              - externalId
+              - cirqitId
+            default: cirqitId
+            example: externalId
+
       responses:
         "200":
           description: the directory
@@ -512,6 +529,19 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/IdSchema'
+        - name: idType
+          in: query
+          required: false
+          description: >-
+            Flag if the installationId in the path is an cirQit ID or an external ID
+            set by the cooperation partner. Default is cirQit ID.
+          schema:
+            type: string
+            enum:
+              - externalId
+              - cirqitId
+            default: cirqitId
+            example: externalId
       responses:
         "200":
           description: installation data.
@@ -717,12 +747,22 @@ paths:
       tags:
         - Document
       operationId: getSignedDocumentUrl
-      summary: get the signed URL to upload an Document
+      summary: get the signed URL to upload, download or delete a Document
       description: | 
         The signed URL is used to upload the Document to the AWS S3 bucket in your next step.<br>
         Since AWS has a low limit to upload Documents through a API-Gateway, we upload files directly to the S3 bucket store.
-        This method validates the request and returns a signed URL to upload the Document.<p/>
-        Find more information about signed URL's on https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html.
+        This method validates the access rights and and returns a signed URL to upload the Document.<p/>
+        
+        Instead of having different HTTP-Methods, define a Action in the request body and execute the different HTTP-Methods when calling the S3 bucket.
+        <ul>
+        <li>UPLOAD</li>
+        <li>DOWNLOAD</li>
+        <li>OVERWRITE</li>
+        <li>DELETE</li>
+        </ul>
+        
+        <p/>
+        Find more information about signed URL's on <a target=_blank  href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html">AWS S3 Documentation</a>.
       parameters:
         - name: installationId
           description: Filter results to match a given installation
@@ -779,6 +819,18 @@ paths:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
+#    put:
+#      operationId: NOP
+#      summary: There is no HTTP-PUT for the documentURL, use the Action attribute in the HTTP-POST body instead.
+#      tags:
+#        - Document
+#    delete:
+#      operationId: NOP
+#      summary: There is no HTTP-DELETE for the documentURL, use the Action attribute in the HTTP-POST body instead.
+#      tags:
+#        - Document
+
+
 
 
 #  ################################################### #
@@ -937,8 +989,11 @@ components:
           description: the children directories in this directory
           items:
             $ref: '#/components/schemas/Directory'
-
-
+        externalId:
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: the external ID of the installation. This is a unique ID of your choice.
+            - example: "00112233-4455-6677-8899-aabbccddeeff"
 
 
     Installation:
@@ -1040,6 +1095,11 @@ components:
             - readOnly: true
             - description: Creation date in the cirQit environment of the installation in ISO 8601 format "YYYY-MM-DDTHH:MM:SS".
             - example: "2023-09-05T21:12:18"
+        externalId:
+          allOf:
+            - $ref: '#/components/schemas/CommonString'
+            - description: the external ID of the installation. This is a unique ID of your choice.
+            - example: "00112233-4455-6677-8899-aabbccddeeff"
 
     DocumentMetadata:
       type: object

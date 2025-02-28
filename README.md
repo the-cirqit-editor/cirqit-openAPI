@@ -26,7 +26,7 @@ The actions:
 
 
 ## Swagger UI
-As described above, the Swagger UI is updated and OpenAPI specificatoins are deployed by GitHub actions. 
+As described above, the Swagger UI is updated and OpenAPI specifications are deployed by GitHub actions. 
 The Swagger UI is modified and configured.
 #### ./index.html
 A header to select the version is added to the index.html file.
@@ -43,6 +43,9 @@ the versions to be displayed in the dropdown are configured like:
 > },
 > };
 
+## build and deploy
+* Swagger is builded by GitHubActions and is automatically deployed by pushing the  new version.
+* to check it on localhost, use the no-CORS-chrome and open file:///home/huembi/workspace/cirqit-openAPI/index.html
 
 
 ## OpenAPI
