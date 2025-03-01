@@ -274,6 +274,13 @@ The request can be executed in this order:
                 <td></td>
             </tr>
             <tr>
+                <td>directory for attachment</td>
+                <td>
+                    <input type="text" id="targetDirectory" placeholder="directory name (optional)">
+                </td>
+                <td></td>
+            </tr>
+            <tr>
                 <td>directory or files to upload</td>
                 <td>
                     <input type="file" id="fileUpload" name="fileUpload" multiple>
@@ -527,7 +534,9 @@ The request can be executed in this order:
     async function uploadFiles() {
         const files = document.getElementById('fileUpload').files;
         const token = jwtToken.innerText;
+        const targetDirectory = document.getElementById('targetDirectory').value;
         const target = document.getElementById('targetInstallationId').value;
+
         let attachmentCreatedCount = 0;
         let fileUploadCount = 0;
 
@@ -543,13 +552,12 @@ The request can be executed in this order:
         }
 
         for (const file of files) {
-            const directoryPath = file.webkitRelativePath ? file.webkitRelativePath.split('/').slice(0, -1).join('/') : '';
             const uploadJson = {
                 documentType: 'ATTACHMENT',
+                path: targetDirectory?targetDirectory:null,
                 fileName: file.name,
                 displayName: file.name,
                 locked: false,
-                path: directoryPath,
                 action: 'UPLOAD'
             };
             console.log("upload attachment ",uploadJson)
