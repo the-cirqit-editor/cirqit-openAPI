@@ -388,7 +388,7 @@ paths:
         type: aws_proxy
 
   #  Directory - DirectoryFunction
-  /rest/v1/directory/{directoryId}:
+  /rest/v1/directory/{resourceId}:
     get:
       security:
         - OAuth2: [ cirqit/read ]
@@ -398,26 +398,8 @@ paths:
       summary: get a directory
       description: get the directory with the given Id.
       parameters:
-        - name: directoryId
-          description: the ID of the directory
-          in: path
-          required: true
-          schema:
-            $ref: '#/components/schemas/IdSchema'
-        - name: idType
-          in: query
-          required: false
-          description: >-
-            Flag if the directoryId in the path is an cirQit ID or an external ID
-            set by the cooperation partner. Default is cirQit ID.
-          schema:
-            type: string
-            enum:
-              - externalId
-              - cirqitId
-            default: cirqitId
-            example: externalId
-
+        - $ref: '#/components/parameters/ResourceId'
+        - $ref: '#/components/parameters/IdType'
       responses:
         "200":
           description: the directory
@@ -513,7 +495,7 @@ paths:
 
 
   # Installation - AnyInstallationFunction
-  /rest/v1/installation/{installationId}:
+  /rest/v1/installation/{resourceId}:
     get:
       security:
         - OAuth2: [ cirqit/read ]
@@ -523,25 +505,8 @@ paths:
       summary: get the data of the installation
       description: get the instance of the installation for the given ID
       parameters:
-        - name: installationId
-          description: The ID of the  installation
-          in: path
-          required: true
-          schema:
-            $ref: '#/components/schemas/IdSchema'
-        - name: idType
-          in: query
-          required: false
-          description: >-
-            Flag if the installationId in the path is an cirQit ID or an external ID
-            set by the cooperation partner. Default is cirQit ID.
-          schema:
-            type: string
-            enum:
-              - externalId
-              - cirqitId
-            default: cirqitId
-            example: externalId
+        - $ref: '#/components/parameters/ResourceId'
+        - $ref: '#/components/parameters/IdType'
       responses:
         "200":
           description: installation data.
@@ -586,12 +551,8 @@ paths:
       summary: overwrite the data of the installation
       description: modify the installation data with a full object
       parameters:
-        - name: installationId
-          description: The ID of the  installation
-          in: path
-          required: true
-          schema:
-            $ref: '#/components/schemas/IdSchema'
+        - $ref: '#/components/parameters/ResourceId'
+        - $ref: '#/components/parameters/IdType'
       requestBody:
         required: true
         content:
@@ -643,12 +604,8 @@ paths:
       summary: delete the installation
       description: purges the installation from cirQit
       parameters:
-        - name: installationId
-          description: The ID of the  installation
-          in: path
-          required: true
-          schema:
-            $ref: '#/components/schemas/IdSchema'
+        - $ref: '#/components/parameters/ResourceId'
+        - $ref: '#/components/parameters/IdType'
       responses:
         "201":
           description: Successful operation.
@@ -685,7 +642,7 @@ paths:
   #  #                                DOCUMENT                                                       # #
   #  ################################################### #
   # Document - DocumentFunction
-  /rest/v1/installation/{installationId}/listDocuments:
+  /rest/v1/installation/{resourceId}/listDocuments:
     get:
       security:
         - OAuth2: [ cirqit/read ]
@@ -695,12 +652,8 @@ paths:
       summary: list the available documents
       description: get the listing of the documents for the given installationId
       parameters:
-        - name: installationId
-          description: Filter results to match a given installation
-          in: path
-          required: true
-          schema:
-            $ref: '#/components/schemas/IdSchema'
+        - $ref: '#/components/parameters/ResourceId'
+        - $ref: '#/components/parameters/IdType'
       responses:
         "200":
           description: Successful operation.
@@ -740,7 +693,7 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-  /rest/v1/installation/{installationId}/getDocumentUrl:
+  /rest/v1/installation/{resourceId}/getDocumentUrl:
     post:
       security:
         - OAuth2: [ cirqit/write ]
@@ -764,12 +717,8 @@ paths:
         <p/>
         Find more information about signed URL's on <a target=_blank  href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html">AWS S3 Documentation</a>.
       parameters:
-        - name: installationId
-          description: Filter results to match a given installation
-          in: path
-          required: true
-          schema:
-            $ref: '#/components/schemas/IdSchema'
+        - $ref: '#/components/parameters/ResourceId'
+        - $ref: '#/components/parameters/IdType'
       requestBody:
         required: true
         content:
@@ -837,7 +786,42 @@ paths:
 #  #                                COMPONENTS                                                  # #
 #  ################################################### #
 components:
+  parameters:
+    ResourceId:
+      name: resourceId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/ResourceId'
+      description: | 
+        The ID of the resource
+        It can be either a cirQit ID or an external ID. If it is a cirQit ID, it must be in the format of ABCDE-12345. External ID's can be any string. 
+
+    IdType:
+      name: idType
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/IdType'
+      description: >
+        Flag if the resource ID in the path is a cirQit ID or an external ID.
+        The external ID might be set by the cooperation partner at creation time. 
+        Default is cirQit ID.
+
   schemas:
+    ResourceId:
+      type: object
+      required:
+        - resourceId
+      properties:
+        resourceId:
+          type: string
+          oneOf:
+            - $ref: '#/components/schemas/IdSchema'
+            - $ref: '#/components/schemas/CommonString'
+          description: |
+            The ID of the resource
+            It can be either a cirQit ID or an external ID. If it is a cirQit ID, it must be in the format of ABCDE-12345. External ID's can be any string.
 
     IdSchema:
       type: string
@@ -846,6 +830,21 @@ components:
       description: The unique cirQIt ID of the object
       example: ABCDE-12345
 
+    IdType:
+      type: object
+      required:
+        - idType
+      properties:
+        idType:
+          type: string
+          enum:
+            - external
+            - cirqit
+          description: >
+            Flag if the ID is a cirQit ID or an external ID set by the cooperation partner at creation time.
+            Default is cirqit ID.
+          example: external
+          default: cirqit
 
     ShortString:
       type: string
