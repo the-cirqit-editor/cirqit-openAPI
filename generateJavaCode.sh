@@ -10,7 +10,12 @@ OAS_FILE=cirqitOpenApi_v0.0.2.yml
 # generate the server code with mock answers based on spring
 echo "generate API"
 rm -rf $GENERATED_CODE
-openapi-generator-cli generate -i openAPI/$OAS_FILE -g spring -o $GENERATED_CODE --additional-properties=interfaceOnly=true,apiPackage=$PACKAGE.api,modelPackage=$PACKAGE.model,date="2024-11-04T00:00:00.00000+01:00[Europe/Berlin]"
+openapi-generator-cli generate \
+    -i openAPI/$OAS_FILE \
+    -g spring \
+    -o $GENERATED_CODE \
+    --additional-properties=interfaceOnly=true,apiPackage=$PACKAGE.api,modelPackage=$PACKAGE.model,date="2024-11-04T00:00:00.00000+01:00[Europe/Berlin]" \
+
 # replace the
 find . -name "*.java" -exec sed -i 's/, requiredMode = Schema\.RequiredMode\.NOT_REQUIRED)/, required = false)/g' {} +
 find . -name "*.java" -exec sed -i 's/, requiredMode = Schema\.RequiredMode\.REQUIRED)/, required = true)/g' {} +

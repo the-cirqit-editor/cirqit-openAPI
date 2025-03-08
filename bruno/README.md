@@ -17,13 +17,14 @@ the Directory-Children parameter needs to be deleted to import it.
 ```
 
 ## configure authentication
-### get token
+### OAuth2 - get authentication token with clientID and secret
 #### create the body 
+Get the token and client ID from the cirQit App - Settings - API Access
 ```aiignore
 body:json {
     {
-    "jwtRefreshToken": "eyJhb....",
-    "clientId": "ElektroForm Solar",
+    "client_secret": "eyJhb....",
+    "client_id": "ElektroForm Solar",
     "scope": "cirqit/read cirqit/write"
     }
 }
@@ -36,7 +37,7 @@ body:json {
 ```aiignore 
 tests {
     // Set the token as a variable
-    bru.setEnvVar("jwtToken", res.getBody());
+    bru.setEnvVar("jwtToken", res.getBody().access_token);
 }
 ```
 
@@ -47,3 +48,7 @@ tests {
 * add Header:
     * key: Authorization
     * value: Bearer {{jwtToken}}
+
+
+==> does not work today, set the ey... token in the value of the Authorization header
+* set Auth  -> inherit in the request
