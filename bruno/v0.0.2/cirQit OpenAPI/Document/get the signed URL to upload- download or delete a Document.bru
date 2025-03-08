@@ -1,0 +1,26 @@
+meta {
+  name: get the signed URL to upload- download or delete a Document
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/rest/v1/installation/5V2IF-UAPZT/getDocumentUrl
+  body: json
+  auth: inherit
+}
+
+params:query {
+  ~idType: 
+}
+
+body:json {
+  {
+    "documentType": "ATTACHMENT",
+    "fileName": "my-file.txt",
+    "path": "folder",
+    "displayName": "My File",
+    "locked": true,
+    "action": "UPLOAD"
+  }
+}

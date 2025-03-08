@@ -1,0 +1,23 @@
+meta {
+  name: get the signed URL to upload an Document
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/rest/v1/installation/5E8F6-GWEIN/getDocumentUrl
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+  "documentType": "ATTACHMENT",
+  "fileName": "my-file.txt",
+  "path": "folder/subfolder1/subfolder2",
+  "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+  "locked": true,
+  "action": "UPLOAD",
+  "version": "abcd1234EFGH5678jklm"
+  }
+}

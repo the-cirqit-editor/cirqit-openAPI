@@ -1,0 +1,32 @@
+meta {
+  name: create a installation in the given directory
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/v1/installation
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "",
+    "description": "",
+    "licenseType": "",
+    "commission": "",
+    "address": "",
+    "location": {
+      "latitude": "",
+      "longitude": ""
+    },
+    "id": "ABCDE-12345",
+    "companyName": "",
+    "rootId": "",
+    "parentId": "",
+    "accountId": "",
+    "role": "",
+    "createdDate": ""
+  }
+}

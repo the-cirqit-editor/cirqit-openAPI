@@ -1,0 +1,20 @@
+meta {
+  name: create a directory
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/rest/v1/directory
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Project on the street",
+    "description": "a description of the directory",
+    "parentId": "H5LYV-KT6LJ",
+    "externalId": "00112233-4455-6677-8899-aabbccddeeff"
+  }
+}

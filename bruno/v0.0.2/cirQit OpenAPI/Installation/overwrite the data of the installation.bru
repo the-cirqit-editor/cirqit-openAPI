@@ -1,0 +1,31 @@
+meta {
+  name: overwrite the data of the installation
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/rest/v1/installation/E6WTB-PIPDD
+  body: json
+  auth: inherit
+}
+
+params:query {
+  ~idType: 
+}
+
+body:json {
+  {
+    "name": "colors",
+    "description": "aaa",
+    "licenseType": "public",
+    "commission": "abc",
+    "address": "Winterthur, Switzerland",
+    "location": {
+      "latitude": 47.48747,
+      "longitude": 8.6846075
+    },
+    "companyName": "John Company",
+    "parentId": "H5LYV-KT6LJ"
+  }
+}

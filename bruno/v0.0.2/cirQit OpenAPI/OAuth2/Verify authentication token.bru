@@ -1,0 +1,19 @@
+meta {
+  name: Verify authentication token
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/oauth2/verify
+  body: formUrlEncoded
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:form-urlencoded {
+  token: 
+}
