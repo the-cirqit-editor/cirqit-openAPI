@@ -1,0 +1,30 @@
+meta {
+  name: create a installation external ID
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/rest/v1/installation
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "test 1.17 external",
+    "description": "Die Nebensteuerung",
+    "licenseType": "private",
+    "commission": "dachs",
+    "address": "98766 Fürstenfeld",
+    "location": {
+      "latitude": 48.17394,
+      "longitude": 11.243008
+    },
+    "parentId": "I69WV-6HC56",
+    "externalId": "00112233-4455-6677-8899-aabbccddeeff",
+    "companyName": "Huber AG",
+    "accountId": "mario"
+  }
+  
+}

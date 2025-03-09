@@ -1,0 +1,16 @@
+meta {
+  name: get installation with external ID
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/rest/v1/installation/00112233-4455-6677-8899-aabbccddeeff?idType=external
+  body: none
+  auth: inherit
+}
+
+params:query {
+  idType: external
+  ~idType: 
+}

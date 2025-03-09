@@ -1,0 +1,35 @@
+meta {
+  name: overwrite installation with external ID
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{baseUrl}}/rest/v1/installation/00112233-4455-6677-8899-aabbccddeeff?idType=external
+  body: json
+  auth: inherit
+}
+
+params:query {
+  idType: external
+  ~idType: 
+}
+
+body:json {
+  {
+    "name": "test 1.17 external ID",
+    "description": "Die Nebensteuerung (updated)",
+    "licenseType": "private",
+    "commission": "dachs",
+    "address": "98766 Fürstenfeld",
+    "location": {
+      "latitude": 48.17394,
+      "longitude": 11.243008
+    },
+    "id": "LP2L7-8K4IT",
+    "companyName": "Huber AG",
+    "parentId": "I69WV-6HC56",
+    "accountId": "mario",
+    "externalId": "00112233-4455-6677-8899-aabbccddeeff-las"
+  }
+}

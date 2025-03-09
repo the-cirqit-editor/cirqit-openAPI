@@ -1,0 +1,16 @@
+meta {
+  name: delete the installation mit external ID
+  type: http
+  seq: 8
+}
+
+delete {
+  url: {{baseUrl}}/rest/v1/installation/00112233-4455-6677-8899-DELETE?idType=external
+  body: none
+  auth: inherit
+}
+
+params:query {
+  idType: external
+  ~idType: 
+}

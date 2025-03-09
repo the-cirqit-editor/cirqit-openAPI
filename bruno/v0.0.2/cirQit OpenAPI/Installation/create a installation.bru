@@ -1,23 +1,19 @@
 meta {
-  name: overwrite the data of the installation
+  name: create a installation
   type: http
-  seq: 5
+  seq: 1
 }
 
-put {
-  url: {{baseUrl}}/rest/v1/installation/7RIHF-U6NLQ
+post {
+  url: {{baseUrl}}/rest/v1/installation
   body: json
   auth: inherit
 }
 
-params:query {
-  ~idType: 
-}
-
 body:json {
   {
-    "name": "test 1.17 internal ID",
-    "description": "Die Hauptsteuerung (updated)",
+    "name": "test 1.17 internal",
+    "description": "Die Hauptsteuerung",
     "licenseType": "public",
     "commission": "dachs",
     "address": "98766 Fürstenfeld",
@@ -25,9 +21,9 @@ body:json {
       "latitude": 48.17394,
       "longitude": 11.243008
     },
-    "companyName": "Huber AG",
     "parentId": "EEN7N-4BKFM",
-    "id": "7RIHF-U6NLQ",
+    "companyName": "Huber AG",
     "accountId": "mario"
   }
+  
 }

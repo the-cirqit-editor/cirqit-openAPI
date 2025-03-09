@@ -7,13 +7,9 @@ meta {
 post {
   url: {{baseUrl}}/oauth2/verify
   body: formUrlEncoded
-  auth: bearer
-}
-
-auth:bearer {
-  token: {{token}}
+  auth: inherit
 }
 
 body:form-urlencoded {
-  token: 
+  token: {{jwtToken}}
 }

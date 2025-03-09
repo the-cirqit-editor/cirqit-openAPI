@@ -1,0 +1,21 @@
+meta {
+  name: create a sub directory with external ID
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/rest/v1/directory
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "external ID directory",
+    "description": "sub directory with external ID to test the OpenAPI",
+    "accountId": "mario",
+    "parentId": "WPB15-TA3EI",
+    "externalId": "1324:9013:1033:8976"
+  }
+}

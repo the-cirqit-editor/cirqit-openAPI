@@ -1,4 +1,7 @@
 # import OpenAPI to Bruno
+## Bruno, the new Rester or Postman or Insomnia
+https://docs.usebruno.com/introduction/what-is-bruno
+
 
  ## import collection of OpenAPIs to Bruno
 * import Collection
@@ -24,11 +27,10 @@ Get the token and client ID from the cirQit App - Settings - API Access
 body:json {
     {
     "client_secret": "eyJhb....",
-    "client_id": "ElektroForm Solar",
+    "client_id": "cirQit-user-name",
     "scope": "cirqit/read cirqit/write"
     }
 }
-
 ```
 
 #### store the token as environment variable
@@ -36,7 +38,7 @@ body:json {
 
 ```aiignore 
 tests {
-    // Set the token as a variable
+    # Set the token as a variable
     bru.setEnvVar("jwtToken", res.getBody().access_token);
 }
 ```

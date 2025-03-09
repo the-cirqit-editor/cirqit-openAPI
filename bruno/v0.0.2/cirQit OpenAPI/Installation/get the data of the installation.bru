@@ -1,16 +1,15 @@
 meta {
   name: get the data of the installation
   type: http
-  seq: 2
+  seq: 3
 }
 
 get {
-  url: {{baseUrl}}/rest/v1/installation/00112233-4455-6677-8899-aabbccddeeff?idType=external
+  url: {{baseUrl}}/rest/v1/installation/7RIHF-U6NLQ
   body: none
   auth: inherit
 }
 
 params:query {
-  idType: external
   ~idType: 
 }
