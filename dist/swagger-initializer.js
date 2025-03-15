@@ -1,5 +1,5 @@
 // Define configuration objects for each API version
-let defaultVersion = "cirQit-v0.0.2";
+let defaultVersion = "cirQit-v0.0.3";
 
 let configurations = {
 
@@ -8,6 +8,9 @@ let configurations = {
   },
   "cirQit-v0.0.2": {
     url: "openAPI/cirqitOpenApi_v0.0.2.yml",
+  },
+  "cirQit-v0.0.3": {
+    url: "openAPI/cirqitOpenApi_v0.0.3.yml",
   },
 };
 

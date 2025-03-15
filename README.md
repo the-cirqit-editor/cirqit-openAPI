@@ -64,7 +64,7 @@ openapi-spec-validator openAPI/cirqitOpenApi_v0.0.1.yml
 
 OWASP validate 
 ```aiignore
-spectral lint openAPI/cirqitOpenApi_v0.0.2.yml --ruleset .spectral.yaml
+spectral lint openAPI/cirqitOpenApi_v0.0.3.yml --ruleset .spectral.yaml
 ```
 
 ### generate cirQit OpenAPI implementation
