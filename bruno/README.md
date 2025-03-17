@@ -52,5 +52,3 @@ tests {
     * value: Bearer {{jwtToken}}
 
 
-==> does not work today, set the ey... token in the value of the Authorization header
-* set Auth  -> inherit in the request
