@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OIDC Client Example</title>
+    <script type="module">
+        import { UserManager } from "oidc-client-ts";
+
+        const cognitoAuthConfig = {
+            authority: "https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_URSR8f3hq",
+            client_id: "57mp30e89p3q876aea8rnhqs46",
+            redirect_uri: "file:///home/huembi/workspace/cirqit-openAPI/example/pkce-git.html",
+            response_type: "code",
+            scope: "email openid"
+        };
+
+        // create a UserManager instance
+        export const userManager = new UserManager({
+            ...cognitoAuthConfig,
+        });
+
+        export async function signOutRedirect () {
+            const clientId = "57mp30e89p3q876aea8rnhqs46";
+            const logoutUri = "<logout uri>";
+            const cognitoDomain = "https://cirqit-dev-auth-344019372375.auth.eu-central-1.amazoncognito.com";
+            window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+        };
+    </script>
+</head>
+<body>
+
+// add sign-in button
+<div>
+    <button id="signIn">Sign In</button>
+</div>
+
+<script type="module">
+    import { userManager } from "./main.js";
+
+    document.getElementById("signIn").addEventListener("click", async () => {
+        await userManager.signinRedirect();
+    });
+</script>
+
+</body>
+</html>

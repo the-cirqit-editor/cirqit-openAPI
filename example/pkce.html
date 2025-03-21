@@ -1,116 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Public Client Sample</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognito PKCE Auth</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<h1>Public Client Sample</h1>
-<button id="startButton">Start OAuth Flow</button>
-<div id="result"></div>
+<h1>AWS Cognito PKCE Authentication</h1>
+
+<div id="loginSection">
+    <p>Click the button below to start the authentication process:</p>
+    <button id="loginButton">Login with Cognito</button>
+</div>
+
+<div id="tokenSection" class="hidden">
+    <h2>Authentication Successful!</h2>
+    <p>Here are your tokens:</p>
+    <pre id="tokenInfo"></pre>
+</div>
+
 <script>
-//    const authorizeEndpoint = "https://cirqit-dev-auth-344019372375.auth.eu-central-1.amazoncognito.com";
     const authorizeEndpoint = "https://cirqit-dev-auth-344019372375.auth.eu-central-1.amazoncognito.com/login";
     const tokenEndpoint = "https://cirqit-dev-auth-344019372375.auth.eu-central-1.amazoncognito.com/oauth2/token";
     const clientId = "57mp30e89p3q876aea8rnhqs46";
+    const BACKEND_SERVER = "https://api-dev.cirqit.cloud/oauth2/token";
 
-    if (window.location.search) {
-        var args = new URLSearchParams(window.location.search);
-        var code = args.get("code");
-        console.log("code: " + code);
-        console.log("args: ", args)
-        if (code) {
-            console.log("have a code: "+code+", go to "+location.search)
-            var xhr = new XMLHttpRequest();
 
-            xhr.onload = function() {
-                var response = xhr.response;
-                var message;
+    // Configuration - Replace these values with your own
+    const config = {
+        cognitoDomain: "cirqit-dev-auth-344019372375.auth.eu-central-1.amazoncognito.com",
+        clientId: clientId,
+        redirectUri: BACKEND_SERVER,
+        scope: 'openid email profile',
+        region: 'eu-central-1' // e.g., 'us-east-1'
+    };
 
-                if (xhr.status == 200) {
-                    message = "Access Token: " + response.access_token;
-                }
-                else {
-                    message = "Error: " + response.error_description + " (" + response.error + ")";
-                }
-
-                document.getElementById("result").innerHTML = message;
-            };
-            xhr.responseType = 'json';
-            xhr.open("POST", tokenEndpoint, true);
-            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-            xhr.send(new URLSearchParams({
-                client_id: clientId,
-                code_verifier: window.sessionStorage.getItem("code_verifier"),
-                grant_type: "authorization_code",
-                redirect_uri: location.href.replace(location.search, ''),
-                code: code
-            }));
-        }
-    }
-
-    document.getElementById("startButton").onclick = function() {
-        var codeVerifier = generateRandomString(64);
-        codeVerifier = "ABCDEF";
-        const challengeMethod = crypto.subtle ? "S256" : "plain"
-
-        Promise.resolve()
-            .then(() => {
-                if (challengeMethod === 'S256') {
-                    return generateCodeChallenge(codeVerifier)
-                } else {
-                    return codeVerifier
-                }
-            })
-            .then(function(codeChallenge) {
-                console.log("codeChallenge: ", codeChallenge)
-                console.log("codeVerifier: ", codeVerifier)
-                window.sessionStorage.setItem("code_verifier", codeVerifier);
-
-                //var redirectUri = window.location.href.split('?')[0];
-                var redirectUri = "https://api-dev.cirqit.cloud/oauth2/token"
-                //var redirectUri = "https://api-dev.cirqit.cloud/oauth2/token?code_verifier=" + encodeURIComponent(codeVerifier);
-
-                var args = new URLSearchParams({
-                    response_type: "code",
-                    client_id: clientId,
-                    code_challenge_method: challengeMethod,
-                    code_challenge: codeChallenge,
-                    redirect_uri: redirectUri
-                });
-
-                console.log("set window loaction to ", authorizeEndpoint + "/?" + args)
-                window.location = authorizeEndpoint + "/?" + args;
-            });
-    }
-
-    async function generateCodeChallenge(codeVerifier) {
-        var digest = await crypto.subtle.digest("SHA-256",
-            new TextEncoder().encode(codeVerifier));
-
-        return btoa(String.fromCharCode(...new Uint8Array(digest)))
-            .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
-    }
-
+    // Generate a random string for the state parameter
     function generateRandomString(length) {
-        var text = "";
-        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-        for (var i = 0; i < length; i++) {
+        const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let text = '';
+        for (let i = 0; i < length; i++) {
             text += possible.charAt(Math.floor(Math.random() * possible.length));
         }
-
         return text;
     }
 
-    if (!crypto.subtle) {
-        document.writeln('<p>' +
-            '<b>WARNING:</b> The script will fall back to using plain code challenge as crypto is not available.</p>' +
-            '<p>Javascript crypto services require that this site is served in a <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts">secure context</a>; ' +
-            'either from <b>(*.)localhost</b> or via <b>https</b>. </p>' +
-            '<p> You can add an entry to /etc/hosts like "127.0.0.1 public-test-client.localhost" and reload the site from there, enable SSL using something like <a href="https://letsencrypt.org/">letsencypt</a>, or refer to this <a href="https://stackoverflow.com/questions/46468104/how-to-use-subtlecrypto-in-chrome-window-crypto-subtle-is-undefined">stackoverflow article</a> for more alternatives.</p>' +
-            '<p>If Javascript crypto is available this message will disappear.</p>')
+    // Generate code verifier and code challenge
+    async function generateCodeChallenge() {
+        // Generate code verifier
+        const codeVerifier = generateRandomString(128);
+
+        // Generate code challenge from the code verifier
+        const encoder = new TextEncoder();
+        const data = encoder.encode(codeVerifier);
+        const digest = await window.crypto.subtle.digest('SHA-256', data);
+
+        // Base64-URL encode the code challenge
+        const base64Digest = btoa(String.fromCharCode(...new Uint8Array(digest)))
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
+
+        return {
+            codeVerifier,
+            codeChallenge: base64Digest
+        };
     }
+
+    // Initialize the login process
+    async function initiateLogin() {
+        const { codeVerifier, codeChallenge } = await generateCodeChallenge();
+        const state = generateRandomString(32);
+
+        // Store the code verifier and state in sessionStorage
+        sessionStorage.setItem('pkce_code_verifier', codeVerifier);
+        sessionStorage.setItem('pkce_state', state);
+
+        // Construct the authorization URL
+//        const authUrl = new URL(`https://${config.cognitoDomain}/oauth2/authorize`);
+        const authUrl = new URL(`https://${config.cognitoDomain}/login`);
+        authUrl.searchParams.append('client_id', config.clientId);
+        authUrl.searchParams.append('response_type', 'code');
+        authUrl.searchParams.append('redirect_uri', config.redirectUri);
+     //   authUrl.searchParams.append('scope', config.scope);
+        authUrl.searchParams.append('state', state);
+        authUrl.searchParams.append('code_challenge', codeChallenge);
+        authUrl.searchParams.append('code_challenge_method', 'S256');
+
+        // https://cirqit-dev-auth-344019372375.auth.eu-central-1.amazoncognito.com/login?
+        //     // client_id=57mp30e89p3q876aea8rnhqs46&
+        //     response_type=code&
+        //     code_challenge=bw-ohfIBG9GZM9jX7lWAIfbgfNplrvVVZeOSlHv3YYs&
+        //     code_challenge_method=S256&
+        //     state=0neMbVEnhcmSbd-4iV7EoQ&
+        // redirect_uri=https://api-dev.cirqit.cloud/oauth2/token
+        //
+        // Redirect to the authorization URL
+        window.location.href = authUrl.toString();
+    }
+
+    // Exchange the authorization code for tokens
+    async function exchangeCodeForTokens(authorizationCode) {
+        const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
+
+        const tokenUrl = `https://${config.cognitoDomain}/oauth2/token`;
+        const params = new URLSearchParams();
+        params.append('grant_type', 'authorization_code');
+        params.append('client_id', config.clientId);
+        params.append('code', authorizationCode);
+        params.append('redirect_uri', config.redirectUri);
+        params.append('code_verifier', codeVerifier);
+
+        try {
+            const response = await fetch(tokenUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const tokens = await response.json();
+            return tokens;
+        } catch (error) {
+            console.error('Error exchanging code for tokens:', error);
+            throw error;
+        }
+    }
+
+    // Handle the token response
+    function handleTokenResponse(tokens) {
+        // Clear the session storage
+        sessionStorage.removeItem('pkce_code_verifier');
+        sessionStorage.removeItem('pkce_state');
+
+        // Display the tokens (in a real app, you would store these securely)
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('tokenSection').classList.remove('hidden');
+        document.getElementById('tokenInfo').textContent = JSON.stringify(tokens, null, 2);
+
+        // Parse and store the tokens as needed
+        if (tokens.id_token) {
+            // Store the ID token
+            localStorage.setItem('id_token', tokens.id_token);
+        }
+        if (tokens.access_token) {
+            // Store the access token
+            localStorage.setItem('access_token', tokens.access_token);
+        }
+        if (tokens.refresh_token) {
+            // Store the refresh token (securely!)
+            localStorage.setItem('refresh_token', tokens.refresh_token);
+        }
+    }
+
+    // Check for authorization code in the URL when the page loads
+    document.addEventListener('DOMContentLoaded', async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+        const storedState = sessionStorage.getItem('pkce_state');
+
+        // If authorization code exists in the URL, exchange it for tokens
+        if (code) {
+            // Clean the URL by removing the query parameters
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            // Verify the state parameter
+            if (state !== storedState) {
+                console.error('State mismatch - possible CSRF attack!');
+                alert('Authentication failed: state mismatch');
+                return;
+            }
+
+            try {
+                const tokens = await exchangeCodeForTokens(code);
+                handleTokenResponse(tokens);
+            } catch (error) {
+                console.error('Failed to exchange code for tokens:', error);
+                alert('Authentication failed: ' + error.message);
+            }
+        }
+
+        // Set up the login button
+        document.getElementById('loginButton').addEventListener('click', initiateLogin);
+    });
 </script>
 </body>
 </html>
