@@ -77,56 +77,23 @@ paths:
       tags:
         - OAuth2
       operationId: getJWTAccessToken
-      summary: Get authentication token with ClientID and Secret
-      description: Obtain an authentication token by providing the ClientID and Secret (https://oauth.net/2/client-authentication/)
+      summary: Get authentication token for the PKCE code
+      description: Obtain an authentication token by providing the code and the code_verifier from the PKCE flow
       parameters:
         - name: code
           in: query
           required: false
           schema:
-            $ref: "#/components/schemas/LongString"
-          # FIXME: use a  JWTString for this - dot's and alphanumeric
-          description: The id_token from the login screen
-          example: eyJraWQxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            $ref: "#/components/schemas/CommonString"
+          description: The code from the cognito login screen
+          example: 2b49381k-aefa-4c92-a3ka-eaa9f5394857
         - name: code_verifier
           in: query
           required: false
           schema:
-            $ref: "#/components/schemas/LongString"
+            $ref: "#/components/schemas/CommonString"
           description: The code_verifier generated in the frontend
           example: xxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-
-        - name: id_token
-          in: query
-          required: false
-          schema:
-            $ref: "#/components/schemas/LongString"
-          # FIXME: use a  JWTString for this - dot's and alphanumeric
-          description: The id_token from the login screen
-          example: eyJraWQxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        - name: access_token
-          in: query
-          required: false
-          schema:
-            $ref: "#/components/schemas/LongString"
-          # FIXME: use a  JWTString for this - dot's and alphanumeric
-          description: The id_token from the login screen
-          example: eyJraWQxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        - name: expires_in
-          in: query
-          required: false
-          schema:
-            $ref: "#/components/schemas/CommonString"
-          description: The expiration time of the token in seconds
-          example: 3600
-        - name: token_type
-          in: query
-          required: false
-          schema:
-            $ref: "#/components/schemas/CommonString"
-          description: The type of token, typically "Bearer"
-          example: Bearer
       responses:
         "200":
           description: Authentication token retrieved successfully
@@ -261,83 +228,6 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-  /oauth2/verify:
-    post:
-      security:
-        - NoAuth: []
-      tags:
-        - OAuth2
-      operationId: verifyAuthToken
-      summary: Verify authentication token
-      description: |
-        Verify the provided authentication token similar to a introspect endpoint (https://oauth.net/2/token-introspection/).
-        This endpoint should be used if you need to validate your token. It is not required for the normal operation of the API.
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              required:
-                - token
-              properties:
-                token:
-                  allOf:
-                    - $ref: "#/components/schemas/CommonString"
-                    - example: your-access-token
-      responses:
-        "200":
-          description: Token verified successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  valid:
-                    type: boolean
-                    example: true
-                    description: The token is valid
-                  token_type:
-                    allOf:
-                      - $ref: "#/components/schemas/CommonString"
-                      - description: the type of token this is, typically just the string “Bearer”.
-                      - example: your jwt access-token (ey....)
-                  expires_in:
-                    type: number
-                    description: the time in seconds when this token expires
-                    example: 876543
-                  expire_date:
-                    allOf:
-                      - $ref: "#/components/schemas/DateTimeString"
-                      - description: the human readable date when this token expires
-                      - example: "2023-09-05T21:12:18"
-                  scope:
-                    allOf:
-                      - $ref: "#/components/schemas/CommonString"
-                      - description: the scope of the access token
-                      - example: cirqit/read cirqit/write
-          headers:
-            X-Rate-Limit-Limit:
-              $ref: "#/components/headers/X-Rate-Limit-Limit"
-            X-Rate-Limit-Remaining:
-              $ref: "#/components/headers/X-Rate-Limit-Remaining"
-            X-Rate-Limit-Reset:
-              $ref: "#/components/headers/X-Rate-Limit-Reset"
-            Access-Control-Allow-Origin:
-              $ref: "#/components/headers/Access-Control-Allow-Origin"
-        "400":
-          $ref: "#/components/responses/CirQitError400"
-        "401":
-          $ref: "#/components/responses/CirQitError401"
-        "429":
-          $ref: "#/components/responses/CirQitError429"
-        "500":
-          $ref: "#/components/responses/CirQitError500"
-      x-amazon-apigateway-request-validator: FormBodyValidation
-      x-amazon-apigateway-integration:
-        uri: ### OpenApiFunction ###
-        httpMethod: POST
-        type: aws_proxy
 
   #  ################################################### #
   #  #                                COMPANY                                                         # #
