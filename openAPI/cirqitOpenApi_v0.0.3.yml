@@ -71,89 +71,94 @@ paths:
   #  #                                AUTHENTICATION                                            # #
   #  ################################################### #
   /oauth2/token:
-    get:
-      security:
-        - NoAuth: []
-      tags:
-        - OAuth2
-      operationId: getJWTAccessToken
-      summary: Get authentication token for the PKCE code
-      description: Obtain an authentication token by providing the code and the code_verifier from the PKCE flow
-      parameters:
-        - name: code
-          in: query
-          required: false
-          schema:
-            $ref: "#/components/schemas/CommonString"
-          description: The code from the cognito login screen
-          example: 2b49381k-aefa-4c92-a3ka-eaa9f5394857
-        - name: code_verifier
-          in: query
-          required: false
-          schema:
-            $ref: "#/components/schemas/CommonString"
-          description: The code_verifier generated in the frontend
-          example: xxxxxxxxxxxxxxxxxxxxxxxxxxx
-      responses:
-        "200":
-          description: Authentication token retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  access_token:
-                    allOf:
-                      - $ref: "#/components/schemas/CommonString"
-                      - description: The access token string as issued by the authorization server.
-                      - example: your jwt access-token (ey....)
-                  token_type:
-                    allOf:
-                      - $ref: "#/components/schemas/CommonString"
-                      - description: the type of token this is, typically just the string “Bearer”.
-                      - example: your jwt access-token (ey....)
-                  expires_in:
-                    type: number
-                    minimum: 0
-                    maximum: 100000000 # 100000000 seconds = 3 years
-                    description: the time in seconds when this token expires
-                    example: 876543
-                  scope:
-                    allOf:
-                      - $ref: "#/components/schemas/CommonString"
-                      - description: the scope of the access token
-                      - example: your jwt access-token (ey....)
-          headers:
-            X-Rate-Limit-Limit:
-              $ref: "#/components/headers/X-Rate-Limit-Limit"
-            X-Rate-Limit-Remaining:
-              $ref: "#/components/headers/X-Rate-Limit-Remaining"
-            X-Rate-Limit-Reset:
-              $ref: "#/components/headers/X-Rate-Limit-Reset"
-            Access-Control-Allow-Origin:
-              $ref: "#/components/headers/Access-Control-Allow-Origin"
-        "400":
-          $ref: "#/components/responses/CirQitError400"
-        "401":
-          $ref: "#/components/responses/CirQitError401"
-        "429":
-          $ref: "#/components/responses/CirQitError429"
-        "500":
-          $ref: "#/components/responses/CirQitError500"
-      #     x-amazon-apigateway-request-validator: FormBodyValidation
-      x-amazon-apigateway-integration:
-        uri: ### OpenApiFunction ###
-        httpMethod: POST
-        type: aws_proxy
+#    get:
+#      security:
+#        - NoAuth: []
+#      tags:
+#        - OAuth2
+#      operationId: getJWTAccessToken
+#      summary: Get authentication token for the PKCE code
+#      description: Obtain an authentication token by providing the code and the code_verifier from the PKCE flow
+#      parameters:
+#        - name: code
+#          in: query
+#          required: false
+#          schema:
+#            $ref: "#/components/schemas/CommonString"
+#          description: The code from the cognito login screen
+#          example: 2b49381k-aefa-4c92-a3ka-eaa9f5394857
+#        - name: code_verifier
+#          in: query
+#          required: false
+#          schema:
+#            $ref: "#/components/schemas/CommonString"
+#          description: The code_verifier generated in the frontend
+#          example: xxxxxxxxxxxxxxxxxxxxxxxxxxx
+#      responses:
+#        "200":
+#          description: Authentication token retrieved successfully
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  access_token:
+#                    allOf:
+#                      - $ref: "#/components/schemas/CommonString"
+#                      - description: The access token string as issued by the authorization server.
+#                      - example: your jwt access-token (ey....)
+#                  token_type:
+#                    allOf:
+#                      - $ref: "#/components/schemas/CommonString"
+#                      - description: the type of token this is, typically just the string “Bearer”.
+#                      - example: your jwt access-token (ey....)
+#                  expires_in:
+#                    type: number
+#                    minimum: 0
+#                    maximum: 100000000 # 100000000 seconds = 3 years
+#                    description: the time in seconds when this token expires
+#                    example: 876543
+#                  scope:
+#                    allOf:
+#                      - $ref: "#/components/schemas/CommonString"
+#                      - description: the scope of the access token
+#                      - example: your jwt access-token (ey....)
+#          headers:
+#            X-Rate-Limit-Limit:
+#              $ref: "#/components/headers/X-Rate-Limit-Limit"
+#            X-Rate-Limit-Remaining:
+#              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+#            X-Rate-Limit-Reset:
+#              $ref: "#/components/headers/X-Rate-Limit-Reset"
+#            Access-Control-Allow-Origin:
+#              $ref: "#/components/headers/Access-Control-Allow-Origin"
+#        "400":
+#          $ref: "#/components/responses/CirQitError400"
+#        "401":
+#          $ref: "#/components/responses/CirQitError401"
+#        "429":
+#          $ref: "#/components/responses/CirQitError429"
+#        "500":
+#          $ref: "#/components/responses/CirQitError500"
+#      #     x-amazon-apigateway-request-validator: FormBodyValidation
+#      x-amazon-apigateway-integration:
+#        uri: ### OpenApiFunction ###
+#        httpMethod: POST
+#        type: aws_proxy
 
     post:
       security:
         - NoAuth: []
       tags:
         - OAuth2
-      operationId: getJWTAccessTokenForClientIdSecret
-      summary: Get authentication token with ClientID and Secret
-      description: Obtain an authentication token by providing the ClientID and Secret (https://oauth.net/2/client-authentication/)
+      operationId: getJWTAccessToken
+      summary: Get authentication token
+      description: | 
+        get the Authentication JWT. Depending on the OAuth2 Grant flow, the client must provide some data:
+        <ul>
+        <li>Client Credentials Grant Type: the ClientID and Secret (https://oauth.net/2/client-authentication/)</li>
+        <li>Authorization Code Grant Type: the code and the code_verifier (https://oauth.net/2/pkce/)</li>
+        </ul>
       requestBody:
         required: true
         content:
@@ -161,6 +166,16 @@ paths:
             schema:
               type: object
               properties:
+                code:
+                  allOf:
+                    - $ref: "#/components/schemas/CommonString"
+                    - description: The code from the cognito login screen
+                    - example: 2b49381k-aefa-4c92-a3ka-eaa9f5394857
+                code_verifier:
+                  allOf:
+                    - $ref: "#/components/schemas/CommonString"
+                    - description: The code_verifier generated in the frontend
+                    - example: bIl3ju3JlwiR~B29eiLie83I_HlSEuW9guV1UXi5LHygO
                 client_id:
                   allOf:
                     - $ref: "#/components/schemas/CommonString"

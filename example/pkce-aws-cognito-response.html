@@ -14,7 +14,9 @@
 </div>
 
 <script type="module">
-    import { userManager } from "./main.js";
+    import { UserManager, WebStorageStateStore } from 'https://cdn.jsdelivr.net/npm/oidc-client-ts@1.0.0/dist/oidc-client-ts.min.js';
+
+//    import { userManager } from "./main.js";
 
     userManager.signinCallback().then(function (user) {
         document.getElementById("email").textContent = user.profile?.email;
