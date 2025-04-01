@@ -822,7 +822,7 @@ paths:
         "403":
           $ref: "#/components/responses/CirQitError403"
         "404":
-          $ref: "#/components/responses/CirQitError409"
+          $ref: "#/components/responses/CirQitError404"
         "405":
           $ref: "#/components/responses/CirQitError405"
         "409":
@@ -865,16 +865,8 @@ paths:
             schema:
               $ref: "#/components/schemas/DocumentMetadata"
       responses:
-        "200":
+        "204":
           description: Successful operation.
-          content:
-            application/json:
-              schema:
-                type: array
-                minItems: 1
-                maxItems: 100
-                items:
-                  $ref: "#/components/schemas/DocumentMetadata"
           headers:
             X-Rate-Limit-Limit:
               $ref: "#/components/headers/X-Rate-Limit-Limit"
@@ -1029,10 +1021,11 @@ components:
 
     Directory:
       type: object
-      description: the directory object which can hold a installation or another directory
+      description: |
+        the directory object which can hold a installation or another directory
+        If the parentId is not set, it's a directory in the root of the tree.
       required:
         - name
-        - parentId
       properties:
         name:
           allOf:
