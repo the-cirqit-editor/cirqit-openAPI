@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cirQit OpenAPI example</title>
+</head>
+<body>
+
+<div>
+    <button id="signIn">Sign In</button>
+</div>
+<div>
+    Hello: <pre id="email"></pre>
+    Access token: <pre id="access-token"></pre>
+    ID token: <pre id="id-token"></pre>
+    Refresh token: <pre id="refresh-token"></pre>
+</div>
+<div id="content">
+    <!-- HTML content will be displayed here -->
+</div>
+
+<script>
+    async function initializeAuth() {
+        // Kundenspezifische Informationen
+        const customerInfo = {
+            customerId: "customer123",
+//            targetApp: "http://localhost:3000/",
+            targetApp: "file:///home/huembi/workspace/cirqit-openAPI/example-claudes/pkce.html",
+            tenant: "tenant-xyz"
+        };
+
+        // State-Parameter erstellen und codieren
+        const state = btoa(JSON.stringify(customerInfo));
+
+        // Code Verifier und Challenge erstellen
+        const codeVerifier = generateRandomString(128);
+        const codeChallenge = await generateCodeChallenge(codeVerifier);
+
+        // Speichern für späteren Gebrauch
+        localStorage.setItem('pkce_code_verifier', codeVerifier);
+        localStorage.setItem('pkce_state', state);
+
+        // Auth-URL mit state-Parameter
+        const authUrl = `https://cirqit-dev-auth-344019372375.auth.eu-central-1.amazoncognito.com/authorize?`
+            + `client_id=57mp30e89p3q876aea8rnhqs46`
+            + `&response_type=code`
+            + `&redirect_uri=${encodeURIComponent('https://app-dev.cirqit.cloud/oauth2/callback.html')}`
+            + `&state=${state}`
+            + `&code_challenge=${codeChallenge}`
+            + `&code_challenge_method=S256`;
+
+        // Weiterleitung zur Anmeldeseite
+        window.location.href = authUrl;
+    }
+
+
+    function generateRandomString(length) {
+        const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        const charsetLength = charset.length;
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charsetLength);
+            result += charset[randomIndex];
+        }
+        return result;
+    }
+
+    async function generateCodeChallenge(codeVerifier) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(codeVerifier);
+        const digest = await crypto.subtle.digest('SHA-256', data);
+        return btoa(String.fromCharCode(...new Uint8Array(digest)))
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
+    }
+
+    // Call the async function
+    initializeAuth();
+</script>
+</body>
+</html>

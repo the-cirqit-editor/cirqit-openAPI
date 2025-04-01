@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant User
+    participant Client
+    participant cirQit_APP
+    participant AuthorizationServer
+    participant cirQit_openAPI
+
+    User->>Client: Initiate Authorization Request
+    Client->>Client: Generate code verifier and challenge
+    Client->>AuthorizationServer: Authorization Request (code_challenge)
+    AuthorizationServer-->>User: Redirect to login/authorization prompt
+    User->>AuthorizationServer: Authenticate
+    AuthorizationServer-->>cirQit_APP: redirect with Authorization Code
+    cirQit_APP->>Client: redirect with Authorization Code
+    Client ->>AuthorizationServer: Token Request (code_verifier)
+    AuthorizationServer-->>Client: Access Token
+    Client->>cirQit_openAPI: Access Resource (Access Token)
+    cirQit_openAPI-->>Client: Resource
