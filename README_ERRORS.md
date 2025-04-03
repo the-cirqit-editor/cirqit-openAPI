@@ -1,4 +1,5 @@
-    Wenn ich einen falschen Pfad setze, krieg ich das. 
+Wenn ich einen falschen Pfad setze, krieg ich das. 
+* z.B. auch wenn die :resourceId nicht mit der ID ersetzt wurde.
 
 ```json
 {

@@ -228,8 +228,8 @@ paths:
       tags:
         - Tree
       operationId: getDirectoryTree
-      summary: list all the available directories
-      description: get the listing with all the directories and subdirectories
+      summary: list all the available directories and installationId  's
+      description: get the listing with all the directories and subdirectories and the installationId's in the directories
       responses:
         "200":
           description: the tree of directories with the children
@@ -378,12 +378,8 @@ paths:
       parameters:
         - $ref: "#/components/parameters/ResourceId"
       responses:
-        "200":
-          description: the directory
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Directory"
+        "204":
+          description: delete operation successful
           headers:
             X-Rate-Limit-Limit:
               $ref: "#/components/headers/X-Rate-Limit-Limit"
@@ -582,7 +578,7 @@ paths:
               $ref: "#/components/schemas/Installation"
       responses:
         "200":
-          description: installation data.
+          description: installation is updated
           content:
             application/json:
               schema:
@@ -627,8 +623,8 @@ paths:
       parameters:
         - $ref: "#/components/parameters/ResourceId"
       responses:
-        "200":
-          description: installation data.
+        "204":
+          description: delete operation successful
           headers:
             X-Rate-Limit-Limit:
               $ref: "#/components/headers/X-Rate-Limit-Limit"
@@ -836,16 +832,6 @@ paths:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
-  #    put:
-  #      operationId: NOP
-  #      summary: There is no HTTP-PUT for the documentURL, use the Action attribute in the HTTP-POST body instead.
-  #      tags:
-  #        - Document
-  #    delete:
-  #      operationId: NOP
-  #      summary: There is no HTTP-DELETE for the documentURL, use the Action attribute in the HTTP-POST body instead.
-  #      tags:
-  #        - Document
 
   /rest/v1/installation/{resourceId}/document:
     delete:
@@ -866,7 +852,7 @@ paths:
               $ref: "#/components/schemas/DocumentMetadata"
       responses:
         "204":
-          description: Successful operation.
+          description: delete operation successful
           headers:
             X-Rate-Limit-Limit:
               $ref: "#/components/headers/X-Rate-Limit-Limit"
@@ -1087,7 +1073,6 @@ components:
       required:
         - name
         - licenseType
-        - companyName
         - commission
         - parentId
       properties:
@@ -1216,11 +1201,6 @@ components:
             - $ref: "#/components/schemas/CommonString"
             - description: display name of the document.
             - example: My File
-        description:
-          allOf:
-            - $ref: "#/components/schemas/LongString"
-            - description: details of the document content
-            - example: Lorem ipsum dolor sit amet, consectetur adipiscing elit
         locked:
           type: boolean
           description: whether the document is visible for Admins (true) only or open for everybody (false)
