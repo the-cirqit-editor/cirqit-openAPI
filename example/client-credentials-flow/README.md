@@ -1,5 +1,7 @@
 # Examples
 
+## obtain client_secret
+The client secret is provided in https://app.cirqit.cloud/#/account 
 
 ## OAuth 2.0 Client Credentials flow
 ```mermaid
@@ -14,7 +16,4 @@ sequenceDiagram
     ResourceServer-->>Client: Resource
 ```
 
-PKCE workflow: 
-
-https://developer.reachfive.com/docs/flows/authorization-code-pkce.html
 
