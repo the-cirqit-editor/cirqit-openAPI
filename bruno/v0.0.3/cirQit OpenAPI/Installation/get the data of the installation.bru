@@ -5,11 +5,11 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/rest/v1/installation/:resourceId
+  url: {{baseUrl}}/rest/v1/installation/{{installation_id}}
   body: none
-  auth: none
+  auth: inherit
 }
 
-params:path {
-  resourceId: 
+tests {
+  bru.setEnvVar("external_installation_id", res.getBody().externalId);
 }

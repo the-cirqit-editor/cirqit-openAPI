@@ -5,11 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/rest/v1/installation/:resourceId/listDocuments
+  url: {{baseUrl}}/rest/v1/installation/{{installation_id}}/listDocuments
   body: none
-  auth: none
-}
-
-params:path {
-  resourceId: 
+  auth: inherit
 }

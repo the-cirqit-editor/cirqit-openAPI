@@ -5,11 +5,12 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/rest/v1/directory/:resourceId
+  url: {{baseUrl}}/rest/v1/directory/{{directory_id}}
   body: none
-  auth: none
+  auth: inherit
 }
 
-params:path {
-  resourceId: 
+tests {
+  bru.setEnvVar("directory_id", res.getBody().id);
+  bru.setEnvVar("external_directory_id", res.getBody().externalId);
 }

@@ -5,11 +5,17 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/rest/v1/installation/:resourceId/getDocumentUrl
+  url: {{baseUrl}}/rest/v1/installation/{{installation_id}}/getDocumentUrl
   body: json
-  auth: none
+  auth: inherit
 }
 
-params:path {
-  resourceId: 
+body:json {
+    {
+      "fileName": "no-file.pdf",
+      "displayName": "gugus",
+      "documentType": "ATTACHMENT",
+      "path": "",
+      "action": "UPLOAD"
+    }
 }

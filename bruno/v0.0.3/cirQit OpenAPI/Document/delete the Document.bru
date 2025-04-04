@@ -5,30 +5,19 @@ meta {
 }
 
 delete {
-  url: {{baseUrl}}/rest/v1/installation/:resourceId/document
+  url: {{baseUrl}}/rest/v1/installation/{{installation_id}}/document
   body: json
-  auth: none
-}
-
-params:path {
-  resourceId: 
+  auth: inherit
 }
 
 body:json {
-  {
-    "fileName": "",
-    "documentType": "",
-    "displayName": "",
-    "locked": "",
-    "installationId": "",
-    "path": "",
-    "versions": [
-      {
-        "versionId": "",
-        "size": "",
-        "mimeType": "",
-        "createdDate": ""
-      }
-    ]
-  }
+    {
+      "fileName": "no-file.pdf",
+      "displayName": "gugus",
+      "documentType": "ATTACHMENT",
+      "locked": false
+    }
+  
+  
+  
 }

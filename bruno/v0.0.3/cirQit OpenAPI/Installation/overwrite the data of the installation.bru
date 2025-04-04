@@ -5,32 +5,18 @@ meta {
 }
 
 put {
-  url: {{baseUrl}}/rest/v1/installation/:resourceId
+  url: {{baseUrl}}/rest/v1/installation/{{installation_id}}
   body: json
-  auth: none
-}
-
-params:path {
-  resourceId: 
+  auth: inherit
 }
 
 body:json {
   {
-    "name": "",
-    "description": "",
-    "licenseType": "",
-    "commission": "",
-    "address": "",
-    "location": {
-      "latitude": "",
-      "longitude": ""
-    },
-    "id": "",
-    "companyName": "",
-    "parentId": "",
-    "accountId": "",
-    "role": "",
-    "createdDate": "",
-    "externalId": ""
+    "name": "updatefrom bruno",
+    "description": "eine installation aus dem API",
+    "licenseType": "public",
+    "commission": "{{commission[0]}}",
+    "parentId": "{{directory_id}}",
+    "externalId": "b82080b0-fbc5-4e0c-9fb5-1d4223928c93"
   }
 }

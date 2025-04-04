@@ -1,23 +1,24 @@
 meta {
-  name: Get authentication token
+  name: Get authentication token with ClientID and Secret
   type: http
-  seq: 1
+  seq: 2
 }
 
 post {
   url: {{baseUrl}}/oauth2/token
   body: formUrlEncoded
-  auth: bearer
-}
-
-auth:bearer {
-  token: {{token}}
+  auth: none
 }
 
 body:form-urlencoded {
-  code: 
-  code_verifier: 
-  client_id: 
-  client_secret: 
-  scope: 
+  client_id: {{client_id}}
+  client_secret: {{client_secret}}
+  scope: cirqit/read cirqit/write
+}
+
+tests {
+  {
+      // Set the token as a variable
+      bru.setEnvVar("jwtToken", res.getBody().access_token);
+  }
 }

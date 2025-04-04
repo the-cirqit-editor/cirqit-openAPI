@@ -7,26 +7,20 @@ meta {
 post {
   url: {{baseUrl}}/rest/v1/installation
   body: json
-  auth: none
+  auth: inherit
 }
 
 body:json {
   {
-    "name": "",
-    "description": "",
-    "licenseType": "",
-    "commission": "",
-    "address": "",
-    "location": {
-      "latitude": "",
-      "longitude": ""
-    },
-    "id": "",
-    "companyName": "",
-    "parentId": "",
-    "accountId": "",
-    "role": "",
-    "createdDate": "",
-    "externalId": ""
+    "name": "from bruno",
+    "description": "eine installation aus dem API",
+    "licenseType": "public",
+    "commission": "{{commission[0]}}",
+    "parentId": "{{directory_id}}",
+    "externalId": "945537eb-9f89-4c22-be76-d80ae881c64a"
   }
+}
+
+tests {
+  bru.setEnvVar("installation_id", res.getBody().id);
 }

@@ -7,19 +7,19 @@ meta {
 post {
   url: {{baseUrl}}/rest/v1/directory
   body: json
-  auth: none
+  auth: inherit
 }
 
 body:json {
   {
-    "name": "",
-    "description": "",
-    "parentId": "",
-    "accountId": "",
-    "role": "",
-    "id": "",
-    "installations": [],
-    "children": [],
-    "externalId": ""
+    "name": "api",
+    "description": "aus dem API",
+    "externalId": "ext-123:323:93920838",
+    "parentId": "{{directory_id}}"
   }
+}
+
+tests {
+  bru.setEnvVar("directory_id", res.getBody().id);
+  bru.setEnvVar("external_directory_id", res.getBody().externalId);
 }
