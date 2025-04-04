@@ -14,8 +14,9 @@ info:
      - create a new Installation in one of the directories
      - upload the attachments and schematics to the installation
 
-    To get started, use the <a href="https://the-cirqit-editor.github.io/cirqit-openAPI/example/"  target="_blank">Example implementation</a> of the cirQit OpenAPI. It shows the basic operations in a plain JS / HTML implementation.
-
+    To get started, use the <a href="https://the-cirqit-editor.github.io/cirqit-openAPI/example/api-usage"  target="_blank">Example implementation</a> of the cirQit OpenAPI. It shows the basic operations in a plain JS / HTML implementation.
+  
+    Find more expamples on the <a href="https://github.com/the-cirqit-editor/cirqit-openAPI" target="_blank">cirQit OpenAPI github repository</a>.
 
 
     <div style="border: 1px solid #00f; padding: 10px; background-color: #ddf; color: #333;">
@@ -54,7 +55,7 @@ tags:
   - name: Company
     description: Operations to get the Company data
   - name: Tree
-    description: Operations regarding the Directory Tree
+    description: Operations regarding the Directory Tree and the Directories which hold the Installations
   - name: Installation
     description: |
       Operations create and modify a installation.
@@ -417,7 +418,9 @@ paths:
         - Tree
       operationId: getDirectoryByExternalId
       summary: get a directory using the external ID
-      description: get the directory with the Id defined by the customer
+      description: |
+        get the directory with the Id defined by the customer.
+        Use the ID in the response data to continue with the cirQit API to update or delete the directory.
       parameters:
         - $ref: "#/components/parameters/ResourceId"
       responses:
@@ -661,7 +664,9 @@ paths:
         - Installation
       operationId: getInstallationByExternalId
       summary: get the data of the installation using the external ID
-      description: get the instance of the installation by the ID given by the customer
+      description: |
+        get the instance of the installation by the ID given by the customer
+        Use the ID in the response data to continue with the cirQit API to update or delete the installation.
       parameters:
         - name: externalInstallationId
           description: The ID of the  installation
@@ -1310,7 +1315,6 @@ components:
             - UPLOAD
             - DOWNLOAD
             - OVERWRITE
-            - DELETE
           example: UPLOAD
         version:
           allOf:
@@ -1342,7 +1346,6 @@ components:
             - UPLOAD
             - DOWNLOAD
             - OVERWRITE
-            - DELETE
           example: UPLOAD
         version:
           type: string
