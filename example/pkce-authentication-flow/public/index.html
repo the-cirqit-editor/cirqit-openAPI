@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cirQit OpenAPI example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .container {
+            text-align: left;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin-top: 20px;
+            width: 80%;
+        }
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            text-align: center;
+            width: 100%;
+        }
+        .hidden {
+            display: none;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            width: 80%;
+        }
+        #signIn {
+            display: block;
+            margin: 0 auto;
+        }
+        div > ul > li {
+            margin-bottom: 1.2em; /* Adjust the value as needed */
+        }
+        .highlight {
+            color: darkred;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>AWS Cognito PKCE login</h1>
+    <div>
+        Environment: &nbsp;&nbsp; <span id="environment"></span><br/>
+        backendServer: <span id="backendServer"></span><br/>
+    </div>
+</div>
+
+<div class="container">
+    <div id="content">
+        The PKCE flow<br/>
+        <ul>
+            <li>generate a unique <span class="highlight">code_verifier</span> and encrypt it to send it as <span class="highlight">codeChallenge</span> to the AWS Authentication server</li>
+            <li>by click on the "Sign In", the request to AWS Authentication server with the <span class="highlight">codeChallenge</span> as parameter is issued</li>
+            <li>the AWS Authentication server authenticates the user
+                <ul>
+                    <li>show login screen with username / password</li>
+                    <li>continue immediately if the session is still valid</li>
+                </ul>
+            </li>
+            <li>The AWS Authentication server redirects to a page in the browser. The redirect contains the <span class="highlight">code</span> and the <span class="highlight">state</span> parameter
+                <ul>
+                    <li>as default, the redirect goes to the cirQit application which then redirects to the target app (<span id="targetApp"></span>) in the state configuration (customerInfo)</li>
+                    <li>for more security, ask cirQit to register your targetApp in the AWS Authentication server. You might then redirect the authUrl request with your redirectUrl </li>
+                </ul>
+            </li>
+            <li>the redirect page of the cirQit application redirects to the authentication.html page</li>
+            <li>the authentication.html page requests the JWT from the AWS Authentication server
+                <ul>
+                    <li>the <span class="highlight">code</span> achieved from the AWS Authentication server</li>
+                    <li>the <span class="highlight">code_verifier</span> which is a generated code from this page</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <p/>
+    <div>
+        <button id="signIn" onclick="authorize()">Sign In</button>
+    </div>
+</div>
+
+<script>
+    let authUrl = "";
+
+    async function initialize() {
+        // Kundenspezifische Informationen given as state parameter
+        const customerInfo = {
+            timeout: 3000, // in seconds
+            targetApp: "http://localhost:3000/authentication.html"
+        };
+        const state = btoa(JSON.stringify(customerInfo));
+
+        // Code Verifier und Challenge erstellen
+        const codeVerifier = generateRandomString(128);
+        const codeChallenge = await generatecodeChallenge(codeVerifier);
+
+        // Speichern für späteren Gebrauch
+        localStorage.setItem('pkce_code_verifier', codeVerifier);
+        localStorage.setItem('pkce_state', state);
+
+
+        // Auth-URL mit state-Parameter
+        // DEV (authentication.html auch anpassen)
+        // const environment = "dev";
+        // authUrl = `https://cirqit-dev-auth-344019372375.auth.eu-central-1.amazoncognito.com/authorize?`
+        //     + `client_id=6r1dakpj3lskh600i6i5fg584i`
+        //     + `&response_type=code`
+        //     + `&redirect_uri=${encodeURIComponent('https://app-dev.cirqit.cloud/oauth2/callback.html')}`
+        //     + `&state=${state}`
+        //     + `&code_challenge=codeChallenge}`
+        //     + `&code_challenge_method=S256`;
+        // const backendServer = "https://api-dev.cirqit.cloud/oauth2/token";
+
+        // // ACC FIXME: da hat's noch ein dev im namen
+        const environment = "acc";
+        authUrl = `https://cirqit-dev-auth-647022463970.auth.eu-central-1.amazoncognito.com/authorize?`
+            + `client_id=2f56si9971oadtk5ctm8c1kr5a`
+            + `&response_type=code`
+            + `&redirect_uri=${encodeURIComponent('https://app-test.cirqit.cloud/oauth2/callback.html')}`
+            + `&state=${state}`
+            + `&code_challenge=${codeChallenge}`
+            + `&code_challenge_method=S256`;
+        const backendServer = "https://api-test.cirqit.cloud/oauth2/token";
+
+        localStorage.setItem('environment', environment);
+        localStorage.setItem('backendServer', backendServer);
+        document.getElementById('environment').textContent = environment;
+        document.getElementById('backendServer').textContent = backendServer;
+        document.getElementById('targetApp').textContent = customerInfo.targetApp;
+
+    }
+
+    async function authorize() {
+        window.location.href = authUrl;
+    }
+
+    function generateRandomString(length) {
+        const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        const charsetLength = charset.length;
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charsetLength);
+            result += charset[randomIndex];
+        }
+        return result;
+    }
+
+    async function generatecodeChallenge(codeVerifier) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(codeVerifier);
+        const digest = await crypto.subtle.digest('SHA-256', data);
+        return btoa(String.fromCharCode(...new Uint8Array(digest)))
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
+    }
+
+    // Call the async function
+    initialize();
+</script>
+</body>
+</html>

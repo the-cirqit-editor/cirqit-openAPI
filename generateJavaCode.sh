@@ -5,7 +5,7 @@ TARGET_PROJECT=../cirqit-backend/openApiFunction
 TARGET_DIR_GENERATED=src/main/java/cloud/cirqit/openapi/generated
 TARGET_DIR_RESOURCES=src/main/resources
 PACKAGE=cloud.cirqit.openapi.generated
-OAS_FILE=cirqitOpenApi_v0.0.2.yml
+OAS_FILE=cirqitOpenApi_v0.0.3.yml
 
 # generate the server code with mock answers based on spring
 echo "generate API"
