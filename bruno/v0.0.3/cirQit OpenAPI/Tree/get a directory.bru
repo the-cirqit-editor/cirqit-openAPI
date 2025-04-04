@@ -1,0 +1,15 @@
+meta {
+  name: get a directory
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/rest/v1/directory/:resourceId
+  body: none
+  auth: none
+}
+
+params:path {
+  resourceId: 
+}

@@ -1,0 +1,15 @@
+meta {
+  name: list the available documents
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/v1/installation/:resourceId/listDocuments
+  body: none
+  auth: none
+}
+
+params:path {
+  resourceId: 
+}
