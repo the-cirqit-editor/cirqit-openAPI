@@ -1,0 +1,25 @@
+meta {
+  name: create a directory
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/rest/v1/directory
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "api",
+    "description": "aus dem API",
+    "externalId": "ext-123:323:93920838",
+    "parentId": "{{directory_id}}"
+  }
+}
+
+tests {
+  bru.setEnvVar("directory_id", res.getBody().id);
+  bru.setEnvVar("external_directory_id", res.getBody().externalId);
+}

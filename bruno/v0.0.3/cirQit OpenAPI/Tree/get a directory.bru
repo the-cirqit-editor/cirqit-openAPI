@@ -1,0 +1,16 @@
+meta {
+  name: get a directory
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/rest/v1/directory/{{directory_id}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  bru.setEnvVar("directory_id", res.getBody().id);
+  bru.setEnvVar("external_directory_id", res.getBody().externalId);
+}

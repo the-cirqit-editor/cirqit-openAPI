@@ -1,0 +1,11 @@
+meta {
+  name: delete a directory
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/rest/v1/directory/{{directory_id}}
+  body: none
+  auth: inherit
+}

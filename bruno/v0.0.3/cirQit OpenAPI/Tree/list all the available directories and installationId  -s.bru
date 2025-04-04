@@ -1,0 +1,15 @@
+meta {
+  name: list all the available directories and installationId  -s
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/v1/directoryTree
+  body: none
+  auth: inherit
+}
+
+tests {
+  bru.setEnvVar("directory_id", res.getBody()[0].id);
+}

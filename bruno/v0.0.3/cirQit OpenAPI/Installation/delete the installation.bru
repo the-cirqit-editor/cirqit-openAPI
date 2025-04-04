@@ -1,0 +1,11 @@
+meta {
+  name: delete the installation
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/rest/v1/installation/{{installation_id}}
+  body: none
+  auth: inherit
+}

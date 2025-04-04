@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "cirQit OpenAPI - v0.0.3",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

@@ -1,0 +1,21 @@
+meta {
+  name: get the signed URL to upload- download or overwrite a Document
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/rest/v1/installation/{{installation_id}}/getDocumentUrl
+  body: json
+  auth: inherit
+}
+
+body:json {
+    {
+      "fileName": "no-file.pdf",
+      "displayName": "gugus",
+      "documentType": "ATTACHMENT",
+      "path": "",
+      "action": "UPLOAD"
+    }
+}

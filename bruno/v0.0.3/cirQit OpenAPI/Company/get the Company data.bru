@@ -1,0 +1,16 @@
+meta {
+  name: get the Company data
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/v1/company
+  body: none
+  auth: inherit
+}
+
+tests {
+  bru.setEnvVar("company_name", res.getBody().companyName);
+  bru.setEnvVar("commission", res.getBody().commission);
+}
