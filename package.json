@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "@stoplight/spectral-cli": "^6.14.2",
+    "@stoplight/spectral-cli": "^6.14.3",
     "@stoplight/spectral-owasp-ruleset": "^2.0.1"
   },
   "dependencies": {
