@@ -1269,18 +1269,14 @@ components:
             - example: "2023-09-05T21:12:18"
 
     Document:
-      oneOf:
-        - $ref: "#/components/schemas/AttachmentDocument"
-        - $ref: "#/components/schemas/SchemaDocument"
-
-    AttachmentDocument:
       type: object
-      title: AttachmentDocument
-      description: Attachment document type
+      title: Document
+      description: | 
+        the Schema or Attachment document type.
+        As the AWS API-Gateway does not support the "discriminator", we pack the two types together in one object.
       required:
         - documentType
         - fileName
-        - path
         - action
       properties:
         documentType:
@@ -1288,6 +1284,7 @@ components:
           description: Type of the document in the installation.
           enum:
             - ATTACHMENT
+            - SCHEMA
           example: ATTACHMENT
         fileName:
           allOf:
@@ -1297,16 +1294,22 @@ components:
         path:
           allOf:
             - $ref: "#/components/schemas/CommonString"
-            - description: directory where the document is stored. At the time being, subdirectories are not supported.
+            - description: | 
+                directory where the document is stored. At the time being, subdirectories are not supported.
+                This property is only applicable for ATTACHMENT type.
             - example: folder
         displayName:
           allOf:
             - $ref: "#/components/schemas/CommonString"
-            - description: the name to show in the frontend
+            - description: | 
+                the name of the ATTACHMENT to show in the frontend.
+                 This property is only applicable for ATTACHMENT type.
             - example: My File
         locked:
           type: boolean
-          description: whether the document is visible for Admins only (true) or open for everybody (false)
+          description: |
+            whether the ATTACHMENT is visible for Admins only (true) or open for everybody (false)
+             This property is only applicable for ATTACHMENT type.
           example: true
         action:
           type: string
@@ -1325,41 +1328,6 @@ components:
                 <b>Currently not supported!</b>
           example: abcd1234EFGH5678jklm
 
-    SchemaDocument:
-      type: object
-      title: SchemaDocument
-      description: Schema document type
-      required:
-        - documentType
-        - action
-      properties:
-        documentType:
-          type: string
-          description: Type of the document in the installation.
-          enum:
-            - SCHEMA
-          example: SCHEMA
-        action:
-          type: string
-          description: Action to be performed on the document.
-          enum:
-            - UPLOAD
-            - DOWNLOAD
-            - OVERWRITE
-          example: UPLOAD
-        version:
-          type: string
-          description: |
-            Version of the schema. The version is provided in the response of the DocumentMetadata.
-            If the version is not provided, the latest version is used.
-            With the version ORIGINAL, the uploaded schema is used.<br>
-            <b>Currently not supported!</b>
-          enum:
-            - ORIGINAL
-            - LATEST
-          default: LATEST
-          example: abcd1234EFGH5678jklm
-          pattern: "^(ORIGINAL|LATEST|.*)$"
 
     CirQitError:
       description: >-
