@@ -29,6 +29,7 @@ Using the PKCE flow, he can authorize himself with the cirQit username and passw
 
 
 
+
 ### Authentication with client-credentials
 The authentication for the cirQit API can be done with client-credentials. The client secret is obtained from the cirQit Application in the account section.
 The client-credentials flow is used for server-to-server communication. No user interaction is needed.

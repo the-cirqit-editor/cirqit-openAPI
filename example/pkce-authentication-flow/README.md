@@ -28,6 +28,10 @@ sequenceDiagram
 
 
 ## run the example app on your local machine
+
+The PKCE flow is based on a redirect to the browser from the Authentication Server. 
+To allow a POC of this flow, a simple express server is used to handle the redirect and finally obtain the JWT authentication token from AWS.
+
 ### configure
 * adjust cirQit settings in index.html
 * adjust the targetApp URL to your application in the index.html
