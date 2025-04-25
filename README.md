@@ -32,8 +32,8 @@ Using the PKCE flow, he can authorize himself with the cirQit username and passw
 ### Authentication with client-credentials
 The authentication for the cirQit API can be done with client-credentials. The client secret is obtained from the cirQit Application in the account section.
 The client-credentials flow is used for server-to-server communication. No user interaction is needed.
-Find more information In the example/client-credentials-flow directory.
-
+Find more information In the example/client-credentials-flow directory.  
+:link: [client-credentials-flow](./example/client-credentials-flow)
 
 ## Bruno
 Bruno is a REST client to test the API. In the bruno directory, you can find a collection of all the API calls.
