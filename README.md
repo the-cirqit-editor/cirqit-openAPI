@@ -19,15 +19,14 @@ It is deployed to GitHub pages and can be found at https://the-cirqit-editor.git
 
 ### use the API 
 Find a simple HTML /  Javascript page which shows the usage of the API in the example/api-usage directory.
-It is not a full example, but it shows most of the features in the API.
-
+It is not a full example, but it shows most of the features in the API.  
+:link: [example app](./example/api-usage/index.html)
 
 ### Authentication with PKCE
 If you are using the cirQit API from a web application, you can use the PKCE authentication flow. 
 This is useful if the user is communicating with the cirQit API directly from the browser. 
 Using the PKCE flow, he can authorize himself with the cirQit username and password.  
-
-
+:link: [pkce-authentication-flow](./example/pkce-authentication-flow)
 
 
 ### Authentication with client-credentials
