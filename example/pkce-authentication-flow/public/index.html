@@ -120,26 +120,26 @@
         // Auth-URL mit state-Parameter
         // DEV (authentication.html auch anpassen)
         // client_id is from cognito  >  app-clients  >  API-authentication-client
-        // const environment = "dev";
-        // authUrl = `https://cirqit-dev-auth-344019372375.auth.eu-central-1.amazoncognito.com/authorize?`
-        //     + `client_id=oi2iugj3hql9vu2ibm9nlbtf8`
-        //     + `&response_type=code`
-        //     + `&redirect_uri=${encodeURIComponent('https://app-dev.cirqit.cloud/oauth2/callback.html')}`
-        //     + `&state=${state}`
-        //     + `&code_challenge=${codeChallenge}`
-        //     + `&code_challenge_method=S256`;
-        // const backendServer = "https://api-dev.cirqit.cloud/oauth2/token";
-
-        // // ACC FIXME: da hat's noch ein dev im namen
-        const environment = "acc";
-        authUrl = `https://cirqit-dev-auth-647022463970.auth.eu-central-1.amazoncognito.com/authorize?`
-            + `client_id=2f56si9971oadtk5ctm8c1kr5a`
+        const environment = "dev";
+        authUrl = `https://cirqit-dev-auth-344019372375.auth.eu-central-1.amazoncognito.com/authorize?`
+            + `client_id=oi2iugj3hql9vu2ibm9nlbtf8`
             + `&response_type=code`
-            + `&redirect_uri=${encodeURIComponent('https://app-test.cirqit.cloud/oauth2/callback.html')}`
+            + `&redirect_uri=${encodeURIComponent('https://app-dev.cirqit.cloud/oauth2/callback.html')}`
             + `&state=${state}`
             + `&code_challenge=${codeChallenge}`
             + `&code_challenge_method=S256`;
-        const backendServer = "https://api-test.cirqit.cloud/oauth2/token";
+        const backendServer = "https://api-dev.cirqit.cloud/oauth2/token";
+
+        // // // ACC FIXME: da hat's noch ein dev im namen
+        // const environment = "acc";
+        // authUrl = `https://cirqit-dev-auth-647022463970.auth.eu-central-1.amazoncognito.com/authorize?`
+        //     + `client_id=2f56si9971oadtk5ctm8c1kr5a`
+        //     + `&response_type=code`
+        //     + `&redirect_uri=${encodeURIComponent('https://app-test.cirqit.cloud/oauth2/callback.html')}`
+        //     + `&state=${state}`
+        //     + `&code_challenge=${codeChallenge}`
+        //     + `&code_challenge_method=S256`;
+        // const backendServer = "https://api-test.cirqit.cloud/oauth2/token";
 
         localStorage.setItem('environment', environment);
         localStorage.setItem('backendServer', backendServer);

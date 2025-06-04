@@ -1,0 +1,15 @@
+meta {
+  name: get the data of the installation using the external ID
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/rest/v1/installation/external/:externalInstallationId
+  body: none
+  auth: none
+}
+
+params:path {
+  externalInstallationId: 
+}

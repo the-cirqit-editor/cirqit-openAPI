@@ -52,12 +52,12 @@ To align to the OpenAPI specification, the OpenAPI file can be validated:
 * https://github.com/python-openapi/openapi-spec-validator
 ```aiignore
 pip install openapi-spec-validator
-openapi-spec-validator openAPI/cirqitOpenApi_v0.0.1.yml
+openapi-spec-validator openAPI/cirqitOpenApi_v1.0.0.yml
 ```
 
 OWASP validate 
 ```aiignore
-spectral lint openAPI/cirqitOpenApi_v0.0.3.yml --ruleset .spectral.yaml
+spectral lint openAPI/cirqitOpenApi_v1.0.0.yml --ruleset .spectral.yaml
 ```
 
 ### generate cirQit OpenAPI implementation

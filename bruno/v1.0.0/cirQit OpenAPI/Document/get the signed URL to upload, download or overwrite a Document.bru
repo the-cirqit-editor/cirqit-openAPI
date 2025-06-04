@@ -1,0 +1,27 @@
+meta {
+  name: get the signed URL to upload, download or overwrite a Document
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/rest/v1/installation/:resourceId/getDocumentUrl
+  body: json
+  auth: none
+}
+
+params:path {
+  resourceId: 
+}
+
+body:json {
+  {
+    "documentType": "",
+    "fileName": "",
+    "path": "",
+    "displayName": "",
+    "locked": "",
+    "action": "",
+    "version": ""
+  }
+}

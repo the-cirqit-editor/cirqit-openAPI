@@ -1,0 +1,34 @@
+meta {
+  name: delete the Document
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseUrl}}/rest/v1/installation/:resourceId/document
+  body: json
+  auth: none
+}
+
+params:path {
+  resourceId: 
+}
+
+body:json {
+  {
+    "fileName": "",
+    "documentType": "",
+    "displayName": "",
+    "locked": "",
+    "installationId": "",
+    "path": "",
+    "versions": [
+      {
+        "versionId": "",
+        "size": "",
+        "mimeType": "",
+        "createdDate": ""
+      }
+    ]
+  }
+}
