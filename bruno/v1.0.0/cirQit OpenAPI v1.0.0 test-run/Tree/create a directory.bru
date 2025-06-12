@@ -1,0 +1,20 @@
+meta {
+  name: create a directory
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/rest/v1/directory
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "new folder from API",
+    "description": "bla bla",
+    "parentId": "V85VW-LBIN1",
+    "externalId": "notMyId:abcd"
+  }
+}

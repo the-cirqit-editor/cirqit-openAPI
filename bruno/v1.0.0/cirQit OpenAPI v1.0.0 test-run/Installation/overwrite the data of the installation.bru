@@ -1,0 +1,23 @@
+meta {
+  name: overwrite the data of the installation
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/rest/v1/installation/7BSCY-EQ37S
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "modified from the API",
+    "description": "created by OpenAPI v1.0.0",
+    "licenseType": "private",
+    "commission": "Hase",
+    "address": "Wolfstrasse 12, 8413 Nebenbach",
+    "parentId": "W12VQ-MT6U6",
+    "externalId": "not:my:installation:id:222"
+  }
+}

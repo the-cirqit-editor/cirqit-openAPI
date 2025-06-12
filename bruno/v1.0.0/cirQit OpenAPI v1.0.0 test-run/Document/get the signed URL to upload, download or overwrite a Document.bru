@@ -1,0 +1,22 @@
+meta {
+  name: get the signed URL to upload, download or overwrite a Document
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/rest/v1/installation/7BSCY-EQ37S/getDocumentUrl
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "documentType": "ATTACHMENT",
+    "fileName": "my-file.txt",
+    "path": "folder",
+    "displayName": "My File",
+    "locked": true,
+    "action": "UPLOAD"
+  }
+}
