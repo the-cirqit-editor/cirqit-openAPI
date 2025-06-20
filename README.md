@@ -47,6 +47,6 @@ Please be aware that the iFrame technology comes with some security restrictions
 You will need to contact us to allow your domain to be used in an iFrame. 
 For the example page, we have allowed the domain `https://the-cirqit-editor.github.io` in the cirQit backend. If you try without registering your URL, you will get a "https://app.cirqit.cloud refused to connect."  
 :link: [iFrame example source](./example/i-frame/index.html)   
-:link: [iFrame example live](https://the-cirqit-editor.github.io/cirqit-openAPI/example/iframe/index.html)
+:link: [iFrame example live](https://the-cirqit-editor.github.io/cirqit-openAPI/example/i-frame/index.html)
 
 
