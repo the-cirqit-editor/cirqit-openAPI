@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cirQit iFrame Beispiel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .iframe-container {
+            width: 100%;
+            height: 700px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f0f7ff;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #3367d6;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>cirQit iFrame Beispiel</h1>
+        <p>Dieses Beispiel zeigt, wie die cirQit-Anwendung als iFrame eingebunden werden kann.</p>
+    </div>
+
+    <div class="controls">
+        <h2>Steuerungsoptionen</h2>
+        <button onclick="reloadFrame()">iFrame neu laden</button>
+    </div>
+
+    <div class="iframe-container">
+        <iframe id="cirqit-iframe" src="https://app-test.cirqit.cloud" allow="camera; microphone; fullscreen; geolocation"></iframe>
+    </div>
+
+
+    <div>
+        <h2>Code-Beispiel für die Einbindung</h2>
+        <pre>
+&lt;iframe
+  src="https://app-test.cirqit.cloud"
+  id="cirqit-iframe"
+  style="width: 100%; height: 700px; border: none;"
+  allow="camera; microphone; fullscreen; geolocation"
+&gt;&lt;/iframe&gt;
+      </pre>
+    </div>
+</div>
+
+<script>
+    // Referenz auf den iFrame
+    const iframe = document.getElementById('cirqit-iframe');
+
+    // Funktion zum Neuladen des iFrames
+    function reloadFrame() {
+        iframe.src = iframe.src;
+    }
+
+</script>
+</body>
+</html>
