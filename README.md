@@ -36,5 +36,11 @@ The client-credentials flow is used for server-to-server communication. No user 
 Find more information In the example/client-credentials-flow directory.  
 :link: [client-credentials-flow](./example/client-credentials-flow)
 
+
+### iFrame example
+It is possible to use the cirQit API in an iFrame. The example shows how to use the API in an iFrame.  
+Note that you will need to contact us to allow your domain to be used in an iFrame. 
+For the example page, we have allowed the domain `https://the-cirqit-editor.github.io` in the cirQit backend. If you try without registering your URL, you will get a "https://app.cirqit.cloud refused to connect."
+
 ## Bruno
 Bruno is a REST client to test the API. In the bruno directory, you can find a collection of all the API calls.
