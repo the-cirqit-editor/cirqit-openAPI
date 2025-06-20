@@ -20,7 +20,7 @@ It is deployed to GitHub pages and can be found at https://the-cirqit-editor.git
 ### use the API 
 Find a simple HTML /  Javascript page which shows the usage of the API in the example/api-usage directory.
 It is not a full example, but it shows most of the features in the API.  
-:link: [example app sources](./example/api-usage/index.html)   
+:link: [example app sources](./example/api-usage/index.html)
 :link: [example app live](https://the-cirqit-editor.github.io/cirqit-openAPI/example/api-usage/index.html)
 
 ### Authentication with PKCE
