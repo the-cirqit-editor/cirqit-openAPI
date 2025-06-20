@@ -15,6 +15,10 @@ The OpenAPI is written in YAML and can be found in the file `cirqitOpenApi_vX.X.
 It is deployed to GitHub pages and can be found at https://the-cirqit-editor.github.io/cirqit-openAPI/
 
 
+## Bruno
+Bruno is a REST client to test the API. In the bruno directory, you can find a collection of all the API calls.
+
+
 ## Examples
 
 ### use the API 
@@ -41,7 +45,8 @@ Find more information In the example/client-credentials-flow directory.
 It is possible to use the cirQit Application in an iFrame.   
 Please be aware that the iFrame technology comes with some security restrictions and technical limitations.   
 You will need to contact us to allow your domain to be used in an iFrame. 
-For the example page, we have allowed the domain `https://the-cirqit-editor.github.io` in the cirQit backend. If you try without registering your URL, you will get a "https://app.cirqit.cloud refused to connect."
+For the example page, we have allowed the domain `https://the-cirqit-editor.github.io` in the cirQit backend. If you try without registering your URL, you will get a "https://app.cirqit.cloud refused to connect."  
+:link: [iFrame example source](./example/iframe-example/index.html)
+:link: [iFrame example live](https://the-cirqit-editor.github.io/cirqit-openAPI/example/iframe-example/index.html)
 
-## Bruno
-Bruno is a REST client to test the API. In the bruno directory, you can find a collection of all the API calls.
+
