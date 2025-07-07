@@ -98,6 +98,9 @@
         const params = new URLSearchParams();
         params.append('code', authorizationCode);
         params.append('code_verifier', codeVerifier);
+// FIXME CIR-590: da muss ich noch die redirect URI mitgeben, damit der Backend Server die Anfrage verifizieren kann
+        // backend ->OAuth2ApiImpl soll im
+
 
         try {
             const response = await fetch(backendServer, {

@@ -117,6 +117,11 @@ paths:
                     - $ref: "#/components/schemas/CommonString"
                     - example: cirqit/read cirqit/write
                     - description: the scope of the access token
+                state:
+                  allOf:
+                    - $ref: "#/components/schemas/CommonString"
+                    - example: eyJpZGVudGl0eV9wcm92aWRlciI6Ikdvb2dsZSIsImNvZGVDaGFsbGFuZ2UiOiJjYVc2ZiJ9
+                    - description: optional state parameter to identify the request, base64 encoded
       responses:
         "200":
           description: Authentication token retrieved successfully
