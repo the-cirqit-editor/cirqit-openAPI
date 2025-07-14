@@ -134,12 +134,12 @@ paths:
                     allOf:
                       - $ref: "#/components/schemas/CommonString"
                       - description: The access token string as issued by the authorization server.
-                      - example: your jwt access-token (ey....)
-                  token_type:
+                      - example: eyJjdHkiOiJKV1QiLCJlb....
+                  id_token:
                     allOf:
                       - $ref: "#/components/schemas/CommonString"
-                      - description: the type of token this is, typically just the string “Bearer”.
-                      - example: your jwt access-token (ey....)
+                      - description: id token as issued by the authorization server.
+                      - example: eyJraWQiOiIzT1V5blJkblJ....
                   expires_in:
                     type: number
                     minimum: 0

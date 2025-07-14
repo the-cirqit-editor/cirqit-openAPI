@@ -9,18 +9,32 @@ sequenceDiagram
     participant User
     participant Client
     participant cirQit_APP
-    participant AWSAuthentication
+    box AWS Cognito
+        participant CognitoHostedUI
+        participant AppClient
+        participant UserPool
+        participant IdProvider
+    end
     participant cirQit_openAPI
 
     User->>Client: Initiate Authentication Request
     Client->>Client: Generate code verifier and challenge
-    Client->>AWSAuthentication: Authentication Request (code_challenge)
-    AWSAuthentication-->>User: Redirect to login/authorization prompt
-    User->>AWSAuthentication: Authenticate
-    AWSAuthentication-->>cirQit_APP: redirect with Authentication Code (code)
+    Client->>CognitoHostedUI: Authentication Request (code_challenge)
+    CognitoHostedUI->>AppClient: Forward auth request
+    AppClient->>UserPool: Verify request parameters
+    CognitoHostedUI-->>User: Redirect to login/authorization prompt
+    User->>CognitoHostedUI: Authenticate
+    CognitoHostedUI->>UserPool: Validate credentials
+    UserPool->>IdProvider: Verify identity (if external provider)
+    IdProvider-->>UserPool: Identity confirmed
+    UserPool-->>AppClient: Authentication successful
+    CognitoHostedUI-->>cirQit_APP: redirect with Authentication Code (code)
     cirQit_APP->>Client: redirect with Authentication Code (code)
-    Client ->>AWSAuthentication: Token Request (code, code_verifier)
-    AWSAuthentication-->>Client: Access Token (JWT AccessToken)
+    Client->>AppClient: Token Request (code, code_verifier)
+    AppClient->>UserPool: Verify code and code_verifier
+    UserPool->>UserPool: Generate tokens
+    UserPool-->>AppClient: JWT tokens created
+    AppClient-->>Client: Access Token (JWT AccessToken)
     Client->>cirQit_openAPI: Access Resource (JWT AccessToken)
     cirQit_openAPI-->>Client: Resource
 
