@@ -47,6 +47,7 @@ sequenceDiagram
         
         Note over FIC,UP: 9. Cognito erstellt/aktualisiert User
         FIC->>UP: Create/Update User Pool User
+        UP->>CUI: Notify completion and provide auth code
         
         Note over CUI,B: 10. Cognito redirect zurück zu Browser
         CUI->>B: 302 Redirect mit Code + original State

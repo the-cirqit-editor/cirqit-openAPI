@@ -4,6 +4,8 @@ Dieser Flow zeigt die direkte Authentifizierung mit Benutzername und Passwort un
 
 ## Username-Password Authentication Flow
 ```mermaid
+%%{init: {"flowchart": {"htmlLabels": true}} }%%
+
 sequenceDiagram
     actor User
 
@@ -13,7 +15,7 @@ sequenceDiagram
     end
 
     box rgb(184, 115, 51)  AWS Cognito
-    participant AppClient
+        participant AppClient as App Client <br/>   (mit AWS Amplify)
         participant UserPool
         participant AuthFlow as SRP Auth Flow
     end
@@ -28,22 +30,22 @@ sequenceDiagram
     Client->>AuthFlow: Antwort auf Challenge (SRP-Proof)
     AuthFlow->>UserPool: SRP-Proof verifizieren
 
-    Note over Client, AuthFlow: Authentifizierung erfolgreich
+    Note over User, AuthFlow: Authentifizierung erfolgreich
         UserPool->>UserPool: Generiert JWT Tokens
         UserPool->>AppClient: Tokens übermitteln
         AppClient->>Client: Tokens (idToken, accessToken, refreshToken)
         Client->>Client: Speichert Tokens lokal
 
-    Note over Client, AuthFlow: Authentifizierung fehlgeschlagen
+    Note over User, AuthFlow: Authentifizierung fehlgeschlagen
         UserPool->>AppClient: Authentifizierungsfehler
         AppClient->>Client: Auth Error (Ungültige Anmeldedaten)
     
-    Note over Client, AuthFlow: Spätere API-Anfrage (nur nach erfolgreicher Authentifizierung)
+    Note over User, AuthFlow: Spätere API-Anfrage (nur nach erfolgreicher Authentifizierung)
     Client->>API: API-Anfrage mit accessToken
     API->>API: Validiere Token und Berechtigungen
     API->>Client: API Response
     
-    Note over Client, AuthFlow: Automatische Token-Erneuerung (bei Bedarf)
+    Note over User, AuthFlow: Automatische Token-Erneuerung (bei Bedarf)
     Client->>AppClient: Auth.currentSession() (bei Token-Ablauf)
     AppClient->>UserPool: refreshToken verwenden
     UserPool->>AppClient: Neue Tokens

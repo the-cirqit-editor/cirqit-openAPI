@@ -1,6 +1,6 @@
-# AWS Cognito Authentication Flows
+# AWS Cognito Authentication Flows for the OpenAPI 
 
-Dieses Diagramm zeigt die vier verschiedenen Authentifizierungsflows, die alle mit AWS Cognito arbeiten, in einer vereinfachten Darstellung. Es verdeutlicht, wie die verschiedenen Flows dieselben Cognito-Ressourcen gemeinsam nutzen.
+Dieses Diagramm zeigt die verschiedenen Authentifizierungsflows, die alle mit AWS Cognito arbeiten, in einer vereinfachten Darstellung. Es verdeutlicht, wie die verschiedenen Flows dieselben Cognito-Ressourcen gemeinsam nutzen.
 
 ```mermaid
 sequenceDiagram
