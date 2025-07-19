@@ -95,11 +95,15 @@
 
         const codeVerifier = localStorage.getItem('pkce_code_verifier');
         localStorage.removeItem('pkce_code_verifier');
+
+        const clientId = localStorage.getItem('client_id');
+        localStorage.removeItem('client_id');
+
+
         const params = new URLSearchParams();
         params.append('code', authorizationCode);
         params.append('code_verifier', codeVerifier);
-// FIXME CIR-590: da muss ich noch die redirect URI mitgeben, damit der Backend Server die Anfrage verifizieren kann
-        // backend ->OAuth2ApiImpl soll im
+        params.append('client_id', clientId);
 
 
         try {

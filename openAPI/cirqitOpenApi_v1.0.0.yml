@@ -92,6 +92,16 @@ paths:
             schema:
               type: object
               properties:
+                grantType:
+                  allOf:
+                    - $ref: "#/components/schemas/CommonString"
+                    - example: authorization_code
+                    - description: the type how to handle the request, e.g. authorization_code, refresh_token, client_credentials, etc..
+                refreshToken:
+                  allOf:
+                    - $ref: "#/components/schemas/CommonString"
+                    - example: the refresh token
+                    - description: the user which has obtained the client secret from the cirQit application
                 code:
                   allOf:
                     - $ref: "#/components/schemas/CommonString"
@@ -139,6 +149,11 @@ paths:
                     allOf:
                       - $ref: "#/components/schemas/CommonString"
                       - description: id token as issued by the authorization server.
+                      - example: eyJraWQiOiIzT1V5blJkblJ....
+                  refresh_token:
+                    allOf:
+                      - $ref: "#/components/schemas/CommonString"
+                      - description: refresh token as issued by the authorization server.
                       - example: eyJraWQiOiIzT1V5blJkblJ....
                   expires_in:
                     type: number
