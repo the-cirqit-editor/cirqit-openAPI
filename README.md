@@ -9,6 +9,7 @@ The API allows to create, read, update and delete the following resources:
 - Attachments
 - Schema.pdf
 
+The API does not yet provide the requests to create a company and groups. This has to be done in the cirQit Application itself.
 
 ## OpenAPI
 The OpenAPI is written in YAML and can be found in the file `cirqitOpenApi_vX.X.X.yml`.
@@ -41,8 +42,20 @@ Find more information In the example/client-credentials-flow directory.
 :link: [client-credentials-flow](./example/client-credentials-flow)
 
 
-### iFrame example
-It is possible to use the cirQit Application in an iFrame.   
+## Guide: Using OpenAPI – From Checkout to First Call
+- clone this repository
+- step into the example/pkce-authentication-flow directory
+- run `npm install` to install the dependencies
+- run `npm start` to start the example application
+- open your browser and go to `http://localhost:3000` to see the example application in action
+- login with your cirQit username and password
+- copy the access token
+- open Bruno and past the access token into the header of the request
+- run your first API request, e.g. getCompanyData
+
+
+## iFrame example
+It is possible to use the cirQit Application in an iFrame. This has nothing to do with the API, but it is a nice feature to embed the cirQit Application in your own application.
 Please be aware that the iFrame technology comes with some security restrictions and technical limitations.   
 You will need to contact us to allow your domain to be used in an iFrame. 
 For the example page, we have allowed the domain `https://the-cirqit-editor.github.io` in the cirQit backend. If you try without registering your URL, you will get a "https://app.cirqit.cloud refused to connect."  
