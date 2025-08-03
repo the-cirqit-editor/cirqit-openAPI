@@ -92,12 +92,12 @@ paths:
             schema:
               type: object
               properties:
-                grantType:
+                grant_type:
                   allOf:
                     - $ref: "#/components/schemas/CommonString"
                     - example: authorization_code
                     - description: the type how to handle the request, e.g. authorization_code, refresh_token, client_credentials, etc..
-                refreshToken:
+                refresh_token:
                   allOf:
                     - $ref: "#/components/schemas/CommonString"
                     - example: the refresh token
