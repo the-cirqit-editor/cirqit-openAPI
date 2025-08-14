@@ -1,0 +1,1871 @@
+openapi: 3.0.3
+info:
+  title: cirQit OpenAPI
+  version: 1.0.1
+  description: |
+    # OpenAPI for REST communication with the cirQit application
+
+    This OpenAPI allows to automate the communication with the cirQit application. It covers the
+    basic operations to create and maintain the cirQit Installations (aka digitale Schaltplantasche).
+
+     - authenticate with OAuth2
+     - load  the existing directory tree of the user
+     - create a new directory in the tree
+     - create a new Installation in one of the directories
+     - upload the attachments and schematics to the installation
+
+    To get started, use the <a href="https://the-cirqit-editor.github.io/cirqit-openAPI/example/api-usage"  target="_blank">Example implementation</a> of the cirQit OpenAPI. It shows the basic operations in a plain JS / HTML implementation.
+  
+    Find more expamples on the <a href="https://github.com/the-cirqit-editor/cirqit-openAPI" target="_blank">cirQit OpenAPI github repository</a>.
+
+
+    <div style="border: 1px solid #00f; padding: 10px; background-color: #ddf; color: #333;">
+    <strong>NOTE:</strong>
+    The OpenAPI does not yet properly support CORS to upload the Attachments. But as it is a API, it is not intended to be called from a browser directly.
+    If you work with the Browser, disable CORS. See <a href="https://medium.com/@beligh.hamdi/run-chrome-browser-without-cors-872747142c61"  target="_blank">this article</a> for more information.
+    </div>
+
+  contact:
+    email: info@cirqit.cloud
+    name: cirQit
+    url: https://www.cirqit.cloud
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  x-logo:
+    url: https://cirqit.cloud/wp-content/uploads/2021/01/cirQit_kp_200x80.png
+  x-visibility: public
+
+servers:
+  - url: https://api-dev.cirqit.cloud
+    description: DEV OpenAPI access
+    variables: {}
+    x-internal: true
+  - url: https://api-test.cirqit.cloud
+    description: TEST OpenAPI access
+    variables: {}
+    x-internal: false
+  - url: https://api.cirqit.cloud
+    description: PROD OpenAPI access
+    variables: {}
+    x-internal: false
+tags:
+  - name: OAuth2
+    description: the Authorization process
+  - name: Company
+    description: Operations to get the Company data
+  - name: Tree
+    description: Operations regarding the Directory Tree and the Directories which hold the Installations
+  - name: Installation
+    description: |
+      Operations create and modify a installation.
+
+      A Installation (aka digitale Schematasche) is the main object in the cirQit application. It contains the editable electrical schema in pdf format. Additionally, there might be a bunch of attachments. Changes on the installation are tracked in the logbook.
+  - name: Document
+    description: |
+      Operations related to the documents of a Installation
+
+      A Document (aka Attachment) is a file which is the content of the Installation. It can be a PDF, a picture or any other file format. The Document is stored in the AWS S3 bucket and is referenced in the Installation object.
+
+paths:
+  #  ################################################### #
+  #  #                                AUTHENTICATION                                            # #
+  #  ################################################### #
+  /oauth2/token:
+    post:
+      security:
+        - NoAuth: []
+      tags:
+        - OAuth2
+      operationId: getJWTAccessToken
+      summary: Get authentication token
+      description: | 
+        get the Authentication JWT. Depending on the OAuth2 Grant flow, the client must provide some data:
+        <ul>
+        <li>Client Credentials Grant Type: the ClientID and Secret (https://oauth.net/2/client-authentication/)</li>
+        <li>Authorization Code Grant Type: the code and the code_verifier (https://oauth.net/2/pkce/)</li>
+        </ul>
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                grant_type:
+                  allOf:
+                    - $ref: "#/components/schemas/CommonString"
+                    - example: authorization_code
+                    - description: the type how to handle the request, e.g. authorization_code, refresh_token, client_credentials, etc..
+                refresh_token:
+                  allOf:
+                    - $ref: "#/components/schemas/CommonString"
+                    - example: the refresh token
+                    - description: the user which has obtained the client secret from the cirQit application
+                code:
+                  allOf:
+                    - $ref: "#/components/schemas/CommonString"
+                    - description: The code from the cognito login screen
+                    - example: 2b49381k-aefa-4c92-a3ka-eaa9f5394857
+                code_verifier:
+                  allOf:
+                    - $ref: "#/components/schemas/CommonString"
+                    - description: The code_verifier generated in the frontend
+                    - example: bIl3ju3JlwiR~B29eiLie83I_HlSEuW9guV1UXi5LHygO
+                client_id:
+                  allOf:
+                    - $ref: "#/components/schemas/CommonString"
+                    - example: your-client-id
+                    - description: the user which has obtained the client secret from the cirQit application
+                client_secret:
+                  allOf:
+                    - $ref: "#/components/schemas/LongString"
+                    - example: your-client-secret
+                    - description: the user secret which is provided by the cirQit application
+                scope:
+                  allOf:
+                    - $ref: "#/components/schemas/CommonString"
+                    - example: cirqit/read cirqit/write
+                    - description: the scope of the access token
+                state:
+                  allOf:
+                    - $ref: "#/components/schemas/CommonString"
+                    - example: eyJpZGVudGl0eV9wcm92aWRlciI6Ikdvb2dsZSIsImNvZGVDaGFsbGFuZ2UiOiJjYVc2ZiJ9
+                    - description: optional state parameter to identify the request, base64 encoded
+      responses:
+        "200":
+          description: Authentication token retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    allOf:
+                      - $ref: "#/components/schemas/CommonString"
+                      - description: The access token string as issued by the authorization server.
+                      - example: eyJjdHkiOiJKV1QiLCJlb....
+                  id_token:
+                    allOf:
+                      - $ref: "#/components/schemas/CommonString"
+                      - description: id token as issued by the authorization server.
+                      - example: eyJraWQiOiIzT1V5blJkblJ....
+                  refresh_token:
+                    allOf:
+                      - $ref: "#/components/schemas/CommonString"
+                      - description: refresh token as issued by the authorization server.
+                      - example: eyJraWQiOiIzT1V5blJkblJ....
+                  expires_in:
+                    type: number
+                    minimum: 0
+                    maximum: 100000000 # 100000000 seconds = 3 years
+                    description: the time in seconds when this token expires
+                    example: 876543
+                  scope:
+                    allOf:
+                      - $ref: "#/components/schemas/CommonString"
+                      - description: the scope of the access token
+                      - example: your jwt access-token (ey....)
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-request-validator: FormBodyValidation
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+
+  #  ################################################### #
+  #  #                                COMPANY                                                         # #
+  #  ################################################### #
+  /rest/v1/company:
+    get:
+      security:
+        - OAuth2: [cirqit/read]
+      tags:
+        - Company
+      operationId: getCompany
+      summary: get the Company data
+      description: get the properties of the users Company
+      responses:
+        "200":
+          description: Company.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Company"
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
+        "405":
+          $ref: "#/components/responses/CirQitError405"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-integration:
+        # NOTE: the API is called by a GET, but we forward a POST to the Lambda because the API-Gateway adds some information
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+  #  ################################################### #
+  #  #                                Directory and Tree                                             # #
+  #  ################################################### #
+  # Tree / Directory - GetDirectoryTreeFunction
+  /rest/v1/directoryTree:
+    get:
+      security:
+        - OAuth2: [cirqit/read]
+      tags:
+        - Tree
+      operationId: getDirectoryTree
+      summary: list all the available directories and installationId  's
+      description: get the listing with all the directories and subdirectories and the installationId's in the directories
+      responses:
+        "200":
+          description: the tree of directories with the children
+          content:
+            application/json:
+              schema:
+                type: array
+                minItems: 1
+                maxItems: 100
+                items:
+                  $ref: "#/components/schemas/Directory"
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
+        "405":
+          $ref: "#/components/responses/CirQitError405"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+  /rest/v1/directory:
+    post:
+      security:
+        - OAuth2: [cirqit/write]
+      tags:
+        - Tree
+      operationId: createDirectory
+      summary: create a directory
+      description: create a directory in the tree.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Directory"
+      responses:
+        "201":
+          description: the created directory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Directory"
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "405":
+          $ref: "#/components/responses/CirQitError405"
+        "409":
+          $ref: "#/components/responses/CirQitError409"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-request-validator: JsonBodyValidation
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+  #  Directory - DirectoryFunction
+  /rest/v1/directory/{resourceId}:
+    get:
+      security:
+        - OAuth2: [cirqit/read]
+      tags:
+        - Tree
+      operationId: getDirectory
+      summary: get a directory
+      description: get the directory with the given Id.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: the directory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Directory"
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "405":
+          $ref: "#/components/responses/CirQitError405"
+        "409":
+          $ref: "#/components/responses/CirQitError409"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+    delete:
+      security:
+        - OAuth2: [cirqit/read]
+      tags:
+        - Tree
+      operationId: deleteDirectory
+      summary: delete a directory
+      description: delete the directory with the given Id.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "204":
+          description: delete operation successful
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "405":
+          $ref: "#/components/responses/CirQitError405"
+        "409":
+          $ref: "#/components/responses/CirQitError409"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+  # For Directory Authorization
+  /rest/v1/directory/{resourceId}/authorization:
+    get:
+      security:
+        - OAuth2: [cirqit/read]
+      tags:
+        - Tree
+      operationId: getDirectoryAuthorizations
+      summary: Get authorizations for a directory
+      description: Retrieve all authorization entries for the specified directory. Inherited authorizations are not returned
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: List of authorizations for the directory
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuthorizationWithName"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+
+    post:
+      security:
+        - OAuth2: [cirqit/write]
+      tags:
+        - Tree
+      operationId: createDirectoryAuthorization
+      summary: Create a new authorization for a directory
+      description: Add or overwrite a authorization entry to the directory
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Authorization"
+      responses:
+        "201":
+          description: Authorization created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizationWithName"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+
+
+  /rest/v1/directory/{resourceId}/authorization/{type}/{authorizationId}:
+    delete:
+      security:
+        - OAuth2: [cirqit/write]
+      tags:
+        - Tree
+      operationId: deleteDirectoryAuthorization
+      summary: Remove an authorization from a directory
+      description: Delete the specified authorization from the directory
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [ group, user ]
+        - name: authorizationId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ResourceId"
+      responses:
+        "204":
+          description: Authorization removed successfully
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+
+  #  Directory - DirectoryFunction
+  /rest/v1/directory/external/{resourceId}:
+    get:
+      security:
+        - OAuth2: [cirqit/read]
+      tags:
+        - Tree
+      operationId: getDirectoryByExternalId
+      summary: get a directory using the external ID
+      description: |
+        get the directory with the Id defined by the customer.
+        Use the ID in the response data to continue with the cirQit API to update or delete the directory.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: the directory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Directory"
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "405":
+          $ref: "#/components/responses/CirQitError405"
+        "409":
+          $ref: "#/components/responses/CirQitError409"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+
+
+  #  ################################################### #
+  #  #                                INSTALLATION                                                  # #
+  #  ################################################### #
+  # Installation - CreateInstallationFunction
+  /rest/v1/installation:
+    post:
+      security:
+        - OAuth2: [cirqit/write]
+      tags:
+        - Installation
+      operationId: createInstallation
+      summary: create a installation in the given directory
+      description: |
+        Create a installation in the given directory.
+        The user must be ADMINISTRATOR to the directory.
+        Note that every user is entitled to create a directory in the root of the tree.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Installation"
+      responses:
+        "201":
+          description: installation data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Installation"
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "405":
+          $ref: "#/components/responses/CirQitError405"
+        "409":
+          $ref: "#/components/responses/CirQitError409"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-request-validator: JsonBodyValidation
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+  # Installation - AnyInstallationFunction
+  /rest/v1/installation/{resourceId}:
+    get:
+      security:
+        - OAuth2: [cirqit/read]
+      tags:
+        - Installation
+      operationId: getInstallation
+      summary: get the data of the installation
+      description: get the instance of the installation for the given ID
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: installation data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Installation"
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
+        "405":
+          $ref: "#/components/responses/CirQitError405"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+    put:
+      security:
+        - OAuth2: [cirqit/write]
+      tags:
+        - Installation
+      operationId: putInstallation
+      summary: overwrite the data of the installation
+      description: modify the installation data with a full object
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Installation"
+      responses:
+        "200":
+          description: installation is updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Installation"
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
+        "405":
+          $ref: "#/components/responses/CirQitError405"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-request-validator: JsonBodyValidation
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+    delete:
+      security:
+        - OAuth2: [cirqit/write]
+      tags:
+        - Installation
+      operationId: deleteInstallation
+      summary: delete the installation
+      description: purges the installation from cirQit
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "204":
+          description: delete operation successful
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
+        "405":
+          $ref: "#/components/responses/CirQitError405"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+  # For Installation Authorization
+  /rest/v1/installation/{resourceId}/authorization:
+    get:
+      security:
+        - OAuth2: [cirqit/read]
+      tags:
+        - Installation
+      operationId: getInstallationAuthorizations
+      summary: Get authorizations for a installation
+      description: Retrieve all authorization entries for the specified installation. Inherited authorizations are not returned.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: List of authorizations for the installation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuthorizationWithName"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+
+    post:
+      security:
+        - OAuth2: [cirqit/write]
+      tags:
+        - Installation
+      operationId: createInstallationAuthorization
+      summary: Create a new authorization for a installation
+      description: Add or overwrite a authorization entry to the installation
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Authorization"
+      responses:
+        "201":
+          description: Authorization created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizationWithName"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+
+
+  /rest/v1/installation/{resourceId}/authorization/{type}/{authorizationId}:
+    delete:
+      security:
+        - OAuth2: [cirqit/write]
+      tags:
+        - Installation
+      operationId: deleteInstallationAuthorization
+      summary: Remove an authorization from a installation
+      description: Delete the specified authorization from the installation
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [group, user]
+        - name: authorizationId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ResourceId"
+      responses:
+        "204":
+          description: Authorization removed successfully
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+
+  /rest/v1/installation/external/{externalInstallationId}:
+    get:
+      security:
+        - OAuth2: [cirqit/read]
+      tags:
+        - Installation
+      operationId: getInstallationByExternalId
+      summary: get the data of the installation using the external ID
+      description: |
+        get the instance of the installation by the ID given by the customer
+        Use the ID in the response data to continue with the cirQit API to update or delete the installation.
+      parameters:
+        - name: externalInstallationId
+          description: The ID of the  installation
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/CommonString"
+      responses:
+        "200":
+          description: installation data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Installation"
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
+        "405":
+          $ref: "#/components/responses/CirQitError405"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+
+
+
+  #  ################################################### #
+  #  #                                DOCUMENT                                                       # #
+  #  ################################################### #
+  # Document - DocumentFunction
+  /rest/v1/installation/{resourceId}/listDocuments:
+    get:
+      security:
+        - OAuth2: [cirqit/read]
+      tags:
+        - Document
+      operationId: getDocumentList
+      summary: list the available documents
+      description: get the listing of the documents for the given installationId
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: array
+                minItems: 1
+                maxItems: 100
+                items:
+                  $ref: "#/components/schemas/DocumentMetadata"
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
+        "405":
+          $ref: "#/components/responses/CirQitError405"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+  /rest/v1/installation/{resourceId}/getDocumentUrl:
+    post:
+      security:
+        - OAuth2: [cirqit/write]
+      tags:
+        - Document
+      operationId: getSignedDocumentUrl
+      summary: get the signed URL to upload, download or overwrite a Document
+      description: |
+        The signed URL is used to upload the Document to the AWS S3 bucket in your next step.<br>
+        Since AWS has a low limit to upload Documents through a API-Gateway, we upload files directly to the S3 bucket store.
+        This method validates the access rights and and returns a signed URL to upload the Document.<p/>
+
+        Instead of having different HTTP-Methods (GET/POST/PUT), define a Action in the request body and execute the different HTTP-Methods when calling the S3 bucket.
+        <ul>
+        <li>UPLOAD</li>
+        <li>DOWNLOAD</li>
+        <li>OVERWRITE</li>
+        </ul>
+        <p/>
+        To delete the document, use the HTTP-DELETE method</p>
+        <p/>
+        Find more information about signed URL's on <a target=_blank  href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html">AWS S3 Documentation</a>.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Document"
+      responses:
+        "200":
+          description: temporary valid signed URL to communicate with AWS S3 object store.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signedUrl:
+                    allOf:
+                      - $ref: "#/components/schemas/CommonString"
+                      - description: the signed URL to communicate with the AWS S3 bucket store
+                      - example: https://app.cirqit.cloud/data/anlage/MHXKN-XSDUA/pdf/schema.pdf?Expires=173xxxx&Signature=1iOxxxx&Key-Pair-Id=K2Gxxxx
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
+        "405":
+          $ref: "#/components/responses/CirQitError405"
+        "409":
+          $ref: "#/components/responses/CirQitError405"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-request-validator: JsonBodyValidation
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+  /rest/v1/installation/{resourceId}/document:
+    delete:
+      security:
+        - OAuth2: [cirqit/read]
+      tags:
+        - Document
+      operationId: deleteDocument
+      summary: delete the Document
+      description: delete the document in the installation, details are defined in the request body
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentMetadata"
+      responses:
+        "204":
+          description: delete operation successful
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+        "400":
+          $ref: "#/components/responses/CirQitError400"
+        "401":
+          $ref: "#/components/responses/CirQitError401"
+        "403":
+          $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
+        "405":
+          $ref: "#/components/responses/CirQitError405"
+        "429":
+          $ref: "#/components/responses/CirQitError429"
+        "500":
+          $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
+
+#  ################################################### #
+#  #                                COMPONENTS                                                  # #
+#  ################################################### #
+
+components:
+  parameters:
+    ResourceId:
+      name: resourceId
+      in: path
+      required: true
+
+      description: |
+        The ID of the resource in the format of ABCDE-12345
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ResourceId"
+
+    externalId:
+      name: externalId
+      in: path
+      required: true
+      description: The unique external ID of the object
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CommonString"
+
+  schemas:
+    ResourceId:
+      type: string
+      maxLength: 11
+      pattern: "^[A-Z0-9]{5}-[A-Z0-9]{5}$"
+      description: The unique cirQIt ID of the object
+      example: ABCDE-12345
+
+    ShortString:
+      type: string
+      maxLength: 12
+      # pattern to add many special characters but not Unicode
+      pattern: '^[\s\S]*$'
+      #pattern: '^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:,<>\./\?\\|~äöüÄÖÜèéà]*$'
+
+    CommonString:
+      type: string
+      maxLength: 128
+      # pattern to add many special characters but not Unicode
+      pattern: '^[\s\S]*$'
+      #pattern: '^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:,<>\./\?\\|~äöüÄÖÜèéà]*$'
+
+    LongString:
+      type: string
+      maxLength: 4048
+      # pattern to add many special characters but not Unicode
+      pattern: '^[\s\S]*$'
+      #pattern: '^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:,<>\./\?\\|~äöüÄÖÜèéà]*$'
+
+    DateTimeString:
+      type: string
+      format: date-time
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+      example: "2023-09-05T21:12:18"
+
+    Company:
+      type: object
+      description: The Company data
+      required:
+        - companyName
+      properties:
+        companyName:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: the name of the company
+            - example: Example Ltd.
+        addition:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: additional information about the company
+            - example: c/o box 1392
+        street:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: the street of the company
+            - example: Main Street 12
+        postalCode:
+          allOf:
+            - $ref: "#/components/schemas/ShortString"
+            - description: the postal code of the company
+            - example: 8400
+        city:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: the city of the company
+            - example: Winterthur
+        country:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: the country of the company
+            - example: Schweiz
+        phone:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: the phone number of the company
+            - example: "0785556677"
+        email:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - format: email
+            - description: the email address of the company
+            - example: info@example.com
+        website:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: the website of the company
+            - example: www.example.com
+        commission:
+          type: array
+          minItems: 1
+          maxItems: 100
+          description: the commissions of the company
+          example: ["Project 3730", "Project 9382"]
+          items:
+            $ref: "#/components/schemas/CommonString"
+        groups:
+          type: object
+          description: The groups associated with the company
+          properties:
+            all:
+              allOf:
+                - $ref: "#/components/schemas/ResourceId"
+                - description: ID of the group containing all users
+                - example: ABCDE-12345
+            admins:
+              allOf:
+                - $ref: "#/components/schemas/ResourceId"
+                - description: ID of the administrators group
+                - example: FGHIJ-67890
+            members:
+              allOf:
+                - $ref: "#/components/schemas/ResourceId"
+                - description: ID of the regular members group
+                - example: KLMNO-12345
+            restrictedMembers:
+              allOf:
+                - $ref: "#/components/schemas/ResourceId"
+                - description: ID of the restricted members group
+                - example: PQRST-67890
+
+    Directory:
+      type: object
+      description: |
+        the directory object which can hold a installation or another directory
+        If the parentId is not set, it's a directory in the root of the tree.
+      required:
+        - name
+      properties:
+        name:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: the name of the directory
+            - example: Project on the street
+        description:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: the description of the directory
+            - example: a description of the directory
+        parentId:
+          allOf:
+            - $ref: "#/components/schemas/ResourceId"
+            - description: the parent directory of this directory
+            - example: ABCDE-12345
+        accountId:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - readOnly: true
+            - description: the accountID of the user who created the directory
+            - example: mario
+        role:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - readOnly: true
+            - description: the role of this user in this directory
+            - example: ADMINISTRATOR
+        id:
+          allOf:
+            - $ref: "#/components/schemas/ResourceId"
+            - readOnly: true
+            - description: the ID of the directory
+        installations:
+          type: array
+          minItems: 1
+          maxItems: 100
+          readOnly: true
+          description: the installations in this directory
+          items:
+            $ref: "#/components/schemas/ResourceId"
+        children:
+          type: array
+          minItems: 1
+          maxItems: 100
+          readOnly: true
+          description: the children directories in this directory
+          items:
+            $ref: "#/components/schemas/Directory"
+        externalId:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: the external ID of the installation. This is a unique ID of your choice.
+            - example: "00112233-4455-6677-8899-aabbccddeeff"
+
+    Installation:
+      type: object
+      description: the Installation object
+      required:
+        - name
+        - licenseType
+        - commission
+        - parentId
+      properties:
+        name:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: the name of the installation
+            - example: Pelletanlage Hauptsteuerung Silosteuerung
+        description:
+          allOf:
+            - $ref: "#/components/schemas/LongString"
+            - description: the description of the installation. This is free text and depends on your needs. It might be a additional ID of your choice or a whole text to describe the installation.
+            - example: Die Hauptsteuerung der Pelletanlage mit der Silosteuerung
+        licenseType:
+          type: string
+          enum:
+            - private
+            - public
+          description: |
+            the license type of the installation.
+            <ul>
+            <li>private - the access to the installation is restricted. As default, everybody has READ access, only the creator of the Installation has ADMIN rights.</li>
+            <li>public - every registered cirQit user has ADMIN access on the installation.</li>
+            </ul>
+          example: public
+        commission:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: |
+                the commission of the installation to assign and bill it on a given project.
+            - example: Project Dr. Huber - Neftenbach
+        address:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: the address of the installation
+            - example: 82256 Fürstenfeldbruck, Deutschland
+        location:
+          description: the GEO location of the installation. In the cirQit application, it allows to find the installation using google-maps.
+          type: object
+          example: { "latitude": 48.17394, "longitude": 11.243008 }
+          properties:
+            latitude:
+              type: number
+              format: float
+              example: 48.17394
+            longitude:
+              type: number
+              format: float
+              example: 11.243008
+        id:
+          allOf:
+            - $ref: "#/components/schemas/ResourceId"
+            - readOnly: true
+            - description: the unique cirQit ID of the installation. This ID is created by cirQit.
+            - example: ABCDE-12345
+        companyName:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - readOnly: true
+            - description: the name of the company who created the installation
+            - example: Huber AG
+        parentId:
+          allOf:
+            - $ref: "#/components/schemas/ResourceId"
+            - description: the uniqe cirQit ID of the parent directory. Request the available directories by getting the directoryTree or post a new directory.
+            - example: ABCDE-12345
+        accountId:
+          readOnly: true
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: the user who cerated the installation
+            - example: mario
+        role:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - readOnly: true
+            - description: |
+                the role of this user in this installation
+                <ul>
+                <li>ADMIN - the owner of the Installation</li>
+                <li>WRITE - allowed to modify the Installation</li>
+                <li>READ - can view the installation</li>
+                <li>OBSERVER - notify observer when something changes</li>
+                <li>NOTHING - no access</li>
+                </ul>
+            - example: ADMIN
+        createdDate:
+          allOf:
+            - $ref: "#/components/schemas/DateTimeString"
+            - readOnly: true
+            - description: Creation date in the cirQit environment of the installation in ISO 8601 format "YYYY-MM-DDTHH:MM:SS".
+            - example: "2023-09-05T21:12:18"
+        externalId:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: the external ID of the installation. This is a unique ID of your choice.
+            - example: "00112233-4455-6677-8899-aabbccddeeff"
+
+    DocumentMetadata:
+      type: object
+      description: the metadata of the document stored in the AWS S3 bucket
+      required:
+        - fileName
+        - documentType
+        - path
+      properties:
+        fileName:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: file name of the document.
+            - example: my-file.txt
+        documentType:
+          type: string
+          description: |
+            Type of the document in the installation.
+            <ul>
+            <li>Attachments are additional documents of any type</li>
+            <li>Schema is the pdf which can be opened in the editor</li>
+            </ul>
+          enum:
+            - ATTACHMENT
+            - SCHEMA
+          example: ATTACHMENT
+        displayName:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: display name of the document.
+            - example: My File
+        locked:
+          type: boolean
+          description: whether the document is visible for Admins (true) only or open for everybody (false)
+          example: true
+        installationId:
+          allOf:
+            - $ref: "#/components/schemas/ResourceId"
+            - readOnly: true
+            - description: installationID related to the document.
+            - example: ABCDE-12345
+        path:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            #- description: slash delimited path of the directory where the document is stored.
+            #- example: folder/subfolder1/subfolder2
+            - description: the directory where the document is stored. Currently, only one level is supported.
+            - example: folderName
+        versions:
+          type: array
+          minItems: 1
+          maxItems: 100
+          description: |
+            List of version objects containing version information.<br>
+            <b>Currently not supported!</b>
+          items:
+            $ref: "#/components/schemas/DocumentVersion"
+
+    DocumentVersion:
+      type: object
+      description: |
+        Version information of the document.
+        At the time being, only the versionId "latest" is supported.
+        There will be support for more version coming soon.
+      required:
+        - version
+        - size
+        - createdDate
+      properties:
+        versionId:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: The versionId of the document
+            - example: abcd1234EFGH5678jklm
+        size:
+          type: number
+          format: int64
+          description: Size of the document in bytes
+          example: 123456
+          minimum: 0
+          maximum: 999999999
+        mimeType:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: Mime type of the document.
+            - example: application/pdf
+        createdDate:
+          allOf:
+            - $ref: "#/components/schemas/DateTimeString"
+            - readOnly: true
+            - description: Creation date in the cirQit environment of the document in ISO 8601 format "YYYY-MM-DDTHH:MM:SS"
+            - example: "2023-09-05T21:12:18"
+
+    Document:
+      type: object
+      title: Document
+      description: | 
+        the Schema or Attachment document type.
+        As the AWS API-Gateway does not support the "discriminator", we pack the two types together in one object.
+      required:
+        - documentType
+        - fileName
+        - action
+      properties:
+        documentType:
+          type: string
+          description: Type of the document in the installation.
+          enum:
+            - ATTACHMENT
+            - SCHEMA
+          example: ATTACHMENT
+        fileName:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: filename of the document.
+            - example: my-file.txt
+        path:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: | 
+                directory where the document is stored. At the time being, subdirectories are not supported.
+                This property is only applicable for ATTACHMENT type.
+            - example: folder
+        displayName:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: | 
+                the name of the ATTACHMENT to show in the frontend.
+                 This property is only applicable for ATTACHMENT type.
+            - example: My File
+        locked:
+          type: boolean
+          description: |
+            whether the ATTACHMENT is visible for Admins only (true) or open for everybody (false)
+             This property is only applicable for ATTACHMENT type.
+          example: true
+        action:
+          type: string
+          description: Action to be performed on the document.
+          enum:
+            - UPLOAD
+            - DOWNLOAD
+            - OVERWRITE
+          example: UPLOAD
+        version:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: |
+                Version of the document. The version is provided in the response of the DocumentMetadata.
+                If the version is not provided, the latest version is used.<br>
+                <b>Currently not supported!</b>
+          example: abcd1234EFGH5678jklm
+
+    Authorization:
+      type: object
+      required:
+        - type
+        - id
+        - right
+      properties:
+        type:
+          type: string
+          enum: [group, user]
+          description: Whether this authorization applies to a user or a group
+          example: user
+        id:
+          allOf:
+            - $ref: "#/components/schemas/ResourceId"
+            - description: The ID of the user or group
+            - example: ABCDE-12345
+        right:
+          type: string
+          enum: [read, write, admin]
+          description: The permission level granted
+          example: write
+
+    AuthorizationWithName:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/Authorization"
+        - type: object
+          properties:
+            name:
+              allOf:
+                - $ref: "#/components/schemas/CommonString"
+                - description: The name of the group or user
+                - example: "Engineering Team"
+                - readOnly: true
+
+    CirQitError:
+      description: >-
+        Error object for cirQit API. This object is used to return error messages in case of an error.
+      type: object
+      required:
+        - errorCode
+        - errorMessage
+      properties:
+        errorCode:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - example: VALIDATION_ERROR
+            - description: Unique error code.
+        errorMessage:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - example: Input validation failed
+            - description: Short description of the error.
+        errorReasons:
+          example:
+            [
+              {
+                "message": "Attribute 'xxxx' must not be longer than 50 chars.",
+                "code": "ERROR_012",
+                "location": "/rootLevel/xxxx",
+              },
+            ]
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            type: object
+            required:
+              - message
+              - code
+            properties:
+              message:
+                allOf:
+                  - $ref: "#/components/schemas/CommonString"
+                  - description: Detailed error message.
+                  - example: Attribute 'xxxx' must not be longer than 50 chars.
+              code:
+                allOf:
+                  - $ref: "#/components/schemas/CommonString"
+                  - description: Unique reason code for this specific reason.
+                  - example: ERROR_012
+              location:
+                allOf:
+                  - $ref: "#/components/schemas/CommonString"
+                  - example: /rootLevel/xxxx
+                  - description: Location within message where the error is related to.
+          description: >-
+            List of error reasons if multiple reasons are related to the same error.
+
+  headers:
+    X-Rate-Limit-Limit:
+      description: The number of allowed requests in the current period
+      schema:
+        type: number
+        format: int64
+    X-Rate-Limit-Remaining:
+      description: The number of remaining requests in the current period
+      schema:
+        type: number
+        format: int64
+    X-Rate-Limit-Reset:
+      description: The number of seconds until the rate limit resets
+      schema:
+        type: number
+        format: int64
+    Access-Control-Allow-Origin:
+      description: Specifies the origin that is allowed to access the resource
+      schema:
+        allOf:
+          - $ref: "#/components/schemas/ShortString"
+          - example: "*"
+
+  responses:
+    CirQitError400:
+      description: Bad request, e.g. missing or invalid parameters
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CirQitError"
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: "#/components/headers/X-Rate-Limit-Limit"
+        X-Rate-Limit-Remaining:
+          $ref: "#/components/headers/X-Rate-Limit-Remaining"
+        X-Rate-Limit-Reset:
+          $ref: "#/components/headers/X-Rate-Limit-Reset"
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/Access-Control-Allow-Origin"
+
+    CirQitError401:
+      description: Unauthorized, no access to the requested url / resource
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CirQitError"
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: "#/components/headers/X-Rate-Limit-Limit"
+        X-Rate-Limit-Remaining:
+          $ref: "#/components/headers/X-Rate-Limit-Remaining"
+        X-Rate-Limit-Reset:
+          $ref: "#/components/headers/X-Rate-Limit-Reset"
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/Access-Control-Allow-Origin"
+
+    CirQitError403:
+      description: Forbidden, no access to the resource object
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CirQitError"
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: "#/components/headers/X-Rate-Limit-Limit"
+        X-Rate-Limit-Remaining:
+          $ref: "#/components/headers/X-Rate-Limit-Remaining"
+        X-Rate-Limit-Reset:
+          $ref: "#/components/headers/X-Rate-Limit-Reset"
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/Access-Control-Allow-Origin"
+
+    CirQitError404:
+      description: Requested resource is not available
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CirQitError"
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: "#/components/headers/X-Rate-Limit-Limit"
+        X-Rate-Limit-Remaining:
+          $ref: "#/components/headers/X-Rate-Limit-Remaining"
+        X-Rate-Limit-Reset:
+          $ref: "#/components/headers/X-Rate-Limit-Reset"
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/Access-Control-Allow-Origin"
+
+    CirQitError405:
+      description: Path or HTTP method not available
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CirQitError"
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: "#/components/headers/X-Rate-Limit-Limit"
+        X-Rate-Limit-Remaining:
+          $ref: "#/components/headers/X-Rate-Limit-Remaining"
+        X-Rate-Limit-Reset:
+          $ref: "#/components/headers/X-Rate-Limit-Reset"
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/Access-Control-Allow-Origin"
+
+    CirQitError409:
+      description: Resource already registered
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CirQitError"
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: "#/components/headers/X-Rate-Limit-Limit"
+        X-Rate-Limit-Remaining:
+          $ref: "#/components/headers/X-Rate-Limit-Remaining"
+        X-Rate-Limit-Reset:
+          $ref: "#/components/headers/X-Rate-Limit-Reset"
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/Access-Control-Allow-Origin"
+
+    CirQitError429:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CirQitError"
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: "#/components/headers/X-Rate-Limit-Limit"
+        X-Rate-Limit-Remaining:
+          $ref: "#/components/headers/X-Rate-Limit-Remaining"
+        X-Rate-Limit-Reset:
+          $ref: "#/components/headers/X-Rate-Limit-Reset"
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/Access-Control-Allow-Origin"
+        Retry-After:
+          description: The number of seconds to wait before retrying the request
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            maximum: 999999
+          example: 60
+
+    CirQitError500:
+      description: Server error, e.g. internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CirQitError"
+      headers:
+        X-Rate-Limit-Limit:
+          $ref: "#/components/headers/X-Rate-Limit-Limit"
+        X-Rate-Limit-Remaining:
+          $ref: "#/components/headers/X-Rate-Limit-Remaining"
+        X-Rate-Limit-Reset:
+          $ref: "#/components/headers/X-Rate-Limit-Reset"
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/Access-Control-Allow-Origin"
+
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: |
+        This security scheme uses JWTs and adheres to the best practices outlined in RFC8725.
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.cirqit.cloud/oauth2/token
+          scopes:
+            cirqit/read: Grants read access
+            cirqit/write: Grants write access
+            # I should have a refresh token, OWASP checker is not happy with this
+            # To be defined and understand why I should refresh the secret to obtain a JWT AccessToken
+            #        refreshToken:
+            #          tokenUrl: https://api.cirqit.cloud/oauth2/token
+            #          refreshUrl: https://api.cirqit.cloud/oauth2/refresh
+            #          scopes:
+            #            cirqit/read: Grants read access
+            #            cirqit/write: Grants write access
+    NoAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: this is No Authentication to satisfy the OWAS checker. Its not really RFC8725
