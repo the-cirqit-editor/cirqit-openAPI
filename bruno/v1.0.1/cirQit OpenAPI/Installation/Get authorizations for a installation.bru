@@ -1,0 +1,15 @@
+meta {
+  name: Get authorizations for a installation
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/rest/v1/installation/:resourceId/authorization
+  body: none
+  auth: none
+}
+
+params:path {
+  resourceId: 
+}

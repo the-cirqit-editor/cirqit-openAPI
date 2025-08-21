@@ -16,7 +16,7 @@ info:
 
     To get started, use the <a href="https://the-cirqit-editor.github.io/cirqit-openAPI/example/api-usage"  target="_blank">Example implementation</a> of the cirQit OpenAPI. It shows the basic operations in a plain JS / HTML implementation.
   
-    Find more expamples on the <a href="https://github.com/the-cirqit-editor/cirqit-openAPI" target="_blank">cirQit OpenAPI github repository</a>.
+    Find more examples on the <a href="https://github.com/the-cirqit-editor/cirqit-openAPI" target="_blank">cirQit OpenAPI github repository</a>.
 
 
     <div style="border: 1px solid #00f; padding: 10px; background-color: #ddf; color: #333;">
@@ -1252,30 +1252,6 @@ components:
           example: ["Project 3730", "Project 9382"]
           items:
             $ref: "#/components/schemas/CommonString"
-        groups:
-          type: object
-          description: The groups associated with the company
-          properties:
-            all:
-              allOf:
-                - $ref: "#/components/schemas/ResourceId"
-                - description: ID of the group containing all users
-                - example: ABCDE-12345
-            admins:
-              allOf:
-                - $ref: "#/components/schemas/ResourceId"
-                - description: ID of the administrators group
-                - example: FGHIJ-67890
-            members:
-              allOf:
-                - $ref: "#/components/schemas/ResourceId"
-                - description: ID of the regular members group
-                - example: KLMNO-12345
-            restrictedMembers:
-              allOf:
-                - $ref: "#/components/schemas/ResourceId"
-                - description: ID of the restricted members group
-                - example: PQRST-67890
 
     Directory:
       type: object
@@ -1597,26 +1573,30 @@ components:
 
     Authorization:
       type: object
-      required:
-        - type
-        - id
-        - right
-      properties:
-        type:
-          type: string
-          enum: [group, user]
-          description: Whether this authorization applies to a user or a group
-          example: user
-        id:
-          allOf:
-            - $ref: "#/components/schemas/ResourceId"
-            - description: The ID of the user or group
-            - example: ABCDE-12345
-        right:
-          type: string
-          enum: [read, write, admin]
-          description: The permission level granted
-          example: write
+      description: the Authorization object is used to define the access rights to a resource.
+      allOf:
+        - type: object
+          required:
+            - userName
+          properties:
+            identityType:
+              type: string
+              enum: [user, group, company]
+            id:
+              type: string
+              description: |
+                The ID of the user, group or company group
+                if it is a user, the ID is the username
+                if it is a group, the ID is the group ID like ABCDE-12345
+                if it is a company group, the ID is the member type of the company group
+                like OWNER, MEMBER, RESTRICTED_MEMBER, ALL
+              example: ABCDE-12345
+              allOf:
+                - $ref: "#/components/schemas/CommonString"
+                - description: The username
+                - example: "jsmith"
+
+
 
     AuthorizationWithName:
       type: object
@@ -1630,6 +1610,7 @@ components:
                 - description: The name of the group or user
                 - example: "Engineering Team"
                 - readOnly: true
+
 
     CirQitError:
       description: >-

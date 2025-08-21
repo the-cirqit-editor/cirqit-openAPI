@@ -1,0 +1,17 @@
+meta {
+  name: Remove an authorization from a directory
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrl}}/rest/v1/directory/:resourceId/authorization/:type/:authorizationId
+  body: none
+  auth: none
+}
+
+params:path {
+  resourceId: 
+  type: 
+  authorizationId: 
+}

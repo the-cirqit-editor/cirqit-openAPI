@@ -1,0 +1,19 @@
+meta {
+  name: Create a new authorization for a installation
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/rest/v1/installation/:resourceId/authorization
+  body: json
+  auth: none
+}
+
+params:path {
+  resourceId: 
+}
+
+body:json {
+  {}
+}

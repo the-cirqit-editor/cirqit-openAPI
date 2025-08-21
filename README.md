@@ -1,3 +1,5 @@
+![cirQit](https://cirqit.cloud/wp-content/uploads/2021/01/cirQit_kp_200x80.png)
+
 # cirQit OpenAPI
 
 ## Introduction

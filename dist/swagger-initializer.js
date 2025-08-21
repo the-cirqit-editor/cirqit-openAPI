@@ -1,11 +1,14 @@
 // Define configuration objects for each API version
-let defaultVersion = "cirQit-v1.0.0";
+let defaultVersion = "cirQit-v1.0.1";
 
 let configurations = {
 
-  "cirQit-v1.0.0": {
-    url: "openAPI/cirqitOpenApi_v1.0.0.yml",
-  },
+    "cirQit-v1.0.0": {
+        url: "openAPI/cirqitOpenApi_v1.0.0.yml",
+    },
+    "cirQit-v1.0.1": {
+        url: "openAPI/cirqitOpenApi_v1.0.1.yml",
+    },
 };
 
 

@@ -1,0 +1,17 @@
+meta {
+  name: Remove an authorization from a installation
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrl}}/rest/v1/installation/:resourceId/authorization/:type/:authorizationId
+  body: none
+  auth: none
+}
+
+params:path {
+  resourceId: 
+  type: 
+  authorizationId: 
+}

@@ -1,0 +1,15 @@
+meta {
+  name: get a directory using the external ID
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/rest/v1/directory/external/:resourceId
+  body: none
+  auth: none
+}
+
+params:path {
+  resourceId: 
+}
