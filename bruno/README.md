@@ -7,19 +7,29 @@ https://docs.usebruno.com/introduction/what-is-bruno
 * import Collection
 * OpenAPI v3 File
 
-NOTE: OpenAPI allows to define recursive components. But Bruno does not support recursions. Therefore,
-the Directory-Children parameter needs to be deleted to import it.
-
+### replace collection.bru
+Add this configuration to the collection.bru file to import the OpenAPI specification.
 ```aiignore
-        children:
-           type: array
-           readOnly: true
-           description: the children directories in this directory
-           items:
-                $ref: '#/components/schemas/Directory'
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}
 ```
 
+### inherit the authentication from the parent
+replace all   "auth: none" with "auth: inherit" in the imported files. 
+Use your IDEs search and replace feature to do this.
+
+
+
 ## configure authentication
+### PKCE - get authentication token with username and password
+run the PKCE example app to get the authentication token.
+store it as {{jwtToken}} in the environment variables of Bruno.
+
 ### OAuth2 - get authentication token with clientID and secret
 #### create the body 
 Get the token and client ID from the cirQit App - Settings - API Access
@@ -43,12 +53,5 @@ tests {
 }
 ```
 
-### set the token to the header
-(see use-auth-token-in-all-requests.png)
-
-* cirQit OpenAPI -> Settings
-* add Header:
-    * key: Authorization
-    * value: Bearer {{jwtToken}}
 
 

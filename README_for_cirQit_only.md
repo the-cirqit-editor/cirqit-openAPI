@@ -43,6 +43,19 @@ the versions to be displayed in the dropdown are configured like:
 
 
 ## OpenAPI
+### invnent a new version
+* create the new cirqitOpenApi_vX.X.X.yml file
+* update the version in the file
+* make sure to add the special headers
+```aiignore
+    x-amazon-apigateway-request-validator: JsonBodyValidation
+    x-amazon-apigateway-integration:
+       uri: ### OpenApiFunction ###
+       httpMethod: POST
+       type: aws_proxy
+```
+* update the version in the dist/swagger-initializer.js file
+* update the version in the index.html file
 
 ### validate the OpenAPI
 NOTE: some validators struggle with the circular reference of the Directory Tree, just ignore it.

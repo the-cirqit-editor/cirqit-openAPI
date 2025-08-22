@@ -7,20 +7,16 @@ meta {
 post {
   url: {{baseUrl}}/oauth2/token
   body: formUrlEncoded
-  auth: bearer
-}
-
-auth:bearer {
-  token: {{token}}
+  auth: inherit
 }
 
 body:form-urlencoded {
-  grant_type: 
+  grant_type: client_credentials
   refresh_token: 
   code: 
   code_verifier: 
-  client_id: 
-  client_secret: 
+  client_id: {{client_id}}
+  client_secret: {{client_secret}}
   scope: 
   state: 
 }
