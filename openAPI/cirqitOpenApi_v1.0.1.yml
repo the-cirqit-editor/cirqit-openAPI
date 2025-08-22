@@ -462,6 +462,11 @@ paths:
           $ref: "#/components/responses/CirQitError429"
         "500":
           $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: GET
+        type: aws_proxy
+
 
     post:
       security:
@@ -498,7 +503,10 @@ paths:
           $ref: "#/components/responses/CirQitError429"
         "500":
           $ref: "#/components/responses/CirQitError500"
-
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
 
   /rest/v1/directory/{resourceId}/authorization/{type}/{authorizationId}:
     delete:
@@ -537,6 +545,11 @@ paths:
           $ref: "#/components/responses/CirQitError429"
         "500":
           $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: DELETE
+        type: aws_proxy
+
 
   #  Directory - DirectoryFunction
   /rest/v1/directory/external/{resourceId}:
@@ -820,6 +833,11 @@ paths:
           $ref: "#/components/responses/CirQitError429"
         "500":
           $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: GET
+        type: aws_proxy
+
 
     post:
       security:
@@ -856,7 +874,10 @@ paths:
           $ref: "#/components/responses/CirQitError429"
         "500":
           $ref: "#/components/responses/CirQitError500"
-
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: POST
+        type: aws_proxy
 
   /rest/v1/installation/{resourceId}/authorization/{type}/{authorizationId}:
     delete:
@@ -895,6 +916,11 @@ paths:
           $ref: "#/components/responses/CirQitError429"
         "500":
           $ref: "#/components/responses/CirQitError500"
+      x-amazon-apigateway-integration:
+        uri: ### OpenApiFunction ###
+        httpMethod: DELETE
+        type: aws_proxy
+
 
   /rest/v1/installation/external/{externalInstallationId}:
     get:
