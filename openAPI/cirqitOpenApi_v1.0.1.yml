@@ -390,7 +390,7 @@ paths:
 
     delete:
       security:
-        - OAuth2: [cirqit/read]
+        - OAuth2: [cirqit/write]
       tags:
         - Tree
       operationId: deleteDirectory
@@ -464,7 +464,7 @@ paths:
           $ref: "#/components/responses/CirQitError500"
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
-        httpMethod: GET
+        httpMethod: POST
         type: aws_proxy
 
 
@@ -547,7 +547,7 @@ paths:
           $ref: "#/components/responses/CirQitError500"
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
-        httpMethod: DELETE
+        httpMethod: POST
         type: aws_proxy
 
 
@@ -835,7 +835,7 @@ paths:
           $ref: "#/components/responses/CirQitError500"
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
-        httpMethod: GET
+        httpMethod: POST
         type: aws_proxy
 
 
@@ -918,7 +918,7 @@ paths:
           $ref: "#/components/responses/CirQitError500"
       x-amazon-apigateway-integration:
         uri: ### OpenApiFunction ###
-        httpMethod: DELETE
+        httpMethod: POST
         type: aws_proxy
 
 
@@ -1110,7 +1110,7 @@ paths:
   /rest/v1/installation/{resourceId}/document:
     delete:
       security:
-        - OAuth2: [cirqit/read]
+        - OAuth2: [cirqit/write]
       tags:
         - Document
       operationId: deleteDocument

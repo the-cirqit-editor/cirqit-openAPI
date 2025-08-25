@@ -46,7 +46,7 @@ the versions to be displayed in the dropdown are configured like:
 ### invnent a new version
 * create the new cirqitOpenApi_vX.X.X.yml file
 * update the version in the file
-* make sure to add the special headers
+* make sure to add the special headers (use always POST, it's about the method from API Gateway to Lambda not the method from client to API Gateway)
 ```aiignore
     x-amazon-apigateway-request-validator: JsonBodyValidation
     x-amazon-apigateway-integration:
