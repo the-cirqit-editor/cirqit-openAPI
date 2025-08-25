@@ -449,7 +449,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/AuthorizationWithName"
+                  $ref: "#/components/schemas/Authorization"
         "400":
           $ref: "#/components/responses/CirQitError400"
         "401":
@@ -490,7 +490,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AuthorizationWithName"
+                $ref: "#/components/schemas/Authorization"
         "400":
           $ref: "#/components/responses/CirQitError400"
         "401":
@@ -508,7 +508,7 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-  /rest/v1/directory/{resourceId}/authorization/{type}/{authorizationId}:
+  /rest/v1/directory/{resourceId}/authorization/{identityType}/{identityId}/{accessRole}:
     delete:
       security:
         - OAuth2: [cirqit/write]
@@ -519,17 +519,24 @@ paths:
       description: Delete the specified authorization from the directory
       parameters:
         - $ref: "#/components/parameters/ResourceId"
-        - name: type
+        - name: identityType
+          in: path
+          required: true
+          description: the type of the identity to remove [USER | GROUP | COMPANY_GROUP]
+          schema:
+            $ref: "#/components/schemas/IdentityType"
+        - name: identityId
+          in: path
+          description: the id of the user/group to delete, might be userId or groupId depending on the type
+          required: true
+          schema:
+            $ref: "#/components/schemas/CommonString"
+        - name: accessRole
+          description: the access role to remove
           in: path
           required: true
           schema:
-            type: string
-            enum: [ group, user ]
-        - name: authorizationId
-          in: path
-          required: true
-          schema:
-            $ref: "#/components/schemas/ResourceId"
+            $ref: "#/components/schemas/AccessRole"
       responses:
         "204":
           description: Authorization removed successfully
@@ -820,7 +827,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/AuthorizationWithName"
+                  $ref: "#/components/schemas/Authorization"
         "400":
           $ref: "#/components/responses/CirQitError400"
         "401":
@@ -837,7 +844,6 @@ paths:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
-
 
     post:
       security:
@@ -861,7 +867,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AuthorizationWithName"
+                $ref: "#/components/schemas/Authorization"
         "400":
           $ref: "#/components/responses/CirQitError400"
         "401":
@@ -879,7 +885,7 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-  /rest/v1/installation/{resourceId}/authorization/{type}/{authorizationId}:
+  /rest/v1/installation/{resourceId}/authorization/{identityType}/{identityId}/{accessRole}:
     delete:
       security:
         - OAuth2: [cirqit/write]
@@ -890,17 +896,24 @@ paths:
       description: Delete the specified authorization from the installation
       parameters:
         - $ref: "#/components/parameters/ResourceId"
-        - name: type
+        - name: identityType
+          in: path
+          required: true
+          description: the type of the identity to remove [USER | GROUP | COMPANY_GROUP]
+          schema:
+            $ref: "#/components/schemas/IdentityType"
+        - name: identityId
+          description: the id of the user/group to delete, might be userId or groupId depending on the type
           in: path
           required: true
           schema:
-            type: string
-            enum: [group, user]
-        - name: authorizationId
+            $ref: "#/components/schemas/CommonString"
+        - name: accessRole
+          description: the access role to remove
           in: path
           required: true
           schema:
-            $ref: "#/components/schemas/ResourceId"
+            $ref: "#/components/schemas/AccessRole"
       responses:
         "204":
           description: Authorization removed successfully
@@ -1165,7 +1178,6 @@ components:
       name: resourceId
       in: path
       required: true
-
       description: |
         The ID of the resource in the format of ABCDE-12345
       content:
@@ -1190,6 +1202,18 @@ components:
       pattern: "^[A-Z0-9]{5}-[A-Z0-9]{5}$"
       description: The unique cirQIt ID of the object
       example: ABCDE-12345
+
+    IdentityType:
+      type: string
+      enum: [USER, GROUP, COMPANY_GROUP]
+      description: The type of identity (USER, GROUP, or COMPANY_GROUP)
+      example: USER
+
+    AccessRole:
+      type: string
+      enum:  [ADMIN, WRITE, READ, OBSERVER]
+      description:  The access role assigned to the identity
+      example: ADMIN
 
     ShortString:
       type: string
@@ -1363,13 +1387,13 @@ components:
         licenseType:
           type: string
           enum:
-            - private
-            - public
+            - PRIVATE
+            - PUBLIC
           description: |
             the license type of the installation.
             <ul>
-            <li>private - the access to the installation is restricted. As default, everybody has READ access, only the creator of the Installation has ADMIN rights.</li>
-            <li>public - every registered cirQit user has ADMIN access on the installation.</li>
+            <li>PRIVATE - the access to the installation is restricted. As default, everybody has READ access, only the creator of the Installation has ADMIN rights.</li>
+            <li>PUBLIC - every registered cirQit user has ADMIN access on the installation.</li>
             </ul>
           example: public
         commission:
@@ -1600,42 +1624,34 @@ components:
     Authorization:
       type: object
       description: the Authorization object is used to define the access rights to a resource.
-      allOf:
-        - type: object
-          required:
-            - userName
-          properties:
-            identityType:
-              type: string
-              enum: [user, group, company]
-            id:
-              type: string
-              description: |
-                The ID of the user, group or company group
-                if it is a user, the ID is the username
-                if it is a group, the ID is the group ID like ABCDE-12345
-                if it is a company group, the ID is the member type of the company group
-                like OWNER, MEMBER, RESTRICTED_MEMBER, ALL
-              example: ABCDE-12345
-              allOf:
-                - $ref: "#/components/schemas/CommonString"
-                - description: The username
-                - example: "jsmith"
-
-
-
-    AuthorizationWithName:
-      type: object
-      allOf:
-        - $ref: "#/components/schemas/Authorization"
-        - type: object
-          properties:
-            name:
-              allOf:
-                - $ref: "#/components/schemas/CommonString"
-                - description: The name of the group or user
-                - example: "Engineering Team"
-                - readOnly: true
+      required:
+        - identityType
+        - id
+        - role
+      properties:
+        identityType:
+          $ref: "#/components/schemas/IdentityType"
+        id:
+          type: string
+          description: |
+            The ID of the user, group or company group
+            if it is a user, the ID is the username
+            if it is a group, the ID is the group ID like ABCDE-12345
+            if it is a company group, the ID is the member type of the company group
+            like OWNER, MEMBER, RESTRICTED_MEMBER, ALL
+          example: ABCDE-12345
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: The username
+            - example: "jsmith"
+        role:
+          $ref: "#/components/schemas/AccessRole"
+        name:
+          allOf:
+            - $ref: "#/components/schemas/CommonString"
+            - description: The name of the group or user
+            - example: "Engineering Team"
+            - readOnly: true
 
 
     CirQitError:
