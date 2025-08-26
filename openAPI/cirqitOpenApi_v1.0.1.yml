@@ -467,7 +467,6 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-
     post:
       security:
         - OAuth2: [cirqit/write]
@@ -508,35 +507,22 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-  /rest/v1/directory/{resourceId}/authorization/{identityType}/{identityId}/{accessRole}:
     delete:
       security:
         - OAuth2: [cirqit/write]
       tags:
         - Tree
       operationId: deleteDirectoryAuthorization
-      summary: Remove an authorization from a directory
-      description: Delete the specified authorization from the directory
+      summary: remove a authorization from a directory
+      description: remove authorization entry to the directory
       parameters:
         - $ref: "#/components/parameters/ResourceId"
-        - name: identityType
-          in: path
-          required: true
-          description: the type of the identity to remove [USER | GROUP | COMPANY_GROUP]
-          schema:
-            $ref: "#/components/schemas/IdentityType"
-        - name: identityId
-          in: path
-          description: the id of the user/group to delete, might be userId or groupId depending on the type
-          required: true
-          schema:
-            $ref: "#/components/schemas/CommonString"
-        - name: accessRole
-          description: the access role to remove
-          in: path
-          required: true
-          schema:
-            $ref: "#/components/schemas/AccessRole"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Authorization"
       responses:
         "204":
           description: Authorization removed successfully
@@ -556,7 +542,6 @@ paths:
         uri: ### OpenApiFunction ###
         httpMethod: POST
         type: aws_proxy
-
 
   #  Directory - DirectoryFunction
   /rest/v1/directory/external/{resourceId}:
@@ -885,35 +870,22 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-  /rest/v1/installation/{resourceId}/authorization/{identityType}/{identityId}/{accessRole}:
     delete:
       security:
         - OAuth2: [cirqit/write]
       tags:
         - Installation
       operationId: deleteInstallationAuthorization
-      summary: Remove an authorization from a installation
-      description: Delete the specified authorization from the installation
+      summary: delete a authorization from a installation
+      description: remove a authorization entry to the installation
       parameters:
         - $ref: "#/components/parameters/ResourceId"
-        - name: identityType
-          in: path
-          required: true
-          description: the type of the identity to remove [USER | GROUP | COMPANY_GROUP]
-          schema:
-            $ref: "#/components/schemas/IdentityType"
-        - name: identityId
-          description: the id of the user/group to delete, might be userId or groupId depending on the type
-          in: path
-          required: true
-          schema:
-            $ref: "#/components/schemas/CommonString"
-        - name: accessRole
-          description: the access role to remove
-          in: path
-          required: true
-          schema:
-            $ref: "#/components/schemas/AccessRole"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Authorization"
       responses:
         "204":
           description: Authorization removed successfully
@@ -1171,7 +1143,6 @@ paths:
 #  ################################################### #
 #  #                                COMPONENTS                                                  # #
 #  ################################################### #
-
 components:
   parameters:
     ResourceId:
