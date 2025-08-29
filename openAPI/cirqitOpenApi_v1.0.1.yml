@@ -486,10 +486,6 @@ paths:
       responses:
         "201":
           description: Authorization created successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Authorization"
         "400":
           $ref: "#/components/responses/CirQitError400"
         "401":
@@ -849,10 +845,6 @@ paths:
       responses:
         "201":
           description: Authorization created successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Authorization"
         "400":
           $ref: "#/components/responses/CirQitError400"
         "401":
@@ -1440,6 +1432,9 @@ components:
             - description: the external ID of the installation. This is a unique ID of your choice.
             - example: "00112233-4455-6677-8899-aabbccddeeff"
 
+    #
+    #   DOCUMENT (Attachments or Schemas)
+    #
     DocumentMetadata:
       type: object
       description: the metadata of the document stored in the AWS S3 bucket
@@ -1592,39 +1587,81 @@ components:
                 <b>Currently not supported!</b>
           example: abcd1234EFGH5678jklm
 
+    #
+    #   AUTHORIZATION
+    #
     Authorization:
       type: object
       description: the Authorization object is used to define the access rights to a resource.
       required:
-        - identityType
-        - id
-        - role
+        - authorizationType
       properties:
-        identityType:
-          $ref: "#/components/schemas/IdentityType"
-        id:
+        authorizationType:
+          oneOf:
+            - $ref: '#/components/schemas/AuthorizationTypeUser'
+            - $ref: '#/components/schemas/AuthorizationTypeGroup'
+            - $ref: '#/components/schemas/AuthorizationTypeCompanyGroup'
+          discriminator:
+            propertyName: authorizationType
+            mapping:
+              USER: '#/components/schemas/AuthorizationTypeUser'
+              GROUP: '#/components/schemas/AuthorizationTypeGroup'
+              COMPANY_GROUP: '#/components/schemas/AuthorizationTypeCompanyGroup'
+
+    AuthorizationTypeUser:
+      type: object
+      required:
+        - authorizationType
+        - userName
+      properties:
+        authorizationType:
           type: string
-          description: |
-            The ID of the user, group or company group
-            if it is a user, the ID is the username
-            if it is a group, the ID is the group ID like ABCDE-12345
-            if it is a company group, the ID is the member type of the company group
-            like OWNER, MEMBER, RESTRICTED_MEMBER, ALL
-          example: ABCDE-12345
+          description: Authorization for a single user
+          example: USER
+        userName:
           allOf:
             - $ref: "#/components/schemas/CommonString"
-            - description: The username
-            - example: "jsmith"
-        role:
-          $ref: "#/components/schemas/AccessRole"
-        name:
+            - description: the username of the user
+            - example: "peter-mueller"
+
+    AuthorizationTypeGroup:
+      type: object
+      required:
+        - authorizationType
+        - groupId
+      properties:
+        authorizationType:
+          type: string
+          description: Group of users
+          example: GROUP
+        groupId:
           allOf:
-            - $ref: "#/components/schemas/CommonString"
-            - description: The name of the group or user
-            - example: "Engineering Team"
-            - readOnly: true
+            - $ref: "#/components/schemas/ResourceId"
+            - description: ithe ID of the group
+            - example: ABCDE-12345
 
+    AuthorizationTypeCompanyGroup:
+      type: object
+      required:
+        - authorizationType
+        - companyMembership
+      properties:
+        authorizationType:
+          type: string
+          description: the group of users which are registered in the requesters company
+          example: COMPANY_GROUP
+        companyMembership:
+          type: string
+          description: role of the users in the company
+          enum:
+            - ALL
+            - OWNER
+            - MEMBER
+            - RESTRICTED
 
+    #
+    #   ERROR
+    #
     CirQitError:
       description: >-
         Error object for cirQit API. This object is used to return error messages in case of an error.
