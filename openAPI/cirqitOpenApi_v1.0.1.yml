@@ -1605,9 +1605,9 @@ components:
           description: |
             The ID of the user, group or company group
             <ul>
-            <li>if it is a user, the ID is the username</li>
-            <li>if it is a group, the ID is the group ID like ABCDE-12345</li>
-            <li>if it is a company group, the ID is the member type of the company group
+            <li>if the identityType is USER, the ID is the username</li>
+            <li>if the identityType is GROUP, the ID is the group ID like ABCDE-12345</li>
+            <li>if the identityType is COMPANY_GROUP, the ID is the member type of the company group
               <ul>
               <li>OWNER - all owners of your company</li>
               <li>MEMBER - all members who are allowed to create installations</li>
