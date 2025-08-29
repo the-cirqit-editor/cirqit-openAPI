@@ -1604,10 +1604,17 @@ components:
           type: string
           description: |
             The ID of the user, group or company group
-            if it is a user, the ID is the username
-            if it is a group, the ID is the group ID like ABCDE-12345
-            if it is a company group, the ID is the member type of the company group
-            like OWNER, MEMBER, RESTRICTED_MEMBER, ALL
+            <ul>
+            <li>if it is a user, the ID is the username</li>
+            <li>if it is a group, the ID is the group ID like ABCDE-12345</li>
+            <li>if it is a company group, the ID is the member type of the company group
+              <ul>
+              <li>OWNER - all owners of your company</li>
+              <li>MEMBER - all members who are allowed to create installations</li>
+              <li>RESTRICTED_MEMBER - all restricted members</li>
+              <li>ALL - all the users of the three groups above</li>
+              </ul>
+            </ul>
           example: ABCDE-12345
           allOf:
             - $ref: "#/components/schemas/CommonString"
