@@ -1594,70 +1594,33 @@ components:
       type: object
       description: the Authorization object is used to define the access rights to a resource.
       required:
-        - authorizationType
+        - identityType
+        - id
+        - role
       properties:
-        authorizationType:
-          oneOf:
-            - $ref: '#/components/schemas/AuthorizationTypeUser'
-            - $ref: '#/components/schemas/AuthorizationTypeGroup'
-            - $ref: '#/components/schemas/AuthorizationTypeCompanyGroup'
-          discriminator:
-            propertyName: authorizationType
-            mapping:
-              USER: '#/components/schemas/AuthorizationTypeUser'
-              GROUP: '#/components/schemas/AuthorizationTypeGroup'
-              COMPANY_GROUP: '#/components/schemas/AuthorizationTypeCompanyGroup'
-
-    AuthorizationTypeUser:
-      type: object
-      required:
-        - authorizationType
-        - userName
-      properties:
-        authorizationType:
+        identityType:
+          $ref: "#/components/schemas/IdentityType"
+        id:
           type: string
-          description: Authorization for a single user
-          example: USER
-        userName:
+          description: |
+            The ID of the user, group or company group
+            if it is a user, the ID is the username
+            if it is a group, the ID is the group ID like ABCDE-12345
+            if it is a company group, the ID is the member type of the company group
+            like OWNER, MEMBER, RESTRICTED_MEMBER, ALL
+          example: ABCDE-12345
           allOf:
             - $ref: "#/components/schemas/CommonString"
-            - description: the username of the user
-            - example: "peter-mueller"
-
-    AuthorizationTypeGroup:
-      type: object
-      required:
-        - authorizationType
-        - groupId
-      properties:
-        authorizationType:
-          type: string
-          description: Group of users
-          example: GROUP
-        groupId:
+            - description: The username
+            - example: "jsmith"
+        role:
+          $ref: "#/components/schemas/AccessRole"
+        name:
           allOf:
-            - $ref: "#/components/schemas/ResourceId"
-            - description: ithe ID of the group
-            - example: ABCDE-12345
-
-    AuthorizationTypeCompanyGroup:
-      type: object
-      required:
-        - authorizationType
-        - companyMembership
-      properties:
-        authorizationType:
-          type: string
-          description: the group of users which are registered in the requesters company
-          example: COMPANY_GROUP
-        companyMembership:
-          type: string
-          description: role of the users in the company
-          enum:
-            - ALL
-            - OWNER
-            - MEMBER
-            - RESTRICTED
+            - $ref: "#/components/schemas/CommonString"
+            - description: The name of the group or user
+            - example: "Engineering Team"
+            - readOnly: true
 
     #
     #   ERROR
