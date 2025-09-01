@@ -1358,7 +1358,7 @@ components:
             <li>PRIVATE - the access to the installation is restricted. As default, everybody has READ access, only the creator of the Installation has ADMIN rights.</li>
             <li>PUBLIC - every registered cirQit user has ADMIN access on the installation.</li>
             </ul>
-          example: public
+          example: PRIVATE
         commission:
           allOf:
             - $ref: "#/components/schemas/CommonString"
