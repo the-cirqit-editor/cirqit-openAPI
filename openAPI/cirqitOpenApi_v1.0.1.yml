@@ -712,12 +712,8 @@ paths:
             schema:
               $ref: "#/components/schemas/Installation"
       responses:
-        "200":
+        "204":
           description: installation is updated
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Installation"
           headers:
             X-Rate-Limit-Limit:
               $ref: "#/components/headers/X-Rate-Limit-Limit"
@@ -1625,7 +1621,13 @@ components:
         name:
           allOf:
             - $ref: "#/components/schemas/CommonString"
-            - description: The name of the group or user
+            - description: | 
+                The name of the identity.
+                <ul>
+                <li>if the identityType is USER, it is not set</li>
+                <li>if the identityType is GROUP, it's the name of the group</li>
+                <li>if the identityType is COMPANY_GROUP, it is the company name</li>
+                </ul>
             - example: "Engineering Team"
             - readOnly: true
 
