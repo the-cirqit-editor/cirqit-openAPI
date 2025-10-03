@@ -139,6 +139,8 @@ The request can be executed in this order:
 <div class="container">
     <div class="section">
         <h2>Get the access-token</h2>
+        <!--
+                   ***** CIR-588:  client-credentials flow is not supported  *****
         Authentisierungsdaten in cirQit beziehen:
         <ul>
             <li><a href="https://app-test.cirqit.cloud/#/account" target="_blank">app-test.cirqit.cloud</a></li>
@@ -166,6 +168,8 @@ The request can be executed in this order:
                 <td><span id="jwtValidateIcon"></span></td>
             </tr>
         </table>
+        -->
+
         <h2>JWT access token</h2>
         <table>
             <tr>
@@ -331,8 +335,8 @@ The request can be executed in this order:
 <script>
 
 //    const SERVER = "https://api-dev.cirqit.cloud"
-//    const SERVER = "https://api-test.cirqit.cloud"
-    const SERVER = "https://api.cirqit.cloud"
+    const SERVER = "https://api-test.cirqit.cloud"
+//    const SERVER = "https://api.cirqit.cloud"
     document.getElementById('serverUrl').textContent = SERVER;
     /** ********************************************************** */
     /**                             Get the secret                                               */
