@@ -1020,7 +1020,7 @@ paths:
       description: |
         The signed URL is used to upload the Document to the AWS S3 bucket in your next step.<br>
         Since AWS has a low limit to upload Documents through a API-Gateway, we upload files directly to the S3 bucket store.
-        This method validates the access rights and and returns a signed URL to upload the Document.<p/>
+        This method validates the access rights and and returns a signed URL to upload the Document. Note that the fileName might change if it has non-unicode characters in the name. Use the fileName returned in the signedUrl to upload the document.<p/>
 
         Instead of having different HTTP-Methods (GET/POST/PUT), define a Action in the request body and execute the different HTTP-Methods when calling the S3 bucket.
         <ul>
@@ -1031,6 +1031,16 @@ paths:
         <p/>
         To delete the document, use the HTTP-DELETE method</p>
         <p/>
+        
+        Find a example fetch to upload the file in the examples of the project.<br/>
+        To do a upload with curl, use the following command line example:<br/>
+        <pre>
+                curl -v --fail -X PUT \
+                  -H "x-amz-acl: bucket-owner-full-control" \
+                  -H "Content-Type: text/html" \
+                  --data-binary @yourFile.html \
+                  "https://app.cirqit.cloud/data/anlage/ABCDE-EDCBA/attachment/yourFile.html?Expires=1761061341&Signature=bWKW1Qvxuv2N2dEe......"
+          </pre>
         Find more information about signed URL's on <a target=_blank  href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html">AWS S3 Documentation</a>.
       parameters:
         - $ref: "#/components/parameters/ResourceId"

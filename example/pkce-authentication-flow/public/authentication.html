@@ -41,10 +41,9 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .error {
-            color: #e74c3c;
-            margin-top: 20px;
-            display: none;
+        .message{
+            color: #09f;
+            font-wight: bold;
         }
         .footer {
             position: absolute;
@@ -76,6 +75,7 @@
     <div class="spinner"></div>
     <p id="tokenMessage" class="hidden"><h2>Here are your tokens:</h2></p>
     <pre id="tokenInfo"></pre>
+    <div id="copyStatus" aria-live="polite" class="message"></div>
 </div>
 
 <div class="footer">
@@ -85,6 +85,32 @@
 <script>
     // parameter from index.html
     const backendServer = localStorage.getItem('backendServer');
+
+    async function copyTextToClipboard(text) {
+        if (!text) return false;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+                await navigator.clipboard.writeText(text);
+                return true;
+            } catch (e) {
+                // fall through to fallback
+            }
+        }
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            const ok = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            return ok;
+        } catch (err) {
+            document.body.removeChild(textarea);
+            return false;
+        }
+    }
 
     // Exchange the authorization code for tokens
     async function exchangeCodeForTokens(authorizationCode) {
@@ -127,6 +153,9 @@
         }
     }
 
+
+
+
     document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         const authorizationCode = urlParams.get('code');
@@ -138,6 +167,21 @@
                     document.getElementById('tokenStatus').classList.add('hidden');
                     document.querySelector('.spinner').classList.add('hidden');
                     document.getElementById('tokenMessage').classList.remove('hidden');
+
+                    // copy token to clipboard
+                    const copyStatusEl = document.getElementById('copyStatus');
+
+                    const accessToken = tokens && (tokens.access_token || tokens.accessToken || '');
+                    copyTextToClipboard(accessToken)
+                        .then(function(ok) {
+                            copyStatusEl.textContent = ok ? 'Access token copied to clipboard' : 'Copy failed';
+                            setTimeout(function() { copyStatusEl.textContent = ''; }, 10000);
+                        })
+                        .catch(function(err) {
+                            console.error('Copy failed', err);
+                            copyStatusEl.textContent = 'Copy failed';
+                            setTimeout(function() { copyStatusEl.textContent = ''; }, 10000);
+                        });
                 })
                 .catch(error => {
                     console.error('Error exchanging code for tokens:', error);
@@ -149,6 +193,7 @@
         document.getElementById('reloadButton').addEventListener('click', () => {
             window.location.href = 'index.html';
         });
+
     });
 </script>
 </body>
