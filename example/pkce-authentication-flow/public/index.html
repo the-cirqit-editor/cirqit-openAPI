@@ -107,6 +107,7 @@
         let authorizationServer
         let redirectUri
         let backendServer
+        let clientSecret = "";
 
         if ("dev" === environment) {
             clientId = "432rc74udek9dh4u47g1uer6fn";
@@ -114,18 +115,32 @@
             redirectUri = 'https://app-dev.cirqit.cloud/oauth2/callback.html';
             backendServer = "https://api-dev.cirqit.cloud/oauth2/token";
         }
+        else if ("swissolar_acc" === environment) {
+            clientId = "3...6";
+            clientSecret = "c...j";
+            authorizationServer = "https://cirqit-acc-auth-647022463970.auth.eu-central-1.amazoncognito.com";
+            redirectUri = 'https://app-test.cirqit.cloud/oauth2/callback.html';
+            backendServer = "https://api-test.cirqit.cloud/oauth2/token";
+        }
         else if ("acc" === environment) {
             clientId = "42juqtcqqf8mok0aa31dfsr8vl";
             authorizationServer = "https://cirqit-acc-auth-647022463970.auth.eu-central-1.amazoncognito.com";
             redirectUri = 'https://app-test.cirqit.cloud/oauth2/callback.html';
             backendServer = "https://api-test.cirqit.cloud/oauth2/token";
         }
-        else if ("prod" === environment) {
-            clientId = "7fiaanpnhr5er82qk905fc0e6t";
+        else if ("swissolar_prod" === environment) {
+            clientId = "7...l";
             authorizationServer = "https://cirqit-prod-auth-607328829807.auth.eu-central-1.amazoncognito.com";
+            clientSecret = "...";
             redirectUri = 'https://app.cirqit.cloud/oauth2/callback.html';
             backendServer = "https://api.cirqit.cloud/oauth2/token";
-        } else {
+        }
+        else if ("prod" === environment) {
+                clientId = "7fiaanpnhr5er82qk905fc0e6t";
+                authorizationServer = "https://cirqit-prod-auth-607328829807.auth.eu-central-1.amazoncognito.com";
+                redirectUri = 'https://app.cirqit.cloud/oauth2/callback.html';
+                backendServer = "https://api.cirqit.cloud/oauth2/token";
+            } else {
             throw new Error("Unknown environment: " + environment);
         }
         // Code Verifier und Challenge erstellen
@@ -152,6 +167,7 @@
         localStorage.setItem('pkce_code_verifier', codeVerifier);
         localStorage.setItem('pkce_state', state);
         localStorage.setItem('client_id', clientId);
+        localStorage.setItem('client_secret', clientSecret);
         localStorage.setItem('environment', environment);
         localStorage.setItem('backendServer', backendServer);
 
