@@ -72,6 +72,8 @@
 
     <div class="controls">
         <h2>Steuerungsoptionen</h2>
+        <label for="jwt-token">JWT Token:</label>
+        <input type="text" id="jwt-token" name="jwt-token" style="width: 400px; padding: 8px; margin-right: 10px;" placeholder="JWT Token eingeben">
         <button onclick="reloadFrame()">iFrame neu laden</button>
     </div>
 
@@ -96,6 +98,25 @@
 <script>
     // Referenz auf den iFrame
     const iframe = document.getElementById('cirqit-iframe');
+
+    function getJwtToken() {
+        return document.getElementById('jwt-token').value;
+    }
+
+    iframe.onload = () => {
+        const jwtToken = getJwtToken();
+        if (jwtToken) {
+            console.error("post message: ", jwtToken);
+
+            iframe.contentWindow.postMessage(
+                {
+                    type: "AUTH_TOKEN",
+                    token: jwtToken
+                },
+                "https://app.example.com"
+            );
+        }
+    };
 
     // Funktion zum Neuladen des iFrames
     function reloadFrame() {
