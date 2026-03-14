@@ -72,8 +72,18 @@
 
     <div class="controls">
         <h2>Steuerungsoptionen</h2>
-        <label for="jwt-token">JWT Token:</label>
-        <input type="text" id="jwt-token" name="jwt-token" style="width: 400px; padding: 8px; margin-right: 10px;" placeholder="JWT Token eingeben">
+        <div style="margin-bottom: 10px;">
+            <label for="jwt-token">JWT Token:</label>
+            <input type="text" id="jwt-token" name="jwt-token" style="width: 400px; padding: 8px; margin-right: 10px;" placeholder="JWT Token eingeben">
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label for="id-token">ID Token:</label>
+            <input type="text" id="id-token" name="id-token" style="width: 400px; padding: 8px; margin-right: 10px; margin-left: 12px;" placeholder="ID Token eingeben">
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label for="refresh-token">Refresh Token:</label>
+            <input type="text" id="refresh-token" name="refresh-token" style="width: 400px; padding: 8px; margin-right: 10px;" placeholder="Refresh Token eingeben">
+        </div>
         <button onclick="reloadFrame()">iFrame neu laden</button>
     </div>
 
@@ -103,19 +113,33 @@
         return document.getElementById('jwt-token').value;
     }
 
+    function getIdToken() {
+        return document.getElementById('id-token').value;
+    }
+
+    function getRefreshToken() {
+        return document.getElementById('refresh-token').value;
+    }
+
     iframe.onload = () => {
         const jwtToken = getJwtToken();
-        if (jwtToken) {
-            console.error("post message: ", jwtToken);
+        const idToken = getIdToken();
+        const refreshToken = getRefreshToken();
+
+        if (jwtToken || idToken || refreshToken) {
+            const message = {
+                type: "AUTH_TOKEN",
+                token: jwtToken,
+                idToken: idToken,
+                refreshToken: refreshToken
+            };
+
+            console.log("post message: ", message);
 
             iframe.contentWindow.postMessage(
-                {
-                    type: "AUTH_TOKEN",
-                    token: jwtToken
-                },
+                message,
                 "https://app-test.cirqit.cloud"
             );
-            // FIXME: sollte dann mal
         }
     };
 
