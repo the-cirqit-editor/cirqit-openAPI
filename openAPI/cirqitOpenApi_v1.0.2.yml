@@ -1032,7 +1032,7 @@ paths:
         type: aws_proxy
 
   /rest/v1/installation/{resourceId}/getDocumentUrl:
-    post:
+    )post:
       security:
         - OAuth2: [cirqit/write]
       tags:
@@ -1054,6 +1054,7 @@ paths:
         To delete the document, use the HTTP-DELETE method</p>
         <p/>
         
+        Note that the fileName is the key to access the document. It can not be changed after the upload. So if you want to update the document, you need to overwrite it with the same fileName or delete it and upload a new document with a new fileName.<p/>
         Find a example fetch to upload the file in the examples of the project.<br/>
         To do a upload with curl, use the following command line example:<br/>
         <pre>
