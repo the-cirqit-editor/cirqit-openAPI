@@ -122,16 +122,6 @@ paths:
                     - $ref: "#/components/schemas/CommonString"
                     - description: The code_verifier generated in the frontend. Only for grant_type authorization_code with PKCE.
                     - example: bIl3ju3JlwiR~B29eiLie83I_HlSEuW9guV1UXi5LHygO
-                scope:
-                  allOf:
-                    - $ref: "#/components/schemas/CommonString"
-                    - example: cirqit/read cirqit/write
-                    - description: the scope of the access token. Only for grant_type authorization_code.
-                state:
-                  allOf:
-                    - $ref: "#/components/schemas/CommonString"
-                    - example: eyJpZGVudGl0eV9wcm92aWRlciI6Ikdvb2dsZSIsImNvZGVDaGFsbGFuZ2UiOiJjYVc2ZiJ9
-                    - description: optional state parameter to identify the request, base64 encoded. Only for grant_type authorization_code with OIDC.
                 client_id:
                   allOf:
                     - $ref: "#/components/schemas/CommonString"
@@ -142,6 +132,16 @@ paths:
                     - $ref: "#/components/schemas/LongString"
                     - example: your-client-secret
                     - description: the user secret which is provided by the cirQit application. Only for grant_type client_credentials.
+                scope:
+                  allOf:
+                    - $ref: "#/components/schemas/CommonString"
+                    - example: cirqit/read cirqit/write
+                    - description: the scope of the access token. Only for grant_type authorization_code.
+                state:
+                  allOf:
+                    - $ref: "#/components/schemas/CommonString"
+                    - example: eyJpZGVudGl0eV9wcm92aWRlciI6Ikdvb2dsZSIsImNvZGVDaGFsbGFuZ2UiOiJjYVc2ZiJ9
+                    - description: optional state parameter to identify the request, base64 encoded. Only for grant_type authorization_code with OIDC.
                 username:
                   allOf:
                     - $ref: "#/components/schemas/CommonString"
@@ -1032,7 +1032,7 @@ paths:
         type: aws_proxy
 
   /rest/v1/installation/{resourceId}/getDocumentUrl:
-    )post:
+    post:
       security:
         - OAuth2: [cirqit/write]
       tags:
