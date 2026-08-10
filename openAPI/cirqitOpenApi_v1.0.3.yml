@@ -77,8 +77,7 @@ paths:
   #  ################################################### #
   /oauth2/token:
     post:
-      security:
-        - NoAuth: []
+      security: []
       tags:
         - OAuth2
       operationId: getJWTAccessToken
@@ -182,7 +181,8 @@ paths:
                       - description: refresh token as issued by the authorization server.
                       - example: eyJraWQiOiIzT1V5blJkblJ....
                   expires_in:
-                    type: number
+                    type: integer
+                    format: int64
                     minimum: 0
                     maximum: 100000000 # 100000000 seconds = 3 years
                     description: the time in seconds when this token expires
@@ -191,7 +191,7 @@ paths:
                     allOf:
                       - $ref: "#/components/schemas/CommonString"
                       - description: the scope of the access token
-                      - example: your jwt access-token (ey....)
+                      - example: cirqit/read cirqit/write
           headers:
             X-Rate-Limit-Limit:
               $ref: "#/components/headers/X-Rate-Limit-Limit"
@@ -353,6 +353,8 @@ paths:
           $ref: "#/components/responses/CirQitError401"
         "403":
           $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
         "405":
           $ref: "#/components/responses/CirQitError405"
         "409":
@@ -470,6 +472,15 @@ paths:
       responses:
         "200":
           description: List of authorizations for the directory
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
           content:
             application/json:
               schema:
@@ -512,6 +523,15 @@ paths:
       responses:
         "201":
           description: Authorization created successfully
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
         "400":
           $ref: "#/components/responses/CirQitError400"
         "401":
@@ -548,6 +568,15 @@ paths:
       responses:
         "204":
           description: Authorization removed successfully
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
         "400":
           $ref: "#/components/responses/CirQitError400"
         "401":
@@ -660,6 +689,8 @@ paths:
           $ref: "#/components/responses/CirQitError401"
         "403":
           $ref: "#/components/responses/CirQitError403"
+        "404":
+          $ref: "#/components/responses/CirQitError404"
         "405":
           $ref: "#/components/responses/CirQitError405"
         "409":
@@ -827,6 +858,15 @@ paths:
       responses:
         "200":
           description: List of authorizations for the installation
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
           content:
             application/json:
               schema:
@@ -869,6 +909,15 @@ paths:
       responses:
         "201":
           description: Authorization created successfully
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
         "400":
           $ref: "#/components/responses/CirQitError400"
         "401":
@@ -905,6 +954,15 @@ paths:
       responses:
         "204":
           description: Authorization removed successfully
+          headers:
+            X-Rate-Limit-Limit:
+              $ref: "#/components/headers/X-Rate-Limit-Limit"
+            X-Rate-Limit-Remaining:
+              $ref: "#/components/headers/X-Rate-Limit-Remaining"
+            X-Rate-Limit-Reset:
+              $ref: "#/components/headers/X-Rate-Limit-Reset"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
         "400":
           $ref: "#/components/responses/CirQitError400"
         "401":
@@ -1031,12 +1089,14 @@ paths:
   /rest/v1/installation/{resourceId}/getDocumentUrl:
     post:
       security:
+        - OAuth2: [cirqit/read]
         - OAuth2: [cirqit/write]
       tags:
         - Document
       operationId: getSignedDocumentUrl
       summary: get the signed URL to upload, download or overwrite a Document
       description: |
+        The cirqit/read scope is sufficient for the DOWNLOAD action. The cirqit/write scope is required for the UPLOAD and OVERWRITE actions.<br>
         The signed URL is used to upload the Document to the AWS S3 bucket in your next step.<br>
         Since AWS has a low limit to upload Documents through a API-Gateway, we upload files directly to the S3 bucket store.
         This method validates the access rights and and returns a signed URL to upload the Document. Note that the fileName might change if it has non-unicode characters in the name. Use the fileName returned in the signedUrl to upload the document.<p/>
@@ -1227,7 +1287,10 @@ components:
 
     DateTimeString:
       type: string
-      format: date-time
+      description: |
+        Local date-time without timezone offset, in the form "YYYY-MM-DDTHH:MM:SS".
+        Note: this is intentionally not an RFC 3339 date-time (no timezone offset),
+        so the OpenAPI "date-time" format is not applied.
       pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
       example: "2023-09-05T21:12:18"
 
@@ -1534,7 +1597,6 @@ components:
           maxItems: 100
           description: |
             List of version objects containing version information.<br>
-            <b>Currently not supported!</b>
           items:
             $ref: "#/components/schemas/DocumentVersion"
 
@@ -1542,8 +1604,6 @@ components:
       type: object
       description: |
         Version information of the document.
-        At the time being, only the versionId "latest" is supported.
-        There will be support for more version coming soon.
       required:
         - versionId
         - size
@@ -1555,7 +1615,7 @@ components:
             - description: The versionId of the document
             - example: abcd1234EFGH5678jklm
         size:
-          type: number
+          type: integer
           format: int64
           description: Size of the document in bytes
           example: 123456
@@ -1647,24 +1707,21 @@ components:
         identityType:
           $ref: "#/components/schemas/IdentityType"
         id:
-          type: string
-          description: |
-            The ID of the user, group or company group
-            <ul>
-            <li>if the identityType is USER, the ID is the username</li>
-            <li>if the identityType is GROUP, the ID is the group ID like ABCDE-12345</li>
-            <li>if the identityType is COMPANY_GROUP, the ID is the member type of the company group
-              <ul>
-              <li>OWNER - all owners of your company</li>
-              <li>MEMBER - all members who are allowed to create installations</li>
-              <li>RESTRICTED_MEMBER - all restricted members</li>
-              <li>ALL - all the users of the three groups above</li>
-              </ul>
-            </ul>
-          example: ABCDE-12345
           allOf:
             - $ref: "#/components/schemas/CommonString"
-            - description: The username, group ID or company group member type depending on the identityType.
+            - description: |
+                The ID of the user, group or company group. The username, group ID or company group member type depending on the identityType.
+                <ul>
+                <li>if the identityType is USER, the ID is the username</li>
+                <li>if the identityType is GROUP, the ID is the group ID like ABCDE-12345</li>
+                <li>if the identityType is COMPANY_GROUP, the ID is the member type of the company group
+                  <ul>
+                  <li>OWNER - all owners of your company</li>
+                  <li>MEMBER - all members who are allowed to create installations</li>
+                  <li>RESTRICTED_MEMBER - all restricted members</li>
+                  <li>ALL - all the users of the three groups above</li>
+                  </ul>
+                </ul>
             - example: "jsmith"
         role:
           $ref: "#/components/schemas/AccessRole"
@@ -1742,17 +1799,17 @@ components:
     X-Rate-Limit-Limit:
       description: The number of allowed requests in the current period
       schema:
-        type: number
+        type: integer
         format: int64
     X-Rate-Limit-Remaining:
       description: The number of remaining requests in the current period
       schema:
-        type: number
+        type: integer
         format: int64
     X-Rate-Limit-Reset:
       description: The number of seconds until the rate limit resets
       schema:
-        type: number
+        type: integer
         format: int64
     Access-Control-Allow-Origin:
       description: Specifies the origin that is allowed to access the resource
@@ -1933,8 +1990,3 @@ components:
             #          scopes:
             #            cirqit/read: Grants read access
             #            cirqit/write: Grants write access
-    NoAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: this is No Authentication to satisfy the OWAS checker. Its not really RFC8725
