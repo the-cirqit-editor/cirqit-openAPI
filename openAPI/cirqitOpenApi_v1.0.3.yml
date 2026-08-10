@@ -485,6 +485,8 @@ paths:
             application/json:
               schema:
                 type: array
+                minItems: 0
+                maxItems: 100
                 items:
                   $ref: "#/components/schemas/Authorization"
         "400":
@@ -871,6 +873,8 @@ paths:
             application/json:
               schema:
                 type: array
+                minItems: 0
+                maxItems: 100
                 items:
                   $ref: "#/components/schemas/Authorization"
         "400":
@@ -1292,6 +1296,7 @@ components:
         Note: this is intentionally not an RFC 3339 date-time (no timezone offset),
         so the OpenAPI "date-time" format is not applied.
       pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+      maxLength: 19
       example: "2023-09-05T21:12:18"
 
     Company:
@@ -1801,16 +1806,22 @@ components:
       schema:
         type: integer
         format: int64
+        minimum: 0
+        maximum: 999999999
     X-Rate-Limit-Remaining:
       description: The number of remaining requests in the current period
       schema:
         type: integer
         format: int64
+        minimum: 0
+        maximum: 999999999
     X-Rate-Limit-Reset:
       description: The number of seconds until the rate limit resets
       schema:
         type: integer
         format: int64
+        minimum: 0
+        maximum: 999999999
     Access-Control-Allow-Origin:
       description: Specifies the origin that is allowed to access the resource
       schema:
@@ -1979,14 +1990,7 @@ components:
       flows:
         clientCredentials:
           tokenUrl: https://api.cirqit.cloud/oauth2/token
+          refreshUrl: https://api.cirqit.cloud/oauth2/token
           scopes:
             cirqit/read: Grants read access
             cirqit/write: Grants write access
-            # I should have a refresh token, OWASP checker is not happy with this
-            # To be defined and understand why I should refresh the secret to obtain a JWT AccessToken
-            #        refreshToken:
-            #          tokenUrl: https://api.cirqit.cloud/oauth2/token
-            #          refreshUrl: https://api.cirqit.cloud/oauth2/refresh
-            #          scopes:
-            #            cirqit/read: Grants read access
-            #            cirqit/write: Grants write access
