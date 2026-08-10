@@ -9,9 +9,12 @@ let configurations = {
     "cirQit-v1.0.1": {
       url: "openAPI/cirqitOpenApi_v1.0.1.yml",
     },
-    "cirQit-v1.0.2": {
-      url: "openAPI/cirqitOpenApi_v1.0.2.yml",
-    },
+  "cirQit-v1.0.2": {
+    url: "openAPI/cirqitOpenApi_v1.0.2.yml",
+  },
+  "cirQit-v1.0.3": {
+    url: "openAPI/cirqitOpenApi_v1.0.3.yml",
+  },
 };
 
 
