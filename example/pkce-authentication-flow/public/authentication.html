@@ -129,25 +129,33 @@
         localStorage.removeItem('client_secret');
 
         const params = new URLSearchParams();
+        params.append('grant_type', 'authorization_code');
         params.append('code', authorizationCode);
         params.append('code_verifier', codeVerifier);
         params.append('client_id', clientId);
-        if (clientSecret && clientSecret.length > 0) {
-            params.append('client_secret', clientSecret);
-        }
+        params.append('redirect_uri', window.location.origin + window.location.pathname);
 
+        const headers = {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        };
+        if (clientSecret && clientSecret.length > 0) {
+            // RFC 6749 §2.3.1: only ONE client auth method per request.
+            // Use HTTP Basic (preferred by most servers) and do NOT put the
+            // secret in the body as well.
+            headers['Authorization'] = 'Basic ' + btoa(clientId + ':' + clientSecret);
+        }
 
         try {
             const response = await fetch(backendServer, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
+                headers: headers,
                 body: params
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+                const errorBody = await response.text();
+                console.error('Token endpoint error', response.status, errorBody);
+                throw new Error(`HTTP ${response.status}: ${errorBody}`);
             }
 
             const tokens = await response.json();
@@ -190,6 +198,9 @@
                 })
                 .catch(error => {
                     console.error('Error exchanging code for tokens:', error);
+                    document.getElementById('tokenStatus').textContent = 'Token exchange failed';
+                    document.querySelector('.spinner').classList.add('hidden');
+                    document.getElementById('tokenInfo').textContent = String(error && error.message ? error.message : error);
                 });
         } else {
             console.error('Authorization code not found in the URL');

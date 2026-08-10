@@ -12,11 +12,12 @@ post {
 
 body:form-urlencoded {
   grant_type: client_credentials
-  refresh_token: 
-  code: 
-  code_verifier: 
   client_id: {{client_id}}
   client_secret: {{client_secret}}
-  scope: 
-  state: 
+  scope: cirqit/read
+}
+
+vars:pre-request {
+  client_id: xxxxxxxxxxxxxxxxxxxxx
+  client_secret: xxxxxxxxxxxxxxxxxxxxx
 }
