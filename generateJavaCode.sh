@@ -14,8 +14,7 @@ openapi-generator-cli generate \
     -i openAPI/$OAS_FILE \
     -g spring \
     -o $GENERATED_CODE \
-    --additional-properties=interfaceOnly=true,apiPackage=$PACKAGE.api,modelPackage=$PACKAGE.model,date="2024-11-04T00:00:00.00000+01:00[Europe/Berlin]" \
-
+    --additional-properties=interfaceOnly=true,apiPackage=$PACKAGE.api,modelPackage=$PACKAGE.model,dateLibrary=java8-localdatetime,date="2024-11-04T00:00:00.00000+01:00[Europe/Berlin]" \
 # replace the
 find . -name "*.java" -exec sed -i 's/, requiredMode = Schema\.RequiredMode\.NOT_REQUIRED)/, required = false)/g' {} +
 find . -name "*.java" -exec sed -i 's/, requiredMode = Schema\.RequiredMode\.REQUIRED)/, required = true)/g' {} +

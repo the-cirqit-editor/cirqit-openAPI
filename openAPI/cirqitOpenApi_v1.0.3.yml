@@ -1291,10 +1291,9 @@ components:
 
     DateTimeString:
       type: string
+      format: date-time
       description: |
         Local date-time without timezone offset, in the form "YYYY-MM-DDTHH:MM:SS".
-        Note: this is intentionally not an RFC 3339 date-time (no timezone offset),
-        so the OpenAPI "date-time" format is not applied.
       pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
       maxLength: 19
       example: "2023-09-05T21:12:18"
