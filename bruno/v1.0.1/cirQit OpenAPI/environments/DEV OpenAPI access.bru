@@ -2,15 +2,9 @@ vars {
   baseUrl: https://api-dev.cirqit.cloud
 }
 vars:secret [
-  victimUsername,
-  victimPassword,
-  attackerPassword,
-  readonlyPassword,
-  victimToken,
-  attackerToken,
-  readonlyToken,
-  victimDirectoryId,
-  victimInstallationId,
-  victimExternalDirId,
-  victimExternalInstId
+  @description('App client: xxx-ClientCredentials-AppClient')
+  client_id,
+  @description('App client: xxx-ClientCredentials-AppClient')
+  client_secret,
+  jwtToken
 ]
