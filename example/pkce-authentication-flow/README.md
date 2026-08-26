@@ -48,11 +48,17 @@ To allow a POC of this flow, a simple express server is used to handle the redir
 
 ### configure
 * adjust cirQit settings in index.html
-* adjust the targetApp URL to your application in the index.html
+* the server port is configured via `PORT` in `server.js` (default `3000`)
+* `targetApp` is derived from the current origin (`window.location.origin`) so it
+  automatically follows the configured scheme/host/port — no change needed when
+  you change `PORT`
+  * it must stay on the SAME origin as this app, otherwise the browser's
+    localStorage (holding the PKCE code_verifier) is not available on the
+    callback page and the token exchange fails
 ```aiignore
         const customerInfo = {
             timeout: 3000, // timeout in milliseconds to wait befor the cirQit redirect page is redirecting to the targetAPP URL 
-            targetApp: "http://localhost:3000/authentication.html", // your target app URL to recieve the JWT token
+            targetApp: `${window.location.origin}/oauth/callback/cirqit`, // same origin as this app
         };
 ```
 

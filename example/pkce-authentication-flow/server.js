@@ -4,7 +4,7 @@ const fs = require("fs");
 const { join } = require("path");
 const app = express();
 
-const PORT = 44301;
+const PORT = 3000;
 const CERT_DIR = join(__dirname, "certs");
 const KEY_FILE = join(CERT_DIR, "localhost-key.pem");
 const CERT_FILE = join(CERT_DIR, "localhost.pem");

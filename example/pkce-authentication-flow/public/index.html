@@ -137,9 +137,13 @@
 
 
         // Kundenspezifische Informationen given as state parameter
+        // Derive targetApp from the current origin so it automatically follows
+        // the server's scheme/host/PORT (see server.js). It MUST stay on the
+        // same origin as this app, otherwise localStorage (pkce_code_verifier,
+        // ...) is not available on the callback page and the PKCE exchange fails.
         const customerInfo = {
             timeout: 3000, // in seconds
-            targetApp: "http://localhost:3000/authentication.html"
+            targetApp: `${window.location.origin}/oauth/callback/cirqit`
         };
         const state = btoa(JSON.stringify(customerInfo));
 
@@ -158,6 +162,9 @@
         localStorage.setItem('client_secret', clientSecret);
         localStorage.setItem('environment', environment);
         localStorage.setItem('backendServer', backendServer);
+        // Persist the redirect_uri used in /authorize so the token exchange
+        // can send the exact same value (OAuth requires an exact match).
+        localStorage.setItem('redirect_uri', redirectUri);
 
         document.getElementById('environment').textContent = environment;
         document.getElementById('backendServer').textContent = backendServer;
