@@ -1094,7 +1094,6 @@ paths:
     post:
       security:
         - OAuth2: [cirqit/read]
-        - OAuth2: [cirqit/write]
       tags:
         - Document
       operationId: getSignedDocumentUrl
