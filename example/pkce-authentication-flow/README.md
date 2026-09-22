@@ -30,11 +30,13 @@ sequenceDiagram
     UserPool-->>AppClient: Authentication successful
     CognitoHostedUI-->>cirQit_APP: redirect with Authentication Code (code)
     cirQit_APP->>Client: redirect with Authentication Code (code)
-    Client->>AppClient: Token Request (code, code_verifier. client_id)
+    Client->>cirQit_openAPI: Token Request (code, code_verifier, client_id) via /oauth2/token (PKCEHandler)
+    cirQit_openAPI->>AppClient: Forward Token Request
     AppClient->>UserPool: Verify code and code_verifier
     UserPool->>UserPool: Generate tokens
     UserPool-->>AppClient: JWT tokens created
-    AppClient-->>Client: Access Token (JWT AccessToken)
+    AppClient-->>cirQit_openAPI: JWT tokens
+    cirQit_openAPI-->>Client: Access Token (JWT AccessToken)
     Client->>cirQit_openAPI: Access Resource (JWT AccessToken)
     cirQit_openAPI-->>Client: Resource
 
