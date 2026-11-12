@@ -20,13 +20,13 @@ The actions:
 
 
 ## Swagger UI
-As described above, the Swagger UI is updated and OpenAPI specifications are deployed by GitHub actions. 
+The Swagger UI is updated manually with `swagger/update-swagger.sh` (see below); the OpenAPI specifications are deployed by GitHub actions. 
 The Swagger UI is modified and configured.
 #### ./index.html
 A header to select the version is added to the index.html file.
 >     <!-- TODO: add the cirQit bar and logo on the top -->
 >    <h3>Select version of OpenAPI <select id="version-dropdown"></select></h3>
-### ./dist/swagger-initializer.js
+### ./swagger/dist_bkp/swagger-initializer.js
 the versions to be displayed in the dropdown are configured like: 
 > let configurations = {
 > "cirQit-v0.0.3": {
@@ -36,6 +36,13 @@ the versions to be displayed in the dropdown are configured like:
 >   url: "cirqitOpenApi_v1.0.0.yml",
 > },
 > };
+
+### Swagger UI update
+* `swagger/swagger-ui.version` holds the Swagger UI version, `swagger/dist` is generated - do not edit it.
+* Own changes (index.html, swagger-initializer.js, logo) live only in `swagger/dist_bkp`.
+* Update: set the version (or run `swagger/update-swagger.sh latest`), run `swagger/update-swagger.sh`, commit.
+  The script replaces `swagger/dist`, copies `dist_bkp` over it and writes the root `index.html`.
+  It warns if upstream changed its own index.html / swagger-initializer.js.
 
 ## build and deploy
 * Swagger is builded by GitHubActions and is automatically deployed by pushing the  new version.
@@ -54,8 +61,9 @@ the versions to be displayed in the dropdown are configured like:
        httpMethod: POST
        type: aws_proxy
 ```
-* update the version in the dist/swagger-initializer.js file
-* update the version in the index.html file
+* update the version in the swagger/dist_bkp/swagger-initializer.js file
+* update the version in the swagger/dist_bkp/index.html file
+* run `swagger/update-swagger.sh` to apply it
 
 ### validate the OpenAPI
 NOTE: some validators struggle with the circular reference of the Directory Tree, just ignore it.
