@@ -1,5 +1,5 @@
 // Define configuration objects for each API version
-let defaultVersion = "cirQit-v1.0.2";
+let defaultVersion = "cirQit-v1.0.3";
 
 let configurations = {
 
